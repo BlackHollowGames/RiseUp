@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiseUp Game</title>
+  <link rel="stylesheet" href="player.css">
+</head>
+<body>
+
+<header class="player-topbar">
+  <button id="backButton">← Back</button>
+
+  <div>
+    <strong id="gameTitle">RiseUp Game</strong>
+    <span id="gameCreator"></span>
+  </div>
+
+  <div class="player-spacer"></div>
+
+  <span>◈ <b id="rux">0</b></span>
+</header>
+
+<main class="player-page">
+
+  <div id="gameViewport" class="game-viewport">
+    <div id="gameWorld"></div>
+
+    <div id="loading" class="loading">
+      Loading game...
+    </div>
+  </div>
+
+  <div class="controls">
+    <span>WASD / Arrow Keys to move</span>
+    <button id="restartButton">Restart</button>
+  </div>
+
+</main>
+
+<script src="risecode.js"></script>
+<script src="risecode-runtime.js"></script>
+<script src="player.js"></script>
+
+</body>
+</html>

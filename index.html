@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiseUp</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">RiseUp</div>
+
+    <button id="topLogin" class="top-login">
+      Log In
+    </button>
+  </header>
+
+
+  <main class="page">
+
+    <div class="auth-box">
+
+      <!-- SIGN UP -->
+
+      <section id="signupPanel" class="panel">
+
+        <h1>Sign Up and Start Having Fun!</h1>
+
+        <form id="signupForm">
+
+          <div class="field">
+            <label>Username</label>
+            <input
+              id="signupUsername"
+              type="text"
+              placeholder="Don't use your real name"
+              minlength="3"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input
+              id="signupPassword"
+              type="password"
+              placeholder="At least 6 characters"
+              minlength="6"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label>Confirm Password</label>
+            <input
+              id="signupConfirm"
+              type="password"
+              placeholder="Re-enter your password"
+              required
+            >
+          </div>
+
+
+          <div class="gender-title">
+            Choose your avatar
+          </div>
+
+          <div class="gender-row">
+
+            <label class="gender-choice">
+              <input
+                type="radio"
+                name="avatar"
+                value="boy"
+                required
+              >
+              <span>♂</span>
+              <b>Boy</b>
+            </label>
+
+            <label class="gender-choice">
+              <input
+                type="radio"
+                name="avatar"
+                value="girl"
+              >
+              <span>♀</span>
+              <b>Girl</b>
+            </label>
+
+          </div>
+
+
+          <button class="submit-btn" type="submit">
+            Sign Up
+          </button>
+
+        </form>
+
+
+        <div class="switch">
+          Already have an account?
+          <button id="showLogin" type="button">
+            Log In
+          </button>
+        </div>
+
+      </section>
+
+
+      <!-- LOGIN -->
+
+      <section id="loginPanel" class="panel login-panel hidden">
+
+        <h1>Log In to RiseUp</h1>
+
+        <form id="loginForm">
+
+          <div class="field">
+            <label>Username</label>
+            <input
+              id="loginUsername"
+              type="text"
+              placeholder="Username"
+              autocomplete="username"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input
+              id="loginPassword"
+              type="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <div class="login-extra">
+
+            <label>
+              <input type="checkbox">
+              Remember me
+            </label>
+
+            <button
+              id="forgotPassword"
+              type="button"
+            >
+              Forgot Password?
+            </button>
+
+          </div>
+
+          <button class="submit-btn" type="submit">
+            Log In
+          </button>
+
+        </form>
+
+
+        <div class="switch">
+          Don't have an account?
+          <button id="showSignup" type="button">
+            Sign Up
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+
+    <div id="message"></div>
+
+  </main>
+
+
+  <footer>
+    <span>About</span>
+    <span>Careers</span>
+    <span>Help</span>
+    <span>Terms</span>
+    <span>Privacy</span>
+    <span>© RiseUp</span>
+  </footer>
+
+
+  <script src="auth.js"></script>
+
+</body>
+</html>

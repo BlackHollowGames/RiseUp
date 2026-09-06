@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #090b0d;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.player-topbar {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  background: #121518;
+  border-bottom: 1px solid #292e33;
+}
+
+.player-topbar button,
+.controls button {
+  border: 0;
+  border-radius: 6px;
+  background: #252b30;
+  color: white;
+  padding: 8px 13px;
+}
+
+.player-topbar span {
+  color: #7bbcff;
+}
+
+.player-spacer {
+  flex: 1;
+}
+
+.player-page {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 25px;
+}
+
+.game-viewport {
+  position: relative;
+  height: min(70vh, 650px);
+  overflow: hidden;
+  border: 1px solid #30363c;
+  border-radius: 10px;
+  background:
+    linear-gradient(#182027 1px, transparent 1px),
+    linear-gradient(90deg, #182027 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+#gameWorld {
+  position: absolute;
+  inset: 0;
+}
+
+.game-object {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 2px solid #71baff;
+  background: rgba(113,186,255,.25);
+}
+
+.game-object.spawn {
+  border-color: #65dd96;
+  background: rgba(101,221,150,.2);
+}
+
+.game-object.light {
+  border-color: #ffda67;
+  background: rgba(255,218,103,.2);
+}
+
+.game-object.folder {
+  border-color: #999;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #090b0d;
+  color: #89949d;
+}
+
+.loading.hidden {
+  display: none;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  color: #89949d;
+  font-size: 13px;
+}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiseUp</title>
+  <link rel="stylesheet" href="home.css">
+</head>
+
+<body>
+
+<header class="topbar">
+
+  <a href="home.html" class="brand">
+    <span class="brand-mark">R</span>
+    <span class="brand-name">RiseUp</span>
+  </a>
+
+  <nav class="main-nav">
+    <a href="#home" class="active">Home</a>
+    <a href="#discover">Discover</a>
+    <a href="#favorites">Favorites</a>
+  </nav>
+
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Search"
+      autocomplete="off"
+    >
+  </div>
+
+  <div class="top-right">
+
+```
+<button id="studioButton" class="create-button">
+  Create
+</button>
+
+<button id="ruxButton" class="currency-button">
+  <span class="currency-icon">◆</span>
+  <span id="ruxBalance">0</span>
+</button>
+
+<button id="avatarButton" class="avatar-button">
+  <span id="avatarLetter">R</span>
+</button>
+```
+
+  </div>
+
+</header>
+
+<div class="page">
+
+  <aside class="sidebar">
+
+```
+<div class="sidebar-main">
+
+  <a class="sidebar-link active" href="#home">
+    <span class="sidebar-icon">⌂</span>
+    <span>Home</span>
+  </a>
+
+  <a class="sidebar-link" href="#discover">
+    <span class="sidebar-icon">◈</span>
+    <span>Discover</span>
+  </a>
+
+  <a class="sidebar-link" href="#favorites">
+    <span class="sidebar-icon">♡</span>
+    <span>Favorites</span>
+  </a>
+
+</div>
+
+<div class="sidebar-divider"></div>
+
+<div class="sidebar-heading">
+  CREATE
+</div>
+
+<a class="sidebar-link" href="studio.html">
+  <span class="sidebar-icon">▣</span>
+  <span>Studio</span>
+</a>
+
+<a class="sidebar-link" href="code.html">
+  <span class="sidebar-icon">⌘</span>
+  <span>RiseCode</span>
+</a>
+```
+
+  </aside>
+
+  <main class="content" id="home">
+
+```
+<section id="welcomeSection" class="welcome-section">
+
+  <div>
+    <h1 id="welcomeTitle">Home</h1>
+    <p id="welcomeText">
+      Discover games made on RiseUp.
+    </p>
+  </div>
+
+</section>
+
+
+<section id="continueSection" class="game-section hidden">
+
+  <div class="section-header">
+    <h2>Continue Playing</h2>
+    <button class="section-arrow" data-target="continueGrid">
+      ›
+    </button>
+  </div>
+
+  <div id="continueGrid" class="game-row"></div>
+
+</section>
+
+
+<section id="discover" class="game-section">
+
+  <div class="section-header">
+    <h2>Discover</h2>
+    <button class="section-arrow" data-target="discoverGrid">
+      ›
+    </button>
+  </div>
+
+  <div id="discoverGrid" class="game-row"></div>
+
+  <div id="discoverEmpty" class="empty-state hidden">
+    <div class="empty-icon">◈</div>
+    <strong>No games yet</strong>
+    <span>
+      Published games will appear here.
+    </span>
+    <button id="emptyStudio">
+      Open Studio
+    </button>
+  </div>
+
+</section>
+
+
+<section id="favorites" class="game-section hidden">
+
+  <div class="section-header">
+    <h2>Favorites</h2>
+    <button class="section-arrow" data-target="favoritesGrid">
+      ›
+    </button>
+  </div>
+
+  <div id="favoritesGrid" class="game-row"></div>
+
+</section>
+
+
+<section id="searchResultsSection" class="game-section hidden">
+
+  <div class="section-header">
+    <h2 id="searchResultsTitle">
+      Search results
+    </h2>
+  </div>
+
+  <div id="searchResultsGrid" class="game-row"></div>
+
+  <div id="searchEmpty" class="empty-state hidden">
+    <div class="empty-icon">⌕</div>
+    <strong>No results</strong>
+    <span>
+      Try searching for another game.
+    </span>
+  </div>
+
+</section>
+```
+
+  </main>
+
+</div>
+
+<div id="userMenu" class="user-menu hidden">
+
+  <div class="user-profile">
+
+```
+<div id="menuAvatar" class="menu-avatar">
+  R
+</div>
+
+<div class="user-profile-info">
+  <strong id="menuUsername">Player</strong>
+  <span>RiseUp account</span>
+</div>
+```
+
+  </div>
+
+  <div class="menu-divider"></div>
+
+  <button id="menuStudio">
+    <span>▣</span>
+    Studio
+  </button>
+
+  <button id="menuCode">
+    <span>⌘</span>
+    RiseCode
+  </button>
+
+  <div class="menu-divider"></div>
+
+  <button id="menuLogout" class="logout">
+    <span>↪</span>
+    Log Out
+  </button>
+
+</div>
+
+<div id="gameModal" class="modal hidden">
+
+  <div class="game-modal">
+
+```
+<button id="closeModal" class="modal-close">
+  ×
+</button>
+
+<div id="modalImage" class="modal-image"></div>
+
+<div class="modal-body">
+
+  <div class="modal-title-row">
+    <div>
+      <h2 id="modalTitle">Game</h2>
+      <p id="modalCreator"></p>
+    </div>
+  </div>
+
+  <p id="modalDescription" class="modal-description"></p>
+
+  <div class="modal-actions">
+
+    <button id="playGame" class="play-button">
+      ▶ Play
+    </button>
+
+    <button id="favoriteGame" class="favorite-button">
+      ♡
+    </button>
+
+  </div>
+
+</div>
+```
+
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="home.js"></script>
+
+</body>
+</html>

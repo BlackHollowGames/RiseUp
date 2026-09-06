@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>RiseUp Player</title>
+
+  <link rel="stylesheet" href="player3d.css">
+</head>
+
+<body>
+
+  <main id="game">
+
+    <div id="loadingScreen">
+      <div class="loadingBox">
+        <div class="spinner"></div>
+        <div id="loadingText">Loading player...</div>
+      </div>
+    </div>
+
+    <div id="errorScreen" class="hidden">
+      <div class="errorBox">
+        <h2>Player couldn't load</h2>
+        <p id="errorText">
+          Make sure models/player.glb exists.
+        </p>
+
+        <button id="retryButton">
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <div id="topBar">
+
+      <div class="brand">
+        <span class="brandMark"></span>
+        <span>RiseUp</span>
+      </div>
+
+      <div class="gameName">
+        Player Preview
+      </div>
+
+      <button id="exitButton">
+        Exit
+      </button>
+
+    </div>
+
+    <div id="controls">
+
+      <div class="controlTitle">
+        CONTROLS
+      </div>
+
+      <div class="controlRow">
+        <span class="key">W</span>
+        <span class="key">A</span>
+        <span class="key">S</span>
+        <span class="key">D</span>
+        <span>Move</span>
+      </div>
+
+      <div class="controlRow">
+        <span class="wideKey">SPACE</span>
+        <span>Jump</span>
+      </div>
+
+      <div class="controlRow">
+        <span class="wideKey">SHIFT</span>
+        <span>Run</span>
+      </div>
+
+      <div class="controlRow">
+        <span>Mouse</span>
+        <span>Camera</span>
+      </div>
+
+    </div>
+
+    <div id="crosshair"></div>
+
+    <div id="bottomBar">
+
+      <div id="playerStatus">
+        <span class="statusDot"></span>
+        <span>Player Ready</span>
+      </div>
+
+      <div id="cameraHint">
+        Drag to look • Scroll to zoom
+      </div>
+
+    </div>
+
+    <div id="player"></div>
+
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module" src="player3d.js"></script>
+
+</body>
+</html>

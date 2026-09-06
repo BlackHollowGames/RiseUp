@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiseUp Code</title>
+  <link rel="stylesheet" href="code.css">
+</head>
+
+<body>
+
+<header class="code-topbar">
+
+  <div class="brand">
+    RiseUp <b>Code</b>
+  </div>
+
+  <input id="fileName" value="Game.rise">
+
+  <div class="code-actions">
+    <button id="backStudio">Studio</button>
+    <button id="newFile">New File</button>
+    <button id="saveCode">Save</button>
+    <button id="runCode" class="run-button">▶ Run</button>
+  </div>
+
+</header>
+
+<div class="code-layout">
+
+  <aside class="files-panel">
+
+    <div class="panel-title">
+      <strong>CODE</strong>
+    </div>
+
+    <div id="fileList"></div>
+
+  </aside>
+
+  <main class="editor-area">
+
+    <div class="editor-header">
+      <span id="currentFile">Game.rise</span>
+      <span id="codeStatus">Ready</span>
+    </div>
+
+    <div class="editor">
+      <div id="lineNumbers" class="line-numbers">1</div>
+
+      <textarea
+        id="codeEditor"
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+      ></textarea>
+    </div>
+
+  </main>
+
+  <aside class="help-panel">
+
+    <h3>RiseCode</h3>
+
+    <p>Simple code for RiseUp games.</p>
+
+    <div class="example">
+      <code>player.walk.speed = 5;</code>
+    </div>
+
+    <div class="example">
+      <code>player.jump.power = 10;</code>
+    </div>
+
+    <div class="example">
+      <code>player.health = 100;</code>
+    </div>
+
+    <div class="example">
+      <code>when player.touches(coin)</code>
+      <code>&nbsp;&nbsp;&nbsp;&nbsp;player.rux += coin.value;</code>
+      <code>&nbsp;&nbsp;&nbsp;&nbsp;coin.remove();</code>
+      <code>end;</code>
+    </div>
+
+    <div class="example">
+      <code>&lt;command&gt;Ban.@username&lt;/command&gt;</code>
+    </div>
+
+  </aside>
+
+</div>
+
+<div id="codeToast"></div>
+
+<script src="risecode.js"></script>
+<script src="risecode-runtime.js"></script>
+<script src="code.js"></script>
+
+</body>
+</html>
