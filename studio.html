@@ -1,907 +1,339 @@
 <!DOCTYPE html>
+
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RiseUp Studio</title>
-
-  <link
-    rel="stylesheet"
-    href="studio.css"
-  >
-
-  <!-- Three.js -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"
-  ></script>
-
+  <link rel="stylesheet" href="studio.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 </head>
-
 <body>
-
 <div class="studio">
 
-  <!-- =====================================================
-       TOP BAR
-       ===================================================== -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">R</div>
+    <div class="brand-name">RiseUp <span>Studio</span></div>
+  </div>
 
-  <header class="topbar">
+  <div class="project-title">
+    <input id="projectName" value="Untitled Game">
+    <span id="saveStatus">Saved</span>
+  </div>
 
-    <div class="brand">
+  <nav class="menu">
+    <button data-menu="File">File</button>
+    <button data-menu="Edit">Edit</button>
+    <button data-menu="Create">Create</button>
+    <button data-menu="View">View</button>
+  </nav>
 
-      <div class="brand-mark">
-        R
-      </div>
+  <div class="top-actions">
+    <button id="codeButton">Code</button>
+    <button id="saveButton">Save</button>
+    <button id="publishButton">Publish</button>
+    <button id="deleteProjectButton" class="danger">Delete</button>
+    <button id="playButton" class="play-button">Play</button>
+    <button id="stopButton" class="stop-button hidden">Stop</button>
+  </div>
+</header>
 
-      <div class="brand-name">
-        RiseUp
-        <span>Studio</span>
-      </div>
+<div class="workspace">
 
+<aside class="left-rail">
+  <div class="rail-title">TOOLS</div>
+
+  <button class="rail-tool active" data-tool="select">
+    <strong>↖</strong><span>Select</span>
+  </button>
+
+  <button class="rail-tool" data-tool="move">
+    <strong>+</strong><span>Move</span>
+  </button>
+
+  <button class="rail-tool" data-tool="rotate">
+    <strong>⟳</strong><span>Rotate</span>
+  </button>
+
+  <button class="rail-tool" data-tool="scale">
+    <strong>□</strong><span>Scale</span>
+  </button>
+
+  <div class="rail-divider"></div>
+
+  <button class="rail-tool create" data-create="Cube">
+    <strong>■</strong><span>Cube</span>
+  </button>
+
+  <button class="rail-tool create" data-create="Wedge">
+    <strong>◆</strong><span>Wedge</span>
+  </button>
+
+  <button class="rail-tool create" data-create="Sphere">
+    <strong>●</strong><span>Sphere</span>
+  </button>
+
+  <button class="rail-tool create" data-create="Cylinder">
+    <strong>●</strong><span>Cylinder</span>
+  </button>
+
+  <button class="rail-tool create" data-create="Light">
+    <strong>✦</strong><span>Light</span>
+  </button>
+
+  <button class="rail-tool create" data-create="Spawn">
+    <strong>⌂</strong><span>Spawn</span>
+  </button>
+</aside>
+
+<main class="main-area">
+
+<section class="viewport-area">
+  <div class="viewport-toolbar">
+    <div class="viewport-left">
+      <button id="mode3D" class="active">3D</button>
+      <button id="mode4D">4D</button>
+      <span class="separator"></span>
+      <span id="selectionLabel">Nothing Selected</span>
     </div>
 
-
-    <div class="scene-name-wrap">
-
-      <input
-        id="projectName"
-        class="scene-name"
-        value="Untitled Scene"
-        spellcheck="false"
-      >
-
-      <span
-        id="saveStatus"
-        class="save-state"
-      >
-        Saved
-      </span>
-
-    </div>
-
-
-    <nav class="menu">
-
-      <button data-menu="File">
-        File
-      </button>
-
-      <button data-menu="Edit">
-        Edit
-      </button>
-
-      <button data-menu="Create">
-        Create
-      </button>
-
-      <button data-menu="Select">
-        Select
-      </button>
-
-      <button data-menu="View">
-        View
-      </button>
-
-      <button data-menu="Window">
-        Window
-      </button>
-
-    </nav>
-
-
-    <div class="top-actions">
-
-      <button
-        id="codeButton"
-        class="top-button"
-      >
-        </> Code
-      </button>
-
-      <button
-        id="saveButton"
-        class="top-button"
-      >
-        Save
-      </button>
-
-      <button
-        id="publishButton"
-        class="top-button"
-      >
-        Publish
-      </button>
-
-      <button
-        id="deleteProjectButton"
-        class="top-button danger"
-      >
-        Delete
-      </button>
-
-      <button
-        id="playButton"
-        class="play-button"
-      >
-        ▶ Play
-      </button>
-
-      <button
-        id="stopButton"
-        class="stop-button"
-      >
-        ■ Stop
-      </button>
-
-    </div>
-
-  </header>
-
-
-  <!-- =====================================================
-       MAIN WORKSPACE
-       ===================================================== -->
-
-  <div class="workspace">
-
-
-    <!-- ===================================================
-         LEFT RAIL
-         =================================================== -->
-
-    <aside class="left-rail">
-
-      <div class="rail-label">
-        CREATE
-      </div>
-
-
-      <button
-        class="rail-tool active"
-        data-tool="select"
-        title="Select"
-      >
-        <span>↖</span>
-        <small>Select</small>
-      </button>
-
-
-      <button
-        class="rail-tool"
-        data-tool="move"
-        title="Move"
-      >
-        <span>✥</span>
-        <small>Move</small>
-      </button>
-
-
-      <button
-        class="rail-tool"
-        data-tool="rotate"
-        title="Rotate"
-      >
-        <span>↻</span>
-        <small>Rotate</small>
-      </button>
-
-
-      <button
-        class="rail-tool"
-        data-tool="scale"
-        title="Scale"
-      >
-        <span>⤢</span>
-        <small>Scale</small>
-      </button>
-
-
-      <div class="rail-divider"></div>
-
-
-      <div class="rail-label">
-        OBJECT
-      </div>
-
-
-      <button
-        id="addPart"
-        class="rail-tool"
-        title="Add Part"
-      >
-        <span>■</span>
-        <small>Part</small>
-      </button>
-
-
-      <button
-        id="addSpawn"
-        class="rail-tool"
-        title="Add Spawn"
-      >
-        <span>⌂</span>
-        <small>Spawn</small>
-      </button>
-
-
-      <button
-        id="addLight"
-        class="rail-tool"
-        title="Add Light"
-      >
-        <span>☀</span>
-        <small>Light</small>
-      </button>
-
-
-      <button
-        id="addCamera"
-        class="rail-tool"
-        title="Add Camera"
-      >
-        <span>◈</span>
-        <small>Camera</small>
-      </button>
-
-
-      <button
-        id="addFolder"
-        class="rail-tool"
-        title="Add Folder"
-      >
-        <span>□</span>
-        <small>Folder</small>
-      </button>
-
-
-      <div class="rail-divider"></div>
-
-
-      <div class="rail-label">
-        PROJECT
-      </div>
-
-
-      <button
-        id="railCode"
-        class="rail-tool"
-        title="Code"
-      >
-        <span>&lt;/&gt;</span>
-        <small>Code</small>
-      </button>
-
-
-      <button
-        id="railAssets"
-        class="rail-tool"
-        title="Assets"
-      >
-        <span>◫</span>
-        <small>Assets</small>
-      </button>
-
-    </aside>
-
-
-    <!-- ===================================================
-         CENTER
-         =================================================== -->
-
-    <main class="center">
-
-
-      <!-- VIEWPORT HEADER -->
-
-      <div class="viewport-header">
-
-        <div class="viewport-modes">
-
-          <button
-            class="shade active"
-            data-shade="materials"
-          >
-            Materials
-          </button>
-
-          <button
-            class="shade"
-            data-shade="clay"
-          >
-            Clay
-          </button>
-
-          <button
-            class="shade"
-            data-shade="wire"
-          >
-            Wire
-          </button>
-
-        </div>
-
-
-        <div class="viewport-center-tools">
-
-          <button
-            id="snapButton"
-            class="viewport-button"
-          >
-            Snap
-          </button>
-
-          <button
-            id="frameButton"
-            class="viewport-button"
-          >
-            Frame
-          </button>
-
-        </div>
-
-
-        <div class="viewport-right-tools">
-
-          <button
-            id="gridButton"
-            class="viewport-button active-button"
-          >
-            Grid
-          </button>
-
-          <button
-            id="viewButton"
-            class="viewport-button"
-          >
-            View
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <!-- REAL 3D VIEWPORT -->
-
-      <div
-        id="viewport"
-        class="viewport"
-      >
-
-        <canvas
-          id="gameCanvas"
-          class="game-canvas"
-        ></canvas>
-
-
-        <canvas
-          id="editorCanvas"
-          class="editor-canvas"
-        ></canvas>
-
-
-        <!-- VIEW CUBE -->
-
-        <div class="view-gizmo">
-
-          <div class="gizmo-z">
-            Z
-          </div>
-
-          <div class="gizmo-x">
-            X
-          </div>
-
-          <div class="gizmo-y">
-            Y
-          </div>
-
-          <div class="gizmo-center">
-            +
-          </div>
-
-        </div>
-
-
-        <!-- EDITOR CONTEXT BAR -->
-
-        <div
-          id="contextBar"
-          class="context-bar"
-        >
-
-          <span
-            id="contextSelection"
-          >
-            Nothing Selected
-          </span>
-
-          <button
-            id="duplicateButton"
-          >
-            Duplicate
-          </button>
-
-          <button
-            id="editorDeleteButton"
-          >
-            Delete
-          </button>
-
-        </div>
-
-
-        <!-- FPS HUD -->
-
-        <div
-          id="fpsHud"
-          class="fps-hud hidden"
-        >
-
-          <div
-            id="fpsCrosshair"
-            class="fps-crosshair"
-          >
-            +
-          </div>
-
-
-          <div class="hud-left">
-
-            <div id="hudHealth">
-              HP: 100
-            </div>
-
-            <div id="hudArmor">
-              ARMOR: 25
-            </div>
-
-          </div>
-
-
-          <div class="hud-right">
-
-            <div id="hudAmmo">
-              30 / 120
-            </div>
-
-          </div>
-
-
-          <div class="hud-top">
-
-            <span id="hudScore">
-              SCORE: 0
-            </span>
-
-            <span id="hudWave">
-              WAVE 0
-            </span>
-
-          </div>
-
-
-          <div
-            id="fpsMessage"
-            class="fps-message"
-          >
-            CLICK TO ENTER
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- =================================================
-           BOTTOM BAR
-           ================================================= -->
-
-      <div class="bottom-area">
-
-
-        <div class="bottom-tabs">
-
-          <button
-            class="bottom-tab active"
-            data-bottom="materials"
-          >
-            Materials
-          </button>
-
-          <button
-            class="bottom-tab"
-            data-bottom="library"
-          >
-            Library
-          </button>
-
-          <button
-            class="bottom-tab"
-            data-bottom="timeline"
-          >
-            Timeline
-          </button>
-
-          <button
-            class="bottom-tab"
-            data-bottom="console"
-          >
-            Console
-          </button>
-
-        </div>
-
-
-        <div class="bottom-content">
-
-
-          <!-- MATERIALS -->
-
-          <div
-            id="bottomMaterials"
-            class="bottom-view active"
-          >
-
-            <div class="material-item">
-              <div class="material-preview concrete"></div>
-              <span>Concrete</span>
-            </div>
-
-            <div class="material-item">
-              <div class="material-preview metal"></div>
-              <span>Metal</span>
-            </div>
-
-            <div class="material-item">
-              <div class="material-preview steel"></div>
-              <span>Steel</span>
-            </div>
-
-            <div class="material-item">
-              <div class="material-preview glass"></div>
-              <span>Glass</span>
-            </div>
-
-            <div class="material-item">
-              <div class="material-preview dark"></div>
-              <span>Dark</span>
-            </div>
-
-          </div>
-
-
-          <!-- LIBRARY -->
-
-          <div
-            id="bottomLibrary"
-            class="bottom-view"
-          >
-
-            <span class="library-empty">
-              Your assets will appear here.
-            </span>
-
-          </div>
-
-
-          <!-- TIMELINE -->
-
-          <div
-            id="bottomTimeline"
-            class="bottom-view timeline"
-          >
-
-            <div class="timeline-controls">
-
-              <button id="timelinePlay">
-                ▶
-              </button>
-
-              <button id="timelineBack">
-                ◀
-              </button>
-
-              <button id="timelineForward">
-                ▶
-              </button>
-
-              <span id="timelineTime">
-                0.00s
-              </span>
-
-            </div>
-
-            <div class="timeline-track">
-
-              <div class="timeline-ruler">
-
-                <span>0</span>
-                <span>24</span>
-                <span>48</span>
-                <span>72</span>
-                <span>96</span>
-                <span>120</span>
-
-              </div>
-
-              <div class="timeline-line"></div>
-
-            </div>
-
-          </div>
-
-
-          <!-- CONSOLE -->
-
-          <div
-            id="bottomConsole"
-            class="bottom-view console-view"
-          >
-
-            <div
-              id="consoleOutput"
-            >
-              RiseUp Studio ready.
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </main>
-
-
-    <!-- ===================================================
-         RIGHT PANELS
-         =================================================== -->
-
-    <aside class="right-column">
-
-
-      <!-- OUTLINER -->
-
-      <section class="panel outliner">
-
-        <div class="panel-title">
-
-          <strong>
-            Outliner
-          </strong>
-
-          <button
-            id="refreshExplorer"
-          >
-            ↻
-          </button>
-
-        </div>
-
-
-        <div class="outliner-search">
-
-          <input
-            id="outlinerSearch"
-            placeholder="Search objects..."
-          >
-
-        </div>
-
-
-        <div
-          id="objectTree"
-          class="object-tree"
-        ></div>
-
-
-        <div
-          id="outlinerFooter"
-          class="outliner-footer"
-        >
-          0 objects
-        </div>
-
-      </section>
-
-
-      <!-- INSPECTOR -->
-
-      <section class="panel inspector">
-
-        <div class="panel-title">
-
-          <strong>
-            Inspector
-          </strong>
-
-        </div>
-
-
-        <div
-          id="propertiesContent"
-          class="properties"
-        >
-
-          <div class="nothing-selected">
-
-            <div class="nothing-icon">
-              ◇
-            </div>
-
-            <strong>
-              Nothing Selected
-            </strong>
-
-            <p>
-              Select an object.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- CODE -->
-
-      <section
-        id="codePanel"
-        class="panel code-panel"
-      >
-
-        <div class="panel-title">
-
-          <strong>
-            RiseCode
-          </strong>
-
-          <div class="code-panel-actions">
-
-            <button id="codeSaveButton">
-              Save
-            </button>
-
-            <button
-              id="codeRunButton"
-              class="mini-run"
-            >
-              ▶
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div class="code-file-bar">
-
-          <span>
-            Game.rise
-          </span>
-
-          <span
-            id="codeStatus"
-          >
-            Ready
-          </span>
-
-        </div>
-
-
-        <div class="code-editor-wrap">
-
-          <div
-            id="studioLineNumbers"
-            class="studio-line-numbers"
-          >
-            1
-          </div>
-
-          <textarea
-            id="studioCodeEditor"
-            class="studio-code-editor"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-          ></textarea>
-
-        </div>
-
-      </section>
-
-    </aside>
+```
+<div class="viewport-right">
+  <button id="frameButton">Frame</button>
+  <button id="resetViewButton">Reset View</button>
+</div>
+```
 
   </div>
 
+  <div id="viewport">
+    <canvas id="editorCanvas"></canvas>
+
+```
+<div id="viewportHint" class="viewport-hint">
+  <strong>RiseUp Studio</strong>
+  <span>Ask Rise AI to build your world.</span>
 </div>
 
+<div id="playOverlay" class="play-overlay hidden">
+  <div class="play-hud">
+    <span id="fpsCounter">60 FPS</span>
+    <span>WASD Move</span>
+    <span>Mouse Look</span>
+    <span>ESC Release Mouse</span>
+  </div>
+</div>
+```
 
-<!-- =========================================================
-     PUBLISH MODAL
-     ========================================================= -->
+  </div>
 
-<div
-  id="publishModal"
-  class="modal hidden"
+  <div class="bottom-dock">
+
+```
+<div class="bottom-tabs">
+  <button class="bottom-tab active" data-bottom="ai">Rise AI</button>
+  <button class="bottom-tab" data-bottom="code">RiseCode</button>
+  <button class="bottom-tab" data-bottom="timeline">4D Timeline</button>
+  <button class="bottom-tab" data-bottom="console">Console</button>
+</div>
+
+<div class="bottom-content">
+
+  <section id="bottomAI" class="bottom-view active">
+    <div class="ai-header">
+      <div>
+        <strong>Rise AI</strong>
+        <span>3D + 4D Game Builder</span>
+      </div>
+      <span class="ai-status">Ready</span>
+    </div>
+
+    <div id="aiMessages" class="ai-messages">
+      <div class="ai-message ai">
+        <strong>Rise AI</strong>
+        <p>
+          Tell me what you want to build. I understand 3D and 4D
+          scenes, objects, positions, movement, lighting and time.
+        </p>
+      </div>
+    </div>
+
+    <div class="ai-input-row">
+      <input
+        id="aiInput"
+        autocomplete="off"
+        placeholder="Tell Rise AI what to build..."
+      >
+      <button id="aiSend">Send</button>
+    </div>
+  </section>
+
+  <section id="bottomCode" class="bottom-view">
+    <div class="code-header">
+      <strong>RiseCode</strong>
+      <div>
+        <button id="codeSaveButton">Save</button>
+        <button id="codeRunButton">Run</button>
+      </div>
+    </div>
+
+    <div class="code-editor">
+      <div id="studioLineNumbers" class="line-numbers">1</div>
+      <textarea
+        id="studioCodeEditor"
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+      >game.name = "My Game";
+```
+
+game.mode = "3D";
+
+world.gravity = 25;
+
+player.walk.speed = 7;
+player.jump.power = 9;
+
+add.mesh.cube();
+map.name = "My World";</textarea> </div> </section>
+
+```
+  <section id="bottomTimeline" class="bottom-view">
+    <div class="timeline-header">
+      <strong>4D Timeline</strong>
+      <span id="timelineTime">0.00s</span>
+    </div>
+
+    <div class="timeline-controls">
+      <button id="timelineBack">◀</button>
+      <button id="timelinePlay">Play</button>
+      <button id="timelineForward">▶</button>
+      <button id="timelineReset">Reset</button>
+    </div>
+
+    <input
+      id="timelineSlider"
+      class="timeline-slider"
+      type="range"
+      min="0"
+      max="120"
+      step="0.01"
+      value="0"
+    >
+
+    <div class="timeline-ruler">
+      <span>0s</span>
+      <span>24s</span>
+      <span>48s</span>
+      <span>72s</span>
+      <span>96s</span>
+      <span>120s</span>
+    </div>
+
+    <div id="timelineObjects" class="timeline-objects"></div>
+  </section>
+
+  <section id="bottomConsole" class="bottom-view console-view">
+    <div id="consoleOutput">RiseUp Studio ready.</div>
+  </section>
+
+</div>
+```
+
+  </div>
+</section>
+
+</main>
+
+<aside class="right-column">
+
+<section class="panel outliner">
+  <div class="panel-title">
+    <strong>Explorer</strong>
+    <button id="refreshExplorer">↻</button>
+  </div>
+
+<input
+id="outlinerSearch"
+class="panel-search"
+placeholder="Search objects..."
+
 >
 
-  <div class="modal-box">
+  <div id="objectTree" class="object-tree"></div>
 
-    <button
-      id="closePublish"
-      class="modal-close"
-    >
-      ×
-    </button>
+  <div id="outlinerFooter" class="panel-footer">0 objects</div>
+</section>
 
-    <h2>
-      Publish Game
-    </h2>
-
-    <p>
-      Publish this project to RiseUp.
-    </p>
-
-
-    <label>
-      Game Name
-
-      <input
-        id="publishName"
-        placeholder="My Game"
-      >
-
-    </label>
-
-
-    <label>
-      Description
-
-      <textarea
-        id="publishDescription"
-        placeholder="Describe your game..."
-      ></textarea>
-
-    </label>
-
-
-    <div class="modal-actions">
-
-      <button id="cancelPublish">
-        Cancel
-      </button>
-
-      <button
-        id="confirmPublish"
-        class="modal-primary"
-      >
-        Publish
-      </button>
-
-    </div>
-
+<section class="panel inspector">
+  <div class="panel-title">
+    <strong>Inspector</strong>
   </div>
 
+  <div id="propertiesContent" class="properties">
+    <div class="nothing-selected">
+      <strong>Nothing Selected</strong>
+      <span>Select an object to inspect it.</span>
+    </div>
+  </div>
+</section>
+
+</aside>
+
+</div>
 </div>
 
+<div id="publishModal" class="modal hidden">
+  <div class="modal-box">
+    <button id="closePublish" class="modal-close">×</button>
 
-<!-- =========================================================
-     SCRIPTS
-     ========================================================= -->
+```
+<h2>Publish Game</h2>
+<p>Your game will be published to RiseUp.</p>
+
+<label>
+  Game Name
+  <input id="publishName" placeholder="My Game">
+</label>
+
+<label>
+  Description
+  <textarea id="publishDescription" placeholder="Describe your game..."></textarea>
+</label>
+
+<div class="modal-actions">
+  <button id="cancelPublish">Cancel</button>
+  <button id="confirmPublish" class="modal-primary">Publish</button>
+</div>
+```
+
+  </div>
+</div>
+
+<div id="locationModal" class="modal hidden">
+  <div class="modal-box location-box">
+    <h2>Where should I place it?</h2>
+    <p>Rise AI needs a location before it can create the object.</p>
+
+```
+<div class="location-buttons">
+  <button data-location="standing">Where I'm standing</button>
+  <button data-location="selected">At the selected object</button>
+  <button data-location="origin">At the world origin</button>
+</div>
+
+<button id="cancelLocation">Cancel</button>
+```
+
+  </div>
+</div>
 
 <script src="risecode.js"></script>
+
 <script src="risecode-runtime.js"></script>
+
 <script src="studio.js"></script>
 
 </body>
