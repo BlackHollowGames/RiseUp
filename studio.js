@@ -6,34 +6,28 @@
   const GAMES_KEY = "riseup_games";
 
   const state = {
-    user: getCurrentUser(),
+    user: null,
 
     project: {
       name: "Untitled Game",
       description: "",
       mode: "3D",
-      objects: [],
-      code: [
-        'game.name = "My Game";',
-        'game.mode = "3D";',
-        "",
-        "world.gravity = 25;",
-        "",
-        "player.walk.speed = 7;",
-        "player.jump.power = 9;",
-        "",
-        "add.mesh.cube();",
-        'map.name = "My World";'
-      ].join("\n")
+      code: "",
+      objects: []
     },
 
     selectedId: null,
-
     tool: "select",
-
     bottom: "ai",
-
     mode: "3D",
+
+    running: false,
+
+    player: {
+      x: 0,
+      y: 2,
+      z: 6
+    },
 
     timeline: {
       time: 0,
@@ -41,21 +35,8 @@
       playing: false
     },
 
-    running: false,
-
-    player: {
-      x: 0,
-      y: 0,
-      z: 0
-    },
-
     history: [],
     historyIndex: -1,
-
-    ai: {
-      waiting: false,
-      conversation: []
-    },
 
     scene: null,
     camera: null,
@@ -64,7 +45,16 @@
     mouse: null,
 
     meshes: new Map(),
-    grid: null,
+
+    world: {
+      ground: null,
+      sky: null,
+      sun: null,
+      ambient: null,
+      spawnMarker: null,
+      playerMarker: null,
+      grid: null
+    },
 
     animationFrame: null,
     timelineFrame: null
@@ -72,35 +62,66 @@
 
   const els = {};
 
-  document.addEventListener("DOMContentLoaded", init);
+  let pendingLocationType = null;
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init
+  );
+
+  /* ========================================================
+     INIT
+     ======================================================== */
 
   async function init() {
-    cacheElements();
+    try {
+      state.user = getCurrentUser();
 
-    loadProject();
+      cacheElements();
+      loadProject();
 
-    bindUI();
-    bindKeyboard();
+      bindUI();
+      bindKeyboard();
 
-    await loadThree();
+      setBottom("ai");
+      syncProjectUI();
 
-    setupThree();
+      await loadThree();
 
-    syncProjectName();
-    renderEverything();
+      setupThree();
+      buildWorld();
 
-    pushHistory();
+      rebuildScene();
+      renderEverything();
 
-    addAIMessage(
-      "Rise AI",
-      "I'm ready. Tell me what you want to build, change, debug, or code."
-    );
+      pushHistory();
 
-    consoleLog("RiseUp Studio initialized.");
+      addAIMessage(
+        "Rise AI",
+        "I'm ready. Tell me what you want to build. I can create and edit your 3D world, work with 4D time, write RiseCode, explain code, and debug it."
+      );
+
+      consoleLog(
+        "RiseUp Studio ready.",
+        "success"
+      );
+    } catch (error) {
+      console.error(error);
+
+      consoleLog(
+        `Studio startup error: ${error.message}`,
+        "error"
+      );
+
+      toast(
+        "Studio started with an error. Check the Console.",
+        "error"
+      );
+    }
   }
 
   /* ========================================================
-     ELEMENTS
+     ELEMENT CACHE
      ======================================================== */
 
   function cacheElements() {
@@ -120,7 +141,9 @@
       document.getElementById("publishButton");
 
     els.deleteProjectButton =
-      document.getElementById("deleteProjectButton");
+      document.getElementById(
+        "deleteProjectButton"
+      );
 
     els.playButton =
       document.getElementById("playButton");
@@ -130,9 +153,6 @@
 
     els.viewport =
       document.getElementById("viewport");
-
-    els.editorCanvas =
-      document.getElementById("editorCanvas");
 
     els.viewportHint =
       document.getElementById("viewportHint");
@@ -153,16 +173,24 @@
       document.getElementById("frameButton");
 
     els.resetViewButton =
-      document.getElementById("resetViewButton");
+      document.getElementById(
+        "resetViewButton"
+      );
 
     els.selectionLabel =
-      document.getElementById("selectionLabel");
+      document.getElementById(
+        "selectionLabel"
+      );
 
     els.bottomTabs =
-      document.querySelectorAll(".bottom-tab");
+      document.querySelectorAll(
+        ".bottom-tab"
+      );
 
     els.bottomViews =
-      document.querySelectorAll(".bottom-view");
+      document.querySelectorAll(
+        ".bottom-view"
+      );
 
     els.aiMessages =
       document.getElementById("aiMessages");
@@ -174,129 +202,229 @@
       document.getElementById("aiSend");
 
     els.studioCodeEditor =
-      document.getElementById("studioCodeEditor");
-
-    els.codeSaveButton =
-      document.getElementById("codeSaveButton");
-
-    els.codeRunButton =
-      document.getElementById("codeRunButton");
+      document.getElementById(
+        "studioCodeEditor"
+      );
 
     els.studioLineNumbers =
-      document.getElementById("studioLineNumbers");
+      document.getElementById(
+        "studioLineNumbers"
+      );
+
+    els.codeSaveButton =
+      document.getElementById(
+        "codeSaveButton"
+      );
+
+    els.codeRunButton =
+      document.getElementById(
+        "codeRunButton"
+      );
 
     els.timelineTime =
-      document.getElementById("timelineTime");
+      document.getElementById(
+        "timelineTime"
+      );
 
     els.timelineBack =
-      document.getElementById("timelineBack");
+      document.getElementById(
+        "timelineBack"
+      );
 
     els.timelinePlay =
-      document.getElementById("timelinePlay");
+      document.getElementById(
+        "timelinePlay"
+      );
 
     els.timelineForward =
-      document.getElementById("timelineForward");
+      document.getElementById(
+        "timelineForward"
+      );
 
     els.timelineReset =
-      document.getElementById("timelineReset");
+      document.getElementById(
+        "timelineReset"
+      );
 
     els.timelineSlider =
-      document.getElementById("timelineSlider");
+      document.getElementById(
+        "timelineSlider"
+      );
 
     els.timelineObjects =
-      document.getElementById("timelineObjects");
+      document.getElementById(
+        "timelineObjects"
+      );
 
     els.consoleOutput =
-      document.getElementById("consoleOutput");
+      document.getElementById(
+        "consoleOutput"
+      );
 
     els.refreshExplorer =
-      document.getElementById("refreshExplorer");
+      document.getElementById(
+        "refreshExplorer"
+      );
 
     els.outlinerSearch =
-      document.getElementById("outlinerSearch");
+      document.getElementById(
+        "outlinerSearch"
+      );
 
     els.objectTree =
-      document.getElementById("objectTree");
+      document.getElementById(
+        "objectTree"
+      );
 
     els.outlinerFooter =
-      document.getElementById("outlinerFooter");
+      document.getElementById(
+        "outlinerFooter"
+      );
 
     els.propertiesContent =
-      document.getElementById("propertiesContent");
+      document.getElementById(
+        "propertiesContent"
+      );
 
     els.publishModal =
-      document.getElementById("publishModal");
+      document.getElementById(
+        "publishModal"
+      );
 
     els.closePublish =
-      document.getElementById("closePublish");
+      document.getElementById(
+        "closePublish"
+      );
 
     els.cancelPublish =
-      document.getElementById("cancelPublish");
+      document.getElementById(
+        "cancelPublish"
+      );
 
     els.confirmPublish =
-      document.getElementById("confirmPublish");
+      document.getElementById(
+        "confirmPublish"
+      );
 
     els.publishName =
-      document.getElementById("publishName");
+      document.getElementById(
+        "publishName"
+      );
 
     els.publishDescription =
-      document.getElementById("publishDescription");
+      document.getElementById(
+        "publishDescription"
+      );
 
     els.locationModal =
-      document.getElementById("locationModal");
+      document.getElementById(
+        "locationModal"
+      );
 
     els.cancelLocation =
-      document.getElementById("cancelLocation");
-
-    els.toastContainer =
-      document.getElementById("toastContainer");
+      document.getElementById(
+        "cancelLocation"
+      );
   }
 
   /* ========================================================
      PROJECT
      ======================================================== */
 
+  function getCurrentUser() {
+    try {
+      const raw =
+        localStorage.getItem(
+          USER_KEY
+        );
+
+      if (!raw) {
+        return "local";
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return raw;
+      }
+    } catch {
+      return "local";
+    }
+  }
+
+  function getUsername(user) {
+    if (
+      !user ||
+      typeof user === "string"
+    ) {
+      return user || "Creator";
+    }
+
+    return (
+      user.username ||
+      user.displayName ||
+      user.name ||
+      user.user ||
+      "Creator"
+    );
+  }
+
+  function projectKey() {
+    return `${PROJECT_KEY}_${getUsername(
+      state.user
+    )}`;
+  }
+
+  function getDefaultCode() {
+    return [
+      'game.name = "My Game";',
+      'game.mode = "3D";',
+      "",
+      "world.gravity = 25;",
+      "",
+      "player.walk.speed = 7;",
+      "player.jump.power = 9;",
+      "",
+      "add.mesh.cube();",
+      'map.name = "My World";'
+    ].join("\n");
+  }
+
   function defaultProject() {
     return {
       name: "Untitled Game",
       description: "",
       mode: "3D",
-
+      code: getDefaultCode(),
       objects: [
-        makeObject("Spawn", {
-          name: "Spawn",
-          position: {
+        makeObject(
+          "Spawn",
+          "Player Spawn",
+          {
             x: 0,
             y: 0,
-            z: 0
+            z: 6
           },
-          color: "#35c978"
-        })
-      ],
-
-      code: [
-        'game.name = "My Game";',
-        'game.mode = "3D";',
-        "",
-        "world.gravity = 25;",
-        "",
-        "player.walk.speed = 7;",
-        "player.jump.power = 9;",
-        "",
-        "add.mesh.cube();",
-        'map.name = "My World";'
-      ].join("\n")
+          "#35c978"
+        )
+      ]
     };
   }
 
   function loadProject() {
     const raw =
-      localStorage.getItem(getProjectKey()) ||
-      localStorage.getItem(PROJECT_KEY);
+      localStorage.getItem(
+        projectKey()
+      ) ||
+      localStorage.getItem(
+        PROJECT_KEY
+      );
 
     if (!raw) {
       state.project =
-        normalizeProject(defaultProject());
+        normalizeProject(
+          defaultProject()
+        );
 
       return;
     }
@@ -306,40 +434,45 @@
         normalizeProject(
           JSON.parse(raw)
         );
+
+      state.mode =
+        state.project.mode;
     } catch {
       state.project =
-        normalizeProject(defaultProject());
+        normalizeProject(
+          defaultProject()
+        );
     }
-
-    state.mode =
-      state.project.mode || "3D";
   }
 
   function normalizeProject(project) {
     const base =
       defaultProject();
 
-    const merged = {
+    return {
       ...base,
-      ...project
+      ...project,
+
+      objects:
+        Array.isArray(
+          project?.objects
+        )
+          ? project.objects.map(
+              normalizeObject
+            )
+          : base.objects,
+
+      code:
+        typeof project?.code ===
+        "string"
+          ? project.code
+          : base.code,
+
+      mode:
+        project?.mode === "4D"
+          ? "4D"
+          : "3D"
     };
-
-    merged.objects =
-      Array.isArray(project.objects)
-        ? project.objects.map(normalizeObject)
-        : [];
-
-    merged.code =
-      typeof project.code === "string"
-        ? project.code
-        : base.code;
-
-    merged.mode =
-      project.mode === "4D"
-        ? "4D"
-        : "3D";
-
-    return merged;
   }
 
   function normalizeObject(object) {
@@ -358,19 +491,19 @@
         "Object",
 
       position:
-        vector(
+        normalizeVector(
           object.position,
           0
         ),
 
       rotation:
-        vector(
+        normalizeVector(
           object.rotation,
           0
         ),
 
       scale:
-        vector(
+        normalizeVector(
           object.scale,
           1
         ),
@@ -378,33 +511,42 @@
       color:
         normalizeColor(
           object.color ||
-          "#4da3ff"
+            "#4da3ff"
         ),
 
       visible:
-        typeof object.visible === "boolean"
+        typeof object.visible ===
+        "boolean"
           ? object.visible
           : true,
 
       createdAt:
-        numberOr(
-          object.createdAt,
-          0
-        ),
+        Number.isFinite(
+          Number(
+            object.createdAt
+          )
+        )
+          ? Number(
+              object.createdAt
+            )
+          : 0,
 
       hiddenAt:
-        object.hiddenAt === null ||
-        object.hiddenAt === undefined ||
+        object.hiddenAt ===
+          null ||
+        object.hiddenAt ===
+          undefined ||
         object.hiddenAt === ""
           ? null
-          : numberOr(
-              object.hiddenAt,
-              null
+          : Number(
+              object.hiddenAt
             )
     };
   }
 
-  function saveProject(showToast = true) {
+  function saveProject(
+    showToast = true
+  ) {
     state.project.name =
       els.projectName?.value.trim() ||
       state.project.name ||
@@ -414,15 +556,18 @@
       state.mode;
 
     state.project.code =
-      els.studioCodeEditor?.value ??
-      state.project.code;
+      els.studioCodeEditor?.value ||
+      state.project.code ||
+      getDefaultCode();
 
     const data =
-      JSON.stringify(state.project);
+      JSON.stringify(
+        state.project
+      );
 
     try {
       localStorage.setItem(
-        getProjectKey(),
+        projectKey(),
         data
       );
 
@@ -440,9 +585,16 @@
         );
       }
 
-      consoleLog("Project saved.");
-    } catch {
-      setSaveStatus("Save failed");
+      consoleLog(
+        "Project saved.",
+        "success"
+      );
+    } catch (error) {
+      console.error(error);
+
+      setSaveStatus(
+        "Save failed"
+      );
 
       toast(
         "Could not save the project.",
@@ -451,29 +603,41 @@
     }
   }
 
-  function getProjectKey() {
-    const user =
-      getUsername(state.user);
-
-    return `${PROJECT_KEY}_${user}`;
-  }
-
-  function setSaveStatus(text) {
+  function setSaveStatus(
+    text
+  ) {
     if (els.saveStatus) {
       els.saveStatus.textContent =
         text;
     }
   }
 
-  function syncProjectName() {
+  function syncProjectUI() {
     if (els.projectName) {
       els.projectName.value =
         state.project.name;
     }
 
-    if (els.studioCodeEditor) {
+    if (
+      els.studioCodeEditor
+    ) {
       els.studioCodeEditor.value =
         state.project.code;
+    }
+
+    if (
+      els.mode3D &&
+      els.mode4D
+    ) {
+      els.mode3D.classList.toggle(
+        "active",
+        state.mode === "3D"
+      );
+
+      els.mode4D.classList.toggle(
+        "active",
+        state.mode === "4D"
+      );
     }
 
     updateLineNumbers();
@@ -485,7 +649,9 @@
 
   function pushHistory() {
     const snapshot =
-      JSON.stringify(state.project);
+      JSON.stringify(
+        state.project
+      );
 
     if (
       state.history[
@@ -501,9 +667,13 @@
         state.historyIndex + 1
       );
 
-    state.history.push(snapshot);
+    state.history.push(
+      snapshot
+    );
 
-    if (state.history.length > 100) {
+    if (
+      state.history.length > 100
+    ) {
       state.history.shift();
     }
 
@@ -520,7 +690,7 @@
 
     state.historyIndex--;
 
-    restoreSnapshot(
+    restoreHistory(
       state.history[
         state.historyIndex
       ]
@@ -537,33 +707,37 @@
 
     state.historyIndex++;
 
-    restoreSnapshot(
+    restoreHistory(
       state.history[
         state.historyIndex
       ]
     );
   }
 
-  function restoreSnapshot(snapshot) {
+  function restoreHistory(
+    snapshot
+  ) {
     try {
       state.project =
         normalizeProject(
-          JSON.parse(snapshot)
+          JSON.parse(
+            snapshot
+          )
         );
 
       state.mode =
         state.project.mode;
 
-      state.selectedId = null;
+      state.selectedId =
+        null;
 
-      syncProjectName();
+      syncProjectUI();
       rebuildScene();
       renderEverything();
-
       saveProject(false);
     } catch {
       toast(
-        "Could not restore project.",
+        "Could not restore that state.",
         "error"
       );
     }
@@ -575,32 +749,40 @@
 
   function bindUI() {
     document
-      .querySelectorAll(".rail-tool[data-tool]")
-      .forEach((button) => {
-        button.addEventListener(
-          "click",
-          () => {
-            setTool(
-              button.dataset.tool
-            );
-          }
-        );
-      });
+      .querySelectorAll(
+        ".rail-tool[data-tool]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              setTool(
+                button.dataset.tool
+              );
+            }
+          );
+        }
+      );
 
     document
       .querySelectorAll(
         ".rail-tool[data-create]"
       )
-      .forEach((button) => {
-        button.addEventListener(
-          "click",
-          () => {
-            createObject(
-              button.dataset.create
-            );
-          }
-        );
-      });
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              createObject(
+                normalizeShapeType(
+                  button.dataset.create
+                )
+              );
+            }
+          );
+        }
+      );
 
     els.bottomTabs.forEach(
       (button) => {
@@ -675,46 +857,52 @@
       renderExplorer
     );
 
-    els.aiSend?.addEventListener(
-      "click",
-      submitAI
-    );
-
-    els.aiInput?.addEventListener(
-      "keydown",
-      (event) => {
-        if (
-          event.key === "Enter" &&
-          !event.shiftKey
-        ) {
+    if (els.aiSend) {
+      els.aiSend.addEventListener(
+        "click",
+        (event) => {
           event.preventDefault();
           submitAI();
         }
-      }
-    );
+      );
+    }
+
+    if (els.aiInput) {
+      els.aiInput.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey
+          ) {
+            event.preventDefault();
+            submitAI();
+          }
+        }
+      );
+    }
 
     els.codeSaveButton?.addEventListener(
       "click",
-      () => {
-        saveCode();
-      }
+      saveCode
     );
 
     els.codeRunButton?.addEventListener(
       "click",
-      () => {
-        runCode();
-      }
+      runCode
     );
 
     els.studioCodeEditor?.addEventListener(
       "input",
-      updateLineNumbers
+      () => {
+        updateLineNumbers();
+        setSaveStatus("Unsaved");
+      }
     );
 
     els.studioCodeEditor?.addEventListener(
       "keydown",
-      handleEditorKeydown
+      handleCodeTab
     );
 
     els.timelineSlider?.addEventListener(
@@ -728,34 +916,30 @@
       }
     );
 
-    els.timelinePlay?.addEventListener(
-      "click",
-      toggleTimeline
-    );
-
     els.timelineBack?.addEventListener(
       "click",
-      () => {
+      () =>
         setTimeline(
           state.timeline.time - 1
-        );
-      }
+        )
     );
 
     els.timelineForward?.addEventListener(
       "click",
-      () => {
+      () =>
         setTimeline(
           state.timeline.time + 1
-        );
-      }
+        )
     );
 
     els.timelineReset?.addEventListener(
       "click",
-      () => {
-        setTimeline(0);
-      }
+      () => setTimeline(0)
+    );
+
+    els.timelinePlay?.addEventListener(
+      "click",
+      toggleTimeline
     );
 
     els.closePublish?.addEventListener(
@@ -780,38 +964,41 @@
 
     els.projectName?.addEventListener(
       "input",
-      () => setSaveStatus("Unsaved")
+      () =>
+        setSaveStatus("Unsaved")
     );
 
     document
       .querySelectorAll(
-        '[data-menu]'
+        "[data-menu]"
       )
-      .forEach((button) => {
-        button.addEventListener(
-          "click",
-          () => {
-            handleMenu(
-              button.dataset.menu
-            );
-          }
-        );
-      });
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () =>
+              handleMenu(
+                button.dataset.menu
+              )
+          );
+        }
+      );
 
     document
       .querySelectorAll(
         "[data-location]"
       )
-      .forEach((button) => {
-        button.addEventListener(
-          "click",
-          () => {
-            placePendingObject(
-              button.dataset.location
-            );
-          }
-        );
-      });
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () =>
+              placePendingObject(
+                button.dataset.location
+              )
+          );
+        }
+      );
   }
 
   function bindKeyboard() {
@@ -851,7 +1038,9 @@
           return;
         }
 
-        if (key === "f5") {
+        if (
+          event.key === "F5"
+        ) {
           event.preventDefault();
           setBottom("code");
           return;
@@ -877,9 +1066,7 @@
           return;
         }
 
-        if (
-          !isTextField()
-        ) {
+        if (!isTextField()) {
           if (key === "q") {
             setTool("select");
           }
@@ -903,7 +1090,9 @@
           closePublish();
           closeLocation();
 
-          if (state.running) {
+          if (
+            state.running
+          ) {
             stopGame();
           }
         }
@@ -911,7 +1100,7 @@
     );
   }
 
-  function handleEditorKeydown(event) {
+  function handleCodeTab(event) {
     if (
       event.key !== "Tab"
     ) {
@@ -950,94 +1139,98 @@
     const active =
       document.activeElement;
 
-    if (!active) {
-      return false;
-    }
-
     return (
-      active.tagName ===
+      active?.tagName ===
         "INPUT" ||
-      active.tagName ===
+      active?.tagName ===
         "TEXTAREA" ||
-      active.isContentEditable
+      active?.isContentEditable
     );
   }
 
-  function handleMenu(menu) {
-    switch (menu) {
-      case "File":
-        saveProject(true);
-        break;
+  function handleMenu(
+    menu
+  ) {
+    if (menu === "File") {
+      saveProject(true);
+    }
 
-      case "Edit":
-        toast(
-          "Undo: Ctrl+Z   Redo: Ctrl+Shift+Z",
-          "success"
-        );
-        break;
+    if (menu === "Edit") {
+      toast(
+        "Ctrl+Z undo. Ctrl+Shift+Z redo.",
+        "success"
+      );
+    }
 
-      case "Create":
-        createObject("Cube");
-        break;
+    if (menu === "Create") {
+      createObject("Cube");
+    }
 
-      case "View":
-        resetView();
-        break;
+    if (menu === "View") {
+      resetView();
     }
   }
 
-  function setTool(tool) {
+  function setTool(
+    tool
+  ) {
     state.tool =
-      tool || "select";
+      tool;
 
     document
       .querySelectorAll(
         ".rail-tool[data-tool]"
       )
-      .forEach((button) => {
-        button.classList.toggle(
-          "active",
-          button.dataset.tool ===
-            state.tool
-        );
-      });
+      .forEach(
+        (button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.tool ===
+              tool
+          );
+        }
+      );
   }
 
-  function setBottom(bottom) {
+  function setBottom(
+    bottom
+  ) {
     state.bottom =
-      bottom || "ai";
+      bottom;
 
     els.bottomTabs.forEach(
       (button) => {
         button.classList.toggle(
           "active",
           button.dataset.bottom ===
-            state.bottom
+            bottom
         );
       }
     );
 
+    const targets = {
+      ai: "bottomAI",
+      code: "bottomCode",
+      timeline:
+        "bottomTimeline",
+      console:
+        "bottomConsole"
+    };
+
     els.bottomViews.forEach(
       (view) => {
-        const target =
-          state.bottom === "ai"
-            ? "bottomAI"
-            : state.bottom === "code"
-            ? "bottomCode"
-            : state.bottom ===
-              "timeline"
-            ? "bottomTimeline"
-            : "bottomConsole";
-
         view.classList.toggle(
           "active",
-          view.id === target
+          view.id ===
+            targets[bottom]
         );
       }
     );
   }
 
-  function setMode(mode) {
+  function setMode(
+    mode
+  ) {
     state.mode =
       mode === "4D"
         ? "4D"
@@ -1063,11 +1256,10 @@
     }
 
     refreshTimeline();
-    saveProject(false);
   }
 
   /* ========================================================
-     THREE
+     THREE.JS
      ======================================================== */
 
   function loadThree() {
@@ -1104,7 +1296,7 @@
       !window.THREE ||
       !els.viewport
     ) {
-      showFallbackViewport();
+      showNoThree();
       return;
     }
 
@@ -1116,26 +1308,33 @@
 
     state.scene.background =
       new THREE.Color(
-        0x080b0f
+        0x9ec6e7
+      );
+
+    state.scene.fog =
+      new THREE.Fog(
+        0x9ec6e7,
+        80,
+        380
       );
 
     state.camera =
       new THREE.PerspectiveCamera(
-        55,
+        60,
         1,
         0.1,
-        5000
+        2000
       );
 
     state.camera.position.set(
-      22,
-      17,
-      24
+      16,
+      10,
+      18
     );
 
     state.camera.lookAt(
       0,
-      0,
+      2,
       0
     );
 
@@ -1155,6 +1354,12 @@
     state.renderer.outputColorSpace =
       THREE.SRGBColorSpace;
 
+    state.renderer.shadowMap.enabled =
+      true;
+
+    state.renderer.shadowMap.type =
+      THREE.PCFSoftShadowMap;
+
     els.viewport.innerHTML = "";
 
     els.viewport.appendChild(
@@ -1167,43 +1372,9 @@
     state.mouse =
       new THREE.Vector2();
 
-    const ambient =
-      new THREE.HemisphereLight(
-        0xd8e6ff,
-        0x14171b,
-        2
-      );
-
-    state.scene.add(
-      ambient
-    );
-
-    const light =
-      new THREE.DirectionalLight(
-        0xffffff,
-        2.2
-      );
-
-    light.position.set(
-      20,
-      35,
-      10
-    );
-
-    state.scene.add(
-      light
-    );
-
-    state.grid =
-      new THREE.GridHelper(
-        500,
-        50,
-        0x3e4a56,
-        0x202932
-      );
-
-    state.scene.add(
-      state.grid
+    state.renderer.domElement.addEventListener(
+      "pointerdown",
+      handleViewportClick
     );
 
     window.addEventListener(
@@ -1211,28 +1382,37 @@
       resizeViewport
     );
 
-    state.renderer.domElement.addEventListener(
-      "pointerdown",
-      handleViewportClick
-    );
-
     resizeViewport();
+
+    if (els.viewportHint) {
+      els.viewportHint.style.display =
+        "none";
+    }
 
     renderLoop();
   }
 
-  function showFallbackViewport() {
-    if (
-      !els.viewportHint
-    ) {
+  function showNoThree() {
+    if (!els.viewport) {
       return;
     }
 
-    els.viewportHint.style.display =
-      "flex";
+    els.viewport.innerHTML = "";
 
-    els.viewportHint.innerHTML =
-      "<strong>RiseUp Studio</strong><span>3D engine unavailable. Reload to try again.</span>";
+    const message =
+      document.createElement(
+        "div"
+      );
+
+    message.style.cssText =
+      "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#89939e;font-size:13px;";
+
+    message.textContent =
+      "3D engine could not load. Reload the page.";
+
+    els.viewport.appendChild(
+      message
+    );
   }
 
   function resizeViewport() {
@@ -1286,6 +1466,344 @@
       );
   }
 
+  /* ========================================================
+     ATMOSPHERE / WORLD
+     ======================================================== */
+
+  function buildWorld() {
+    if (
+      !state.scene ||
+      !window.THREE
+    ) {
+      return;
+    }
+
+    const THREE =
+      window.THREE;
+
+    /*
+      Ground
+      */
+
+    const groundGeometry =
+      new THREE.BoxGeometry(
+        500,
+        2,
+        500
+      );
+
+    const groundMaterial =
+      new THREE.MeshStandardMaterial({
+        color: 0x45564a,
+        roughness: 0.95,
+        metalness: 0
+      });
+
+    state.world.ground =
+      new THREE.Mesh(
+        groundGeometry,
+        groundMaterial
+      );
+
+    state.world.ground.position.y =
+      -1;
+
+    state.world.ground.receiveShadow =
+      true;
+
+    state.world.ground.userData.world =
+      true;
+
+    state.scene.add(
+      state.world.ground
+    );
+
+    /*
+      Sky dome
+      */
+
+    const skyGeometry =
+      new THREE.SphereGeometry(
+        900,
+        32,
+        20
+      );
+
+    const skyMaterial =
+      new THREE.MeshBasicMaterial({
+        color: 0x8dbce5,
+        side:
+          THREE.BackSide,
+        fog: false
+      });
+
+    state.world.sky =
+      new THREE.Mesh(
+        skyGeometry,
+        skyMaterial
+      );
+
+    state.scene.add(
+      state.world.sky
+    );
+
+    /*
+      Soft ambient light
+      */
+
+    state.world.ambient =
+      new THREE.HemisphereLight(
+        0xd9edff,
+        0x394036,
+        2.2
+      );
+
+    state.scene.add(
+      state.world.ambient
+    );
+
+    /*
+      Sun
+      */
+
+    state.world.sun =
+      new THREE.DirectionalLight(
+        0xfff0cb,
+        3.2
+      );
+
+    state.world.sun.position.set(
+      70,
+      110,
+      45
+    );
+
+    state.world.sun.castShadow =
+      true;
+
+    state.world.sun.shadow.mapSize.width =
+      2048;
+
+    state.world.sun.shadow.mapSize.height =
+      2048;
+
+    state.world.sun.shadow.camera.left =
+      -120;
+
+    state.world.sun.shadow.camera.right =
+      120;
+
+    state.world.sun.shadow.camera.top =
+      120;
+
+    state.world.sun.shadow.camera.bottom =
+      -120;
+
+    state.scene.add(
+      state.world.sun
+    );
+
+    /*
+      Grid
+      */
+
+    state.world.grid =
+      new THREE.GridHelper(
+        300,
+        60,
+        0x8aa08d,
+        0x627266
+      );
+
+    state.world.grid.position.y =
+      0.01;
+
+    state.scene.add(
+      state.world.grid
+    );
+
+    /*
+      Player spawn marker
+      */
+
+    createPlayerMarker();
+
+    /*
+      Small environment props so
+      the world doesn't feel empty.
+      */
+
+    createStarterEnvironment();
+  }
+
+  function createPlayerMarker() {
+    if (
+      !state.scene ||
+      !window.THREE
+    ) {
+      return;
+    }
+
+    const THREE =
+      window.THREE;
+
+    const group =
+      new THREE.Group();
+
+    const ring =
+      new THREE.Mesh(
+        new THREE.RingGeometry(
+          1.2,
+          1.38,
+          32
+        ),
+        new THREE.MeshBasicMaterial({
+          color: 0x35c978,
+          transparent: true,
+          opacity: 0.9,
+          side:
+            THREE.DoubleSide
+        })
+      );
+
+    ring.rotation.x =
+      -Math.PI / 2;
+
+    ring.position.y =
+      0.04;
+
+    const pole =
+      new THREE.Mesh(
+        new THREE.CylinderGeometry(
+          0.05,
+          0.05,
+          2.5,
+          10
+        ),
+        new THREE.MeshBasicMaterial({
+          color: 0x35c978
+        })
+      );
+
+    pole.position.y =
+      1.25;
+
+    group.position.set(
+      state.player.x,
+      0,
+      state.player.z
+    );
+
+    group.add(
+      ring
+    );
+
+    group.add(
+      pole
+    );
+
+    state.world.playerMarker =
+      group;
+
+    state.scene.add(
+      group
+    );
+  }
+
+  function updatePlayerMarker() {
+    if (
+      !state.world.playerMarker
+    ) {
+      return;
+    }
+
+    state.world.playerMarker.position.set(
+      state.player.x,
+      0,
+      state.player.z
+    );
+  }
+
+  function createStarterEnvironment() {
+    const props = [
+      {
+        type: "Cube",
+        name: "Welcome Platform",
+        position: {
+          x: 0,
+          y: 1,
+          z: 0
+        },
+        scale: {
+          x: 5,
+          y: 0.5,
+          z: 5
+        },
+        color: "#527ea3"
+      },
+
+      {
+        type: "Cube",
+        name: "North Platform",
+        position: {
+          x: 0,
+          y: 1,
+          z: -22
+        },
+        scale: {
+          x: 4,
+          y: 0.5,
+          z: 4
+        },
+        color: "#566f62"
+      },
+
+      {
+        type: "Cube",
+        name: "East Platform",
+        position: {
+          x: 24,
+          y: 1,
+          z: 0
+        },
+        scale: {
+          x: 4,
+          y: 0.5,
+          z: 4
+        },
+        color: "#6d6854"
+      }
+    ];
+
+    props.forEach(
+      (prop) => {
+        if (
+          state.project.objects.some(
+            (object) =>
+              object.name ===
+              prop.name
+          )
+        ) {
+          return;
+        }
+
+        state.project.objects.push(
+          makeObject(
+            prop.type,
+            prop.name,
+            prop.position,
+            prop.color,
+            prop.scale
+          )
+        );
+      }
+    );
+  }
+
+  /* ========================================================
+     SCENE OBJECTS
+     ======================================================== */
+
   function rebuildScene() {
     if (
       !state.scene ||
@@ -1324,85 +1842,78 @@
           mesh
         );
 
-        applyVisibility(
-          object,
-          mesh
+        applyObjectToMesh(
+          object
         );
       }
     );
 
     updateSelectionVisual();
-
-    if (
-      els.viewportHint
-    ) {
-      els.viewportHint.style.display =
-        state.project.objects.length
-          ? "none"
-          : "flex";
-    }
   }
 
-  function makeMesh(object) {
+  function makeMesh(
+    object
+  ) {
     const THREE =
       window.THREE;
 
     let geometry;
 
-    switch (
-      String(object.type)
-        .toLowerCase()
+    const type =
+      String(
+        object.type
+      ).toLowerCase();
+
+    if (
+      type === "sphere"
     ) {
-      case "sphere":
-        geometry =
-          new THREE.SphereGeometry(
-            1,
-            32,
-            20
-          );
-        break;
-
-      case "cylinder":
-        geometry =
-          new THREE.CylinderGeometry(
-            1,
-            1,
-            2,
-            32
-          );
-        break;
-
-      case "wedge":
-        geometry =
-          makeWedgeGeometry();
-        break;
-
-      case "spawn":
-        geometry =
-          new THREE.CylinderGeometry(
-            1,
-            1,
-            0.25,
-            32
-          );
-        break;
-
-      case "light":
-        geometry =
-          new THREE.SphereGeometry(
-            0.35,
-            16,
-            12
-          );
-        break;
-
-      default:
-        geometry =
-          new THREE.BoxGeometry(
-            2,
-            2,
-            2
-          );
+      geometry =
+        new THREE.SphereGeometry(
+          1,
+          32,
+          20
+        );
+    } else if (
+      type === "cylinder"
+    ) {
+      geometry =
+        new THREE.CylinderGeometry(
+          1,
+          1,
+          2,
+          32
+        );
+    } else if (
+      type === "wedge"
+    ) {
+      geometry =
+        makeWedgeGeometry();
+    } else if (
+      type === "spawn"
+    ) {
+      geometry =
+        new THREE.CylinderGeometry(
+          1,
+          1,
+          0.25,
+          32
+        );
+    } else if (
+      type === "light"
+    ) {
+      geometry =
+        new THREE.SphereGeometry(
+          0.35,
+          16,
+          12
+        );
+    } else {
+      geometry =
+        new THREE.BoxGeometry(
+          2,
+          2,
+          2
+        );
     }
 
     const material =
@@ -1410,9 +1921,9 @@
         color:
           object.color,
         roughness:
-          0.72,
+          0.8,
         metalness:
-          0.08
+          0.04
       });
 
     const mesh =
@@ -1421,29 +1932,11 @@
         material
       );
 
-    mesh.position.set(
-      object.position.x,
-      object.position.y,
-      object.position.z
-    );
+    mesh.castShadow =
+      true;
 
-    mesh.rotation.set(
-      radians(
-        object.rotation.x
-      ),
-      radians(
-        object.rotation.y
-      ),
-      radians(
-        object.rotation.z
-      )
-    );
-
-    mesh.scale.set(
-      object.scale.x,
-      object.scale.y,
-      object.scale.z
-    );
+    mesh.receiveShadow =
+      true;
 
     mesh.userData.riseId =
       object.id;
@@ -1506,7 +1999,9 @@
     return geometry;
   }
 
-  function disposeMesh(mesh) {
+  function disposeMesh(
+    mesh
+  ) {
     mesh.traverse(
       (child) => {
         child.geometry?.dispose();
@@ -1532,23 +2027,23 @@
   }
 
   /* ========================================================
-     VIEWPORT
+     VIEWPORT SELECT
      ======================================================== */
 
-  function handleViewportClick(event) {
+  function handleViewportClick(
+    event
+  ) {
     if (
       state.running ||
-      !state.raycaster ||
+      !state.renderer ||
       !state.camera ||
-      !state.renderer
+      !state.raycaster
     ) {
       return;
     }
 
     const rect =
-      state.renderer
-        .domElement
-        .getBoundingClientRect();
+      state.renderer.domElement.getBoundingClientRect();
 
     state.mouse.x =
       ((event.clientX -
@@ -1571,9 +2066,13 @@
       state.camera
     );
 
+    const objects = [
+      ...state.meshes.values()
+    ];
+
     const hits =
       state.raycaster.intersectObjects(
-        [...state.meshes.values()],
+        objects,
         false
       );
 
@@ -1583,18 +2082,15 @@
     }
 
     selectObject(
-      hits[0].object
-        .userData.riseId
+      hits[0].object.userData.riseId
     );
   }
 
-  function selectObject(id) {
+  function selectObject(
+    id
+  ) {
     state.selectedId =
       id || null;
-
-    updateSelectionVisual();
-    renderExplorer();
-    renderInspector();
 
     const object =
       getSelectedObject();
@@ -1607,6 +2103,10 @@
           ? object.name
           : "Nothing Selected";
     }
+
+    updateSelectionVisual();
+    renderExplorer();
+    renderInspector();
   }
 
   function updateSelectionVisual() {
@@ -1623,9 +2123,8 @@
           mesh.material
         ) {
           mesh.material.emissive.set(
-            id ===
-              state.selectedId
-              ? 0x174d7d
+            id === state.selectedId
+              ? 0x184b78
               : 0x000000
           );
 
@@ -1648,7 +2147,9 @@
       return;
     }
 
-    if (!state.camera) {
+    if (
+      !state.camera
+    ) {
       return;
     }
 
@@ -1666,73 +2167,72 @@
   }
 
   function resetView() {
-    if (!state.camera) {
+    if (
+      !state.camera
+    ) {
       return;
     }
 
     state.camera.position.set(
-      22,
-      17,
-      24
+      16,
+      10,
+      18
     );
 
     state.camera.lookAt(
       0,
-      0,
+      2,
       0
     );
   }
 
   /* ========================================================
-     OBJECTS
+     OBJECT CREATION
      ======================================================== */
 
   function makeObject(
     type,
-    options = {}
+    name,
+    position,
+    color,
+    scale = {
+      x: 1,
+      y: 1,
+      z: 1
+    }
   ) {
     return normalizeObject({
       id:
-        options.id ||
         makeId(
-          String(type).toLowerCase()
+          String(type)
+            .toLowerCase()
         ),
 
       type,
 
-      name:
-        options.name ||
-        `${type} ${
-          countType(type) + 1
-        }`,
+      name,
 
-      position:
-        options.position ||
-        { ...state.player },
+      position,
 
-      rotation:
-        options.rotation ||
-        { x: 0, y: 0, z: 0 },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0
+      },
 
-      scale:
-        options.scale ||
-        { x: 1, y: 1, z: 1 },
+      scale,
 
       color:
-        options.color ||
+
+        color ||
         defaultColor(type),
 
-      visible:
-        options.visible !== undefined
-          ? options.visible
-          : true,
+      visible: true,
 
       createdAt:
-        options.createdAt ??
         state.timeline.time,
 
       hiddenAt:
-        options.hiddenAt ??
         null
     });
   }
@@ -1741,10 +2241,38 @@
     type,
     options = {}
   ) {
+    const finalType =
+      normalizeShapeType(
+        type
+      );
+
     const object =
       makeObject(
-        type,
-        options
+        finalType,
+        options.name ||
+          `${finalType} ${
+            countObjects(
+              finalType
+            ) + 1
+          }`,
+        options.position ||
+          {
+            x:
+              state.player.x,
+            y:
+              1,
+            z:
+              state.player.z
+          },
+        options.color ||
+          defaultColor(
+            finalType
+          ),
+        options.scale || {
+          x: 1,
+          y: 1,
+          z: 1
+        }
       );
 
     state.project.objects.push(
@@ -1761,7 +2289,8 @@
     saveProject(false);
 
     consoleLog(
-      `Created ${object.name}.`
+      `Created ${object.name}.`,
+      "success"
     );
 
     return object;
@@ -1779,30 +2308,33 @@
     );
   }
 
-  function deleteObject(id) {
+  function deleteObject(
+    id
+  ) {
     const index =
       state.project.objects.findIndex(
         (object) =>
           object.id === id
       );
 
-    if (index === -1) {
+    if (
+      index === -1
+    ) {
       return;
     }
 
     const object =
-      state.project.objects[index];
+      state.project.objects[
+        index
+      ];
 
     state.project.objects.splice(
       index,
       1
     );
 
-    if (
-      state.selectedId === id
-    ) {
-      state.selectedId = null;
-    }
+    state.selectedId =
+      null;
 
     rebuildScene();
     renderEverything();
@@ -1811,11 +2343,14 @@
     saveProject(false);
 
     consoleLog(
-      `Deleted ${object.name}.`
+      `Deleted ${object.name}.`,
+      "success"
     );
   }
 
-  function countType(type) {
+  function countObjects(
+    type
+  ) {
     return state.project.objects.filter(
       (object) =>
         object.type
@@ -1823,31 +2358,6 @@
         String(type)
           .toLowerCase()
     ).length;
-  }
-
-  function defaultColor(type) {
-    switch (
-      String(type)
-        .toLowerCase()
-    ) {
-      case "spawn":
-        return "#35c978";
-
-      case "sphere":
-        return "#9b78ff";
-
-      case "wedge":
-        return "#ff9a62";
-
-      case "cylinder":
-        return "#4da3ff";
-
-      case "light":
-        return "#ffd96a";
-
-      default:
-        return "#4da3ff";
-    }
   }
 
   function getSelectedObject() {
@@ -1897,26 +2407,8 @@
         }
       );
 
-    els.objectTree.innerHTML = "";
-
-    if (!objects.length) {
-      const empty =
-        document.createElement(
-          "div"
-        );
-
-      empty.className =
-        "nothing-selected";
-
-      empty.textContent =
-        state.project.objects.length
-          ? "No matching objects."
-          : "No objects yet.";
-
-      els.objectTree.appendChild(
-        empty
-      );
-    }
+    els.objectTree.innerHTML =
+      "";
 
     objects.forEach(
       (object) => {
@@ -1928,23 +2420,22 @@
         item.className =
           "object-item";
 
-        if (
+        item.classList.toggle(
+          "selected",
           object.id ===
-          state.selectedId
-        ) {
-          item.classList.add(
-            "selected"
-          );
-        }
+            state.selectedId
+        );
 
         item.innerHTML = `
-          <span style="width:18px;color:#4da3ff;">
+          <span style="width:20px;color:#4da3ff;font-weight:700;">
             ${getObjectLetter(object.type)}
           </span>
-          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;">
+
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
             ${escapeHtml(object.name)}
           </span>
-          <span style="color:#58636e;font-size:8px;">
+
+          <span style="font-size:8px;color:#5f6974;">
             ${escapeHtml(object.type)}
           </span>
         `;
@@ -1964,40 +2455,54 @@
     );
 
     if (
+      !objects.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.style.cssText =
+        "padding:15px;color:#5f6974;font-size:10px;text-align:center;";
+
+      empty.textContent =
+        state.project.objects.length
+          ? "No matching objects."
+          : "No objects yet.";
+
+      els.objectTree.appendChild(
+        empty
+      );
+    }
+
+    if (
       els.outlinerFooter
     ) {
       els.outlinerFooter.textContent =
         `${state.project.objects.length} ${
-          state.project.objects.length ===
-          1
+          state.project.objects.length === 1
             ? "object"
             : "objects"
         }`;
     }
   }
 
-  function getObjectLetter(type) {
-    switch (
-      String(type).toLowerCase()
-    ) {
-      case "sphere":
-        return "O";
+  function getObjectLetter(
+    type
+  ) {
+    const map = {
+      Cube: "C",
+      Wedge: "W",
+      Sphere: "S",
+      Cylinder: "C",
+      Light: "L",
+      Spawn: "P"
+    };
 
-      case "wedge":
-        return "W";
-
-      case "cylinder":
-        return "C";
-
-      case "light":
-        return "L";
-
-      case "spawn":
-        return "S";
-
-      default:
-        return "P";
-    }
+    return (
+      map[type] ||
+      "P"
+    );
   }
 
   /* ========================================================
@@ -2063,7 +2568,11 @@
           <input
             type="checkbox"
             data-edit="visible"
-            ${object.visible ? "checked" : ""}
+            ${
+              object.visible
+                ? "checked"
+                : ""
+            }
           >
         </div>
       </div>
@@ -2160,8 +2669,7 @@
         <button
           id="inspectorDelete"
           type="button"
-          class="top-actions danger"
-          style="width:100%;height:31px;"
+          style="width:100%;height:31px;color:#ee9999;background:#251719;border:1px solid #633234;border-radius:4px;cursor:pointer;"
         >
           Delete Object
         </button>
@@ -2177,7 +2685,7 @@
           input.addEventListener(
             "change",
             () =>
-              applyInspectorEdit(
+              inspectorEdit(
                 input
               )
           );
@@ -2193,7 +2701,7 @@
           input.addEventListener(
             "change",
             () =>
-              applyVectorEdit(
+              vectorEdit(
                 input
               )
           );
@@ -2212,7 +2720,7 @@
 
   function vectorEditor(
     property,
-    vectorValue
+    value
   ) {
     return `
       <div class="property-row">
@@ -2225,28 +2733,28 @@
             class="property-input"
             data-vector="${property}"
             data-axis="x"
-            value="${vectorValue.x}"
+            value="${value.x}"
           >
 
           <input
             class="property-input"
             data-vector="${property}"
             data-axis="y"
-            value="${vectorValue.y}"
+            value="${value.y}"
           >
 
           <input
             class="property-input"
             data-vector="${property}"
             data-axis="z"
-            value="${vectorValue.z}"
+            value="${value.z}"
           >
         </div>
       </div>
     `;
   }
 
-  function applyInspectorEdit(
+  function inspectorEdit(
     input
   ) {
     const object =
@@ -2287,10 +2795,8 @@
       property === "createdAt"
     ) {
       object.createdAt =
-        numberOr(
-          input.value,
-          0
-        );
+        Number(input.value) ||
+        0;
     }
 
     if (
@@ -2299,10 +2805,7 @@
       object.hiddenAt =
         input.value === ""
           ? null
-          : numberOr(
-              input.value,
-              null
-            );
+          : Number(input.value);
     }
 
     applyObjectToMesh(
@@ -2311,10 +2814,11 @@
 
     pushHistory();
     saveProject(false);
+
     renderEverything();
   }
 
-  function applyVectorEdit(
+  function vectorEdit(
     input
   ) {
     const object =
@@ -2324,17 +2828,13 @@
       return;
     }
 
-    const property =
-      input.dataset.vector;
-
-    const axis =
-      input.dataset.axis;
-
-    object[property][axis] =
-      numberOr(
-        input.value,
-        0
-      );
+    object[
+      input.dataset.vector
+    ][
+      input.dataset.axis
+    ] =
+      Number(input.value) ||
+      0;
 
     applyObjectToMesh(
       object
@@ -2342,7 +2842,6 @@
 
     pushHistory();
     saveProject(false);
-    renderEverything();
   }
 
   function applyObjectToMesh(
@@ -2396,8 +2895,801 @@
   }
 
   /* ========================================================
-     4D
+     AI
      ======================================================== */
+
+  function submitAI() {
+    try {
+      const prompt =
+        els.aiInput?.value.trim();
+
+      if (!prompt) {
+        return;
+      }
+
+      addAIMessage(
+        "You",
+        prompt,
+        true
+      );
+
+      els.aiInput.value =
+        "";
+
+      const result =
+        thinkLikeRiseAI(
+          prompt
+        );
+
+      if (
+        result.code
+      ) {
+        addAIMessage(
+          "Rise AI",
+          result.message,
+          false,
+          result.code
+        );
+      } else {
+        addAIMessage(
+          "Rise AI",
+          result.message,
+          false
+        );
+      }
+
+      if (
+        result.changed
+      ) {
+        pushHistory();
+        saveProject(false);
+        rebuildScene();
+        renderEverything();
+      }
+
+      consoleLog(
+        `Rise AI: ${result.message.split("\n")[0]}`,
+        "success"
+      );
+    } catch (error) {
+      console.error(error);
+
+      addAIMessage(
+        "Rise AI",
+        "I hit an error while processing that request. Try saying it another way."
+      );
+
+      consoleLog(
+        `Rise AI error: ${error.message}`,
+        "error"
+      );
+    }
+  }
+
+  function addAIMessage(
+    sender,
+    message,
+    user = false,
+    code = ""
+  ) {
+    if (
+      !els.aiMessages
+    ) {
+      return;
+    }
+
+    const wrapper =
+      document.createElement(
+        "div"
+      );
+
+    wrapper.className =
+      `ai-message ${
+        user
+          ? "user"
+          : "ai"
+      }`;
+
+    const strong =
+      document.createElement(
+        "strong"
+      );
+
+    strong.textContent =
+      sender;
+
+    const text =
+      document.createElement(
+        "p"
+      );
+
+    text.textContent =
+      message;
+
+    wrapper.appendChild(
+      strong
+    );
+
+    wrapper.appendChild(
+      text
+    );
+
+    if (code) {
+      const pre =
+        document.createElement(
+          "pre"
+        );
+
+      pre.style.cssText =
+        "margin:8px 0 0;padding:10px;overflow:auto;background:#080b0f;border:1px solid #242b33;border-radius:5px;color:#dbe5ee;font-family:monospace;font-size:10px;line-height:1.5;";
+
+      pre.textContent =
+        code;
+
+      wrapper.appendChild(
+        pre
+      );
+    }
+
+    els.aiMessages.appendChild(
+      wrapper
+    );
+
+    els.aiMessages.scrollTop =
+      els.aiMessages.scrollHeight;
+  }
+
+  function thinkLikeRiseAI(
+    prompt
+  ) {
+    const lower =
+      prompt
+        .trim()
+        .toLowerCase();
+
+    if (
+      /\bhelp\b|\bwhat can you do\b|\bwhat do you do\b/.test(
+        lower
+      )
+    ) {
+      return {
+        changed: false,
+        message:
+          "I'm Rise AI, the coding edition inside RiseUp Studio. I understand the project you're editing. I can build 3D worlds, place objects, modify objects, create 4D events, write RiseCode, explain RiseCode, and debug it."
+      };
+    }
+
+    if (
+      /\b(debug|fix)\b/.test(
+        lower
+      ) &&
+      /\b(code|script|risecode)\b/.test(
+        lower
+      )
+    ) {
+      return debugCode();
+    }
+
+    if (
+      /\b(explain|what does)\b/.test(
+        lower
+      ) &&
+      /\b(code|script|risecode)\b/.test(
+        lower
+      )
+    ) {
+      return explainCode();
+    }
+
+    if (
+      /\b(write|generate|make)\b/.test(
+        lower
+      ) &&
+      /\b(code|script|risecode)\b/.test(
+        lower
+      )
+    ) {
+      return generateCode(
+        lower
+      );
+    }
+
+    if (
+      /\bdelete\b|\bremove\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        );
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Tell me which object to delete, such as 'delete Cube 1'."
+        };
+      }
+
+      deleteObject(
+        object.id
+      );
+
+      return {
+        changed: true,
+        message:
+          `Done. I removed ${object.name}.`
+      };
+    }
+
+    if (
+      /\bhide\b|\bdisappear\b|\bvanish\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        );
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Tell me which object should disappear."
+        };
+      }
+
+      const time =
+        extractTime(
+          lower
+        );
+
+      if (
+        time !== null
+      ) {
+        object.hiddenAt =
+          time;
+
+        setMode("4D");
+
+        return {
+          changed: true,
+          message:
+            `${object.name} will disappear at ${time.toFixed(2)} seconds.`
+        };
+      }
+
+      object.visible =
+        false;
+
+      return {
+        changed: true,
+        message:
+          `${object.name} is now hidden.`
+      };
+    }
+
+    if (
+      /\bmove\b|\bput\b|\bplace\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        ) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Tell me which object to move, or select one in Explorer."
+        };
+      }
+
+      if (
+        /\bwhere i'm standing\b|\bwhere i am\b|\bwhere im standing\b|\bhere\b/.test(
+          lower
+        )
+      ) {
+        object.position = {
+          x:
+            state.player.x,
+          y:
+            1,
+          z:
+            state.player.z
+        };
+
+        return {
+          changed: true,
+          message:
+            `Placed ${object.name} where the player is standing.`
+        };
+      }
+
+      const position =
+        parsePosition(
+          lower
+        );
+
+      if (
+        position
+      ) {
+        object.position =
+          position;
+
+        return {
+          changed: true,
+          message:
+            `Moved ${object.name} to (${position.x}, ${position.y}, ${position.z}).`
+        };
+      }
+
+      return {
+        changed: false,
+        message:
+          "Give me a location, like 'move the cube to x 10 y 2 z 20', or say 'put it where I'm standing'."
+      };
+    }
+
+    if (
+      /\brotate\b|\bturn\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        ) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select an object or tell me which object to rotate."
+        };
+      }
+
+      const amount =
+        extractNumber(
+          lower
+        ) ?? 90;
+
+      if (
+        /\bx\b/.test(
+          lower
+        )
+      ) {
+        object.rotation.x +=
+          amount;
+      } else if (
+        /\bz\b/.test(
+          lower
+        )
+      ) {
+        object.rotation.z +=
+          amount;
+      } else {
+        object.rotation.y +=
+          amount;
+      }
+
+      return {
+        changed: true,
+        message:
+          `Rotated ${object.name} by ${amount} degrees.`
+      };
+    }
+
+    if (
+      /\bscale\b|\bresize\b|\bbigger\b|\bsmaller\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        ) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select the object you want to resize."
+        };
+      }
+
+      let amount =
+        extractNumber(
+          lower
+        );
+
+      if (
+        amount ===
+        null
+      ) {
+        amount =
+          /\bsmaller\b/.test(
+            lower
+          )
+            ? 0.5
+            : 2;
+      }
+
+      object.scale = {
+        x: amount,
+        y: amount,
+        z: amount
+      };
+
+      return {
+        changed: true,
+        message:
+          `Scaled ${object.name} to ${amount}.`
+      };
+    }
+
+    if (
+      /\bcolor\b|\bcolour\b|\brecolor\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        ) ||
+        getSelectedObject();
+
+      const color =
+        detectColor(
+          lower
+        );
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select an object you want to recolor."
+        };
+      }
+
+      if (!color) {
+        return {
+          changed: false,
+          message:
+            "Tell me the color you want."
+        };
+      }
+
+      object.color =
+        color;
+
+      return {
+        changed: true,
+        message:
+          `Changed ${object.name} to ${color}.`
+      };
+    }
+
+    if (
+      /\b4d\b|\btimeline\b|\bdisappear\b|\bappear\b|\btime\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(
+          lower
+        );
+
+      const time =
+        extractTime(
+          lower
+        );
+
+      setMode("4D");
+
+      if (
+        object &&
+        time !== null &&
+        /\bdisappear\b|\bvanish\b/.test(
+          lower
+        )
+      ) {
+        object.hiddenAt =
+          time;
+
+        return {
+          changed: true,
+          message:
+            `4D event created. ${object.name} disappears at ${time.toFixed(2)} seconds.`
+        };
+      }
+
+      if (
+        time !== null
+      ) {
+        setTimeline(
+          time
+        );
+      }
+
+      return {
+        changed: false,
+        message:
+          `4D mode is active at ${state.timeline.time.toFixed(2)} seconds.`
+      };
+    }
+
+    /*
+      ADD / BUILD COMMANDS
+      */
+
+    if (
+      /\b(add|create|make|build|spawn|place)\b/.test(
+        lower
+      )
+    ) {
+      const type =
+        detectShape(
+          lower
+        );
+
+      let position =
+        parsePosition(
+          lower
+        );
+
+      if (
+        /\bwhere i'm standing\b|\bwhere i am\b|\bwhere im standing\b|\bhere\b/.test(
+          lower
+        )
+      ) {
+        position = {
+          x:
+            state.player.x,
+          y:
+            1,
+          z:
+            state.player.z
+        };
+      }
+
+      if (!position) {
+        position = {
+          x:
+            state.player.x,
+          y:
+            1,
+          z:
+            state.player.z
+        };
+      }
+
+      const object =
+        createObject(
+          type,
+          {
+            position
+          }
+        );
+
+      return {
+        changed: true,
+        message:
+          `Done. I created ${object.name} at (${position.x}, ${position.y}, ${position.z}).`
+      };
+    }
+
+    /*
+      Natural-language world requests.
+      */
+
+    if (
+      /\bworld\b|\bmap\b|\benvironment\b|\bscene\b/.test(
+        lower
+      )
+    ) {
+      return {
+        changed: false,
+        message:
+          `Your current world has ${state.project.objects.length} objects, a ground plane, sky, sun, atmosphere, grid, and a player spawn at (${state.player.x}, ${state.player.y}, ${state.player.z}). Tell me what you want to add to it.`
+      };
+    }
+
+    return {
+      changed: false,
+      message:
+        "I understand natural-language 3D commands. Try 'add a cube where I'm standing', 'make a red sphere at x 10 y 2 z 5', 'move Cube 1 to x 20 y 2 z 10', 'make the cube disappear after 10 seconds', or 'write code for an NPC'."
+    };
+  }
+
+  function generateCode(
+    prompt
+  ) {
+    let code;
+
+    if (
+      /\bnpc\b/.test(
+        prompt
+      )
+    ) {
+      code = [
+        'npc.name = "Guard";',
+        "npc.health = 100;",
+        "npc.speed = 4;",
+        'npc.behavior = "patrol";'
+      ].join("\n");
+    } else if (
+      /\bweapon\b/.test(
+        prompt
+      )
+    ) {
+      code = [
+        'weapon.name = "Blaster";',
+        "weapon.damage = 25;",
+        "weapon.cooldown = 0.2;"
+      ].join("\n");
+    } else if (
+      /\bmultiplayer\b/.test(
+        prompt
+      )
+    ) {
+      code = [
+        "network.enabled = true;",
+        "network.maxPlayers = 12;",
+        'network.mode = "server-authoritative";'
+      ].join("\n");
+    } else if (
+      /\bday\b|\bnight\b/.test(
+        prompt
+      )
+    ) {
+      code = [
+        "world.time.start = 0;",
+        "world.time.speed = 1;",
+        "world.time.cycle = true;"
+      ].join("\n");
+    } else {
+      code = [
+        'game.name = "My Game";',
+        'game.mode = "3D";',
+        "",
+        "world.gravity = 25;",
+        "player.walk.speed = 7;",
+        "player.jump.power = 9;"
+      ].join("\n");
+    }
+
+    state.project.code =
+      code;
+
+    if (
+      els.studioCodeEditor
+    ) {
+      els.studioCodeEditor.value =
+        code;
+    }
+
+    updateLineNumbers();
+    setBottom("code");
+
+    return {
+      changed: true,
+      code,
+      message:
+        "I generated the RiseCode and placed it into the editor."
+    };
+  }
+
+  function explainCode() {
+    const code =
+      els.studioCodeEditor?.value ||
+      state.project.code;
+
+    const lines =
+      code
+        .split(/\r?\n/)
+        .filter(
+          (line) =>
+            line.trim()
+        );
+
+    return {
+      changed: false,
+      message:
+        `Your current script has ${lines.length} active line${
+          lines.length === 1
+            ? ""
+            : "s"
+        }.\n\n${lines
+          .slice(0, 12)
+          .join("\n")}`
+    };
+  }
+
+  function debugCode() {
+    const code =
+      els.studioCodeEditor?.value ||
+      "";
+
+    const errors =
+      [];
+
+    code
+      .split(/\r?\n/)
+      .forEach(
+        (line, index) => {
+          const text =
+            line.trim();
+
+          if (
+            !text ||
+            text.startsWith(
+              "//"
+            )
+          ) {
+            return;
+          }
+
+          if (
+            !text.endsWith(";") &&
+            !text.endsWith("{") &&
+            !text.endsWith("}")
+          ) {
+            errors.push(
+              `Line ${
+                index + 1
+              }: missing semicolon.`
+            );
+          }
+        }
+      );
+
+    if (!errors.length) {
+      return {
+        changed: false,
+        message:
+          "I checked the current RiseCode and did not find an obvious syntax issue in the statements I understand."
+      };
+    }
+
+    return {
+      changed: false,
+      message:
+        `I found ${errors.length} possible issue${
+          errors.length === 1
+            ? ""
+            : "s"
+        }:\n${errors.join(
+          "\n"
+        )}`
+    };
+  }
+
+  /* ========================================================
+     TIMELINE
+     ======================================================== */
+
+  function setTimeline(
+    time
+  ) {
+    state.timeline.time =
+      Math.max(
+        0,
+        Math.min(
+          state.timeline.max,
+          Number(time) || 0
+        )
+      );
+
+    refreshTimeline();
+  }
 
   function refreshTimeline() {
     if (
@@ -2434,19 +3726,6 @@
     renderTimelineObjects();
   }
 
-  function setTimeline(time) {
-    state.timeline.time =
-      Math.max(
-        0,
-        Math.min(
-          state.timeline.max,
-          Number(time) || 0
-        )
-      );
-
-    refreshTimeline();
-  }
-
   function toggleTimeline() {
     if (
       state.timeline.playing
@@ -2458,12 +3737,17 @@
     state.timeline.playing =
       true;
 
-    els.timelinePlay.textContent =
-      "Pause";
+    if (
+      els.timelinePlay
+    ) {
+      els.timelinePlay.textContent =
+        "Pause";
+    }
 
     const start =
       performance.now() -
-      state.timeline.time * 1000;
+      state.timeline.time *
+        1000;
 
     const tick =
       (now) => {
@@ -2511,6 +3795,9 @@
       cancelAnimationFrame(
         state.timelineFrame
       );
+
+      state.timelineFrame =
+        null;
     }
 
     if (
@@ -2525,16 +3812,15 @@
     object,
     mesh
   ) {
-    const time =
-      state.timeline.time;
-
     const before =
-      time <
+      state.timeline.time <
       object.createdAt;
 
     const after =
-      object.hiddenAt !== null &&
-      time >= object.hiddenAt;
+      object.hiddenAt !==
+        null &&
+      state.timeline.time >=
+        object.hiddenAt;
 
     mesh.visible =
       object.visible &&
@@ -2549,7 +3835,8 @@
       return;
     }
 
-    els.timelineObjects.innerHTML = "";
+    els.timelineObjects.innerHTML =
+      "";
 
     state.project.objects.forEach(
       (object) => {
@@ -2559,57 +3846,56 @@
           );
 
         row.style.cssText =
-          "height:24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;position:relative;padding-left:8px;color:#89939e;font-size:9px;";
+          "height:24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 8px;color:#89939e;font-size:9px;";
 
-        const title =
+        const name =
           document.createElement(
             "span"
           );
 
-        title.textContent =
+        name.textContent =
           object.name;
 
         row.appendChild(
-          title
+          name
         );
 
-        if (
-          object.createdAt <=
-          state.timeline.max
-        ) {
-          const start =
-            document.createElement(
-              "span"
-            );
-
-          start.textContent =
-            `  ${object.createdAt.toFixed(1)}s`;
-
-          start.style.cssText =
-            "margin-left:auto;color:#4da3ff;padding-right:8px;";
-
-          row.appendChild(
-            start
+        const created =
+          document.createElement(
+            "span"
           );
-        }
+
+        created.style.cssText =
+          "margin-left:auto;color:#4da3ff;";
+
+        created.textContent =
+          `${object.createdAt.toFixed(
+            1
+          )}s`;
+
+        row.appendChild(
+          created
+        );
 
         if (
           object.hiddenAt !==
           null
         ) {
-          const end =
+          const hidden =
             document.createElement(
               "span"
             );
 
-          end.textContent =
-            `→ ${object.hiddenAt.toFixed(1)}s`;
+          hidden.style.cssText =
+            "margin-left:10px;color:#e35d5d;";
 
-          end.style.cssText =
-            "color:#e35d5d;padding-right:8px;";
+          hidden.textContent =
+            `→ ${object.hiddenAt.toFixed(
+              1
+            )}s`;
 
           row.appendChild(
-            end
+            hidden
           );
         }
 
@@ -2621,7 +3907,7 @@
   }
 
   /* ========================================================
-     RISECODE
+     CODE
      ======================================================== */
 
   function updateLineNumbers() {
@@ -2632,46 +3918,52 @@
       return;
     }
 
-    const lines =
-      els.studioCodeEditor.value
-        .split("\n")
-        .length;
+    const count =
+      els.studioCodeEditor.value.split(
+        "\n"
+      ).length;
 
     els.studioLineNumbers.innerHTML =
       Array.from(
         {
-          length: lines
+          length:
+            count
         },
         (_, index) =>
           index + 1
-      ).join("<br>");
+      ).join(
+        "<br>"
+      );
   }
 
   function saveCode() {
     state.project.code =
-      els.studioCodeEditor?.value ||
+      els.studioCodeEditor
+        ?.value ||
       "";
 
     pushHistory();
     saveProject(true);
 
     consoleLog(
-      "RiseCode saved."
+      "RiseCode saved.",
+      "success"
     );
   }
 
   function runCode() {
     const code =
-      els.studioCodeEditor?.value ||
+      els.studioCodeEditor
+        ?.value ||
       "";
 
     state.project.code =
       code;
 
     const result =
-      executeRiseCode(code);
-
-    renderEverything();
+      executeRiseCode(
+        code
+      );
 
     if (
       result.errors.length
@@ -2695,8 +3987,11 @@
     pushHistory();
     saveProject(false);
 
+    rebuildScene();
+    renderEverything();
+
     toast(
-      `RiseCode ran: ${result.executed} statement${
+      `Ran ${result.executed} RiseCode statement${
         result.executed === 1
           ? ""
           : "s"
@@ -2705,1083 +4000,137 @@
     );
   }
 
-  function executeRiseCode(code) {
-    const lines =
-      code.split(/\r?\n/);
+  function executeRiseCode(
+    code
+  ) {
+    const errors =
+      [];
 
-    const errors = [];
+    let executed =
+      0;
 
-    let executed = 0;
-
-    for (
-      let i = 0;
-      i < lines.length;
-      i++
-    ) {
-      const raw =
-        lines[i].trim();
-
-      if (
-        !raw ||
-        raw.startsWith("//")
-      ) {
-        continue;
-      }
-
-      try {
-        if (
-          /^game\.name\s*=/.test(
-            raw
-          )
-        ) {
-          const value =
-            extractQuoted(raw);
-
-          if (value !== null) {
-            state.project.name =
-              value;
-          }
-
-          executed++;
-          continue;
-        }
-
-        if (
-          /^game\.mode\s*=/.test(
-            raw
-          )
-        ) {
-          const value =
-            extractQuoted(raw);
+    code
+      .split(/\r?\n/)
+      .forEach(
+        (line, index) => {
+          const text =
+            line.trim();
 
           if (
-            value?.toUpperCase() ===
-            "4D"
-          ) {
-            setMode("4D");
-          } else {
-            setMode("3D");
-          }
-
-          executed++;
-          continue;
-        }
-
-        if (
-          /^add\.mesh\./.test(
-            raw
-          )
-        ) {
-          const match =
-            raw.match(
-              /^add\.mesh\.([a-z]+)\s*\(\s*\)\s*;?$/i
-            );
-
-          if (!match) {
-            throw new Error(
-              `Unknown mesh syntax on line ${i + 1}.`
-            );
-          }
-
-          const type =
-            capitalize(
-              match[1]
-            );
-
-          createObject(
-            normalizeShapeType(
-              type
+            !text ||
+            text.startsWith(
+              "//"
             )
+          ) {
+            return;
+          }
+
+          if (
+            /^game\.name\s*=/.test(
+              text
+            )
+          ) {
+            const value =
+              extractQuoted(
+                text
+              );
+
+            if (
+              value !== null
+            ) {
+              state.project.name =
+                value;
+            }
+
+            executed++;
+            return;
+          }
+
+          if (
+            /^game\.mode\s*=/.test(
+              text
+            )
+          ) {
+            const value =
+              extractQuoted(
+                text
+              );
+
+            setMode(
+              String(
+                value
+              ).toUpperCase() ===
+                "4D"
+                ? "4D"
+                : "3D"
+            );
+
+            executed++;
+            return;
+          }
+
+          if (
+            /^add\.mesh\./i.test(
+              text
+            )
+          ) {
+            const match =
+              text.match(
+                /^add\.mesh\.([a-z]+)\s*\(\s*\)\s*;?$/i
+              );
+
+            if (!match) {
+              errors.push(
+                `Line ${
+                  index + 1
+                }: invalid mesh syntax.`
+              );
+
+              return;
+            }
+
+            createObject(
+              normalizeShapeType(
+                match[1]
+              )
+            );
+
+            executed++;
+            return;
+          }
+
+          if (
+            /^map\.name\s*=/.test(
+              text
+            ) ||
+            /^world\.gravity\s*=/.test(
+              text
+            ) ||
+            /^player\.walk\.speed\s*=/.test(
+              text
+            ) ||
+            /^player\.jump\.power\s*=/.test(
+              text
+            )
+          ) {
+            executed++;
+            return;
+          }
+
+          errors.push(
+            `Line ${
+              index + 1
+            }: RiseCode statement not recognized.`
           );
-
-          executed++;
-          continue;
         }
+      );
 
-        if (
-          /^player\.walk\.speed\s*=/.test(
-            raw
-          )
-        ) {
-          executed++;
-          continue;
-        }
-
-        if (
-          /^player\.jump\.power\s*=/.test(
-            raw
-          )
-        ) {
-          executed++;
-          continue;
-        }
-
-        if (
-          /^world\.gravity\s*=/.test(
-            raw
-          )
-        ) {
-          executed++;
-          continue;
-        }
-
-        if (
-          /^map\.name\s*=/.test(
-            raw
-          )
-        ) {
-          executed++;
-          continue;
-        }
-
-        if (
-          /^color\./.test(
-            raw
-          )
-        ) {
-          executed++;
-          continue;
-        }
-
-        throw new Error(
-          `Unknown RiseCode on line ${i + 1}.`
-        );
-      } catch (error) {
-        errors.push(
-          error.message
-        );
-      }
-    }
-
-    syncProjectName();
+    syncProjectUI();
 
     return {
       errors,
       executed
     };
-  }
-
-  /* ========================================================
-     AI
-     ======================================================== */
-
-  function submitAI() {
-    const prompt =
-      els.aiInput?.value.trim();
-
-    if (!prompt) {
-      return;
-    }
-
-    addAIMessage(
-      "You",
-      prompt,
-      true
-    );
-
-    els.aiInput.value = "";
-
-    state.ai.waiting =
-      true;
-
-    const result =
-      aiThink(prompt);
-
-    state.ai.waiting =
-      false;
-
-    if (
-      result.code
-    ) {
-      addAIMessage(
-        "Rise AI",
-        result.message,
-        false,
-        result.code
-      );
-    } else {
-      addAIMessage(
-        "Rise AI",
-        result.message,
-        false
-      );
-    }
-
-    if (
-      result.changed
-    ) {
-      pushHistory();
-      saveProject(false);
-      rebuildScene();
-      renderEverything();
-    }
-  }
-
-  function aiThink(prompt) {
-    const text =
-      prompt.trim();
-
-    const lower =
-      text.toLowerCase();
-
-    const context =
-      buildAIContext();
-
-    /*
-      The local assistant has two modes:
-
-      1. World mode:
-         Create/edit 3D + 4D objects.
-
-      2. Coding mode:
-         Generate or explain RiseCode.
-    */
-
-    if (
-      /\b(debug|fix|error|broken)\b/.test(
-        lower
-      )
-    ) {
-      return aiDebug(text);
-    }
-
-    if (
-      /\b(write|generate|make|create)\b/.test(
-        lower
-      ) &&
-      /\b(code|risecode|script)\b/.test(
-        lower
-      )
-    ) {
-      return aiGenerateCode(text);
-    }
-
-    if (
-      /\b(explain|what does|how does)\b/.test(
-        lower
-      ) &&
-      /\b(code|risecode|script)\b/.test(
-        lower
-      )
-    ) {
-      return aiExplainCode(text);
-    }
-
-    if (
-      /\bshow\b|\bbuild\b|\bcreate\b|\badd\b|\bmake\b|\bput\b|\bplace\b|\bspawn\b/.test(
-        lower
-      )
-    ) {
-      return aiWorldCommand(
-        text,
-        context
-      );
-    }
-
-    if (
-      /\bmove\b|\brotate\b|\bscale\b|\bresize\b|\bcolor\b|\brecolor\b|\bdelete\b|\bremove\b|\bhide\b|\bdisappear\b|\bvanish\b|\bvisible\b|\bshow\b/.test(
-        lower
-      )
-    ) {
-      return aiWorldCommand(
-        text,
-        context
-      );
-    }
-
-    if (
-      /\b4d\b|\btimeline\b|\bseconds\b|\bsecond\b|\btime\b/.test(
-        lower
-      )
-    ) {
-      return aiWorldCommand(
-        text,
-        context
-      );
-    }
-
-    if (
-      /\bwhat\b.*\bcan\b.*\byou\b|\bhelp\b|\bwhat can you do\b/.test(
-        lower
-      )
-    ) {
-      return {
-        changed: false,
-        message:
-          "I'm Rise AI, the coding edition built into RiseUp Studio. I can understand your project, create and modify 3D worlds, work with 4D timelines, generate RiseCode, explain code, debug code, and turn natural-language instructions into game systems."
-      };
-    }
-
-    return {
-      changed: false,
-      message:
-        `I understand the current project: "${context.projectName}" with ${context.objectCount} object${context.objectCount === 1 ? "" : "s"}. Tell me what you want to build, code, change, debug, or explain.`
-    };
-  }
-
-  function aiWorldCommand(
-    prompt,
-    context
-  ) {
-    const lower =
-      prompt.toLowerCase();
-
-    if (
-      /\bdelete\b|\bremove\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt);
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "I couldn't tell which object you want removed. Give me its name, such as 'delete Cube 1'."
-        };
-      }
-
-      deleteObject(
-        object.id
-      );
-
-      return {
-        changed: true,
-        message:
-          `Done. I removed ${object.name} from the world.`
-      };
-    }
-
-    if (
-      /\bhide\b|\bdisappear\b|\bvanish\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt);
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Which object should disappear?"
-        };
-      }
-
-      const time =
-        extractTime(prompt);
-
-      if (
-        time !== null
-      ) {
-        object.hiddenAt =
-          time;
-
-        return {
-          changed: true,
-          message:
-            `Done. ${object.name} will disappear at ${time.toFixed(2)} seconds.`
-        };
-      }
-
-      object.visible =
-        false;
-
-      return {
-        changed: true,
-        message:
-          `${object.name} is now hidden.`
-      };
-    }
-
-    if (
-      /\bshow\b|\bvisible\b|\bunhide\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt);
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Which object should I show?"
-        };
-      }
-
-      object.visible =
-        true;
-
-      object.hiddenAt =
-        null;
-
-      return {
-        changed: true,
-        message:
-          `${object.name} is visible again.`
-      };
-    }
-
-    if (
-      /\bmove\b|\bput\b|\bplace\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt) ||
-        getSelectedObject();
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Tell me which object to move, or select one in the Explorer."
-        };
-      }
-
-      const position =
-        parsePosition(
-          prompt
-        );
-
-      if (
-        position
-      ) {
-        object.position =
-          position;
-
-        return {
-          changed: true,
-          message:
-            `Moved ${object.name} to (${position.x}, ${position.y}, ${position.z}).`
-        };
-      }
-
-      if (
-        /\bwhere i'm standing\b|\bwhere i am\b|\bhere\b/.test(
-          lower
-        )
-      ) {
-        object.position = {
-          ...state.player
-        };
-
-        return {
-          changed: true,
-          message:
-            `Placed ${object.name} where the player is standing.`
-        };
-      }
-
-      return {
-        changed: false,
-        message:
-          "Tell me a location like 'move the cube to x 10 y 5 z 20' or say 'move it where I'm standing'."
-      };
-    }
-
-    if (
-      /\brotate\b|\bturn\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt) ||
-        getSelectedObject();
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Select the object you want rotated."
-        };
-      }
-
-      const amount =
-        extractNumber(
-          prompt
-        ) ?? 90;
-
-      if (
-        /\bx\b/.test(
-          lower
-        )
-      ) {
-        object.rotation.x +=
-          amount;
-      } else if (
-        /\bz\b/.test(
-          lower
-        )
-      ) {
-        object.rotation.z +=
-          amount;
-      } else {
-        object.rotation.y +=
-          amount;
-      }
-
-      return {
-        changed: true,
-        message:
-          `Rotated ${object.name} by ${amount} degrees.`
-      };
-    }
-
-    if (
-      /\bscale\b|\bresize\b|\bbigger\b|\bsmaller\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt) ||
-        getSelectedObject();
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Select the object you want to resize."
-        };
-      }
-
-      let amount =
-        extractNumber(
-          prompt
-        );
-
-      if (
-        amount === null
-      ) {
-        amount =
-          /\bsmaller\b/.test(
-            lower
-          )
-            ? 0.5
-            : 2;
-      }
-
-      object.scale = {
-        x: amount,
-        y: amount,
-        z: amount
-      };
-
-      return {
-        changed: true,
-        message:
-          `Scaled ${object.name} to ${amount}.`
-      };
-    }
-
-    if (
-      /\bcolor\b|\bcolour\b|\brecolor\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt) ||
-        getSelectedObject();
-
-      const color =
-        detectColor(
-          lower
-        );
-
-      if (!object) {
-        return {
-          changed: false,
-          message:
-            "Select an object and tell me its new color."
-        };
-      }
-
-      if (!color) {
-        return {
-          changed: false,
-          message:
-            "Tell me a color such as blue, red, green, purple, orange, or white."
-        };
-      }
-
-      object.color =
-        color;
-
-      return {
-        changed: true,
-        message:
-          `Changed ${object.name} to ${color}.`
-      };
-    }
-
-    if (
-      /\b4d\b|\btimeline\b|\bdisappear\b|\bappear\b/.test(
-        lower
-      )
-    ) {
-      const object =
-        findAIObject(prompt);
-
-      const time =
-        extractTime(
-          prompt
-        );
-
-      if (
-        object &&
-        /\bdisappear\b|\bvanish\b/.test(
-          lower
-        ) &&
-        time !== null
-      ) {
-        object.hiddenAt =
-          time;
-
-        setMode("4D");
-
-        return {
-          changed: true,
-          message:
-            `4D enabled. ${object.name} disappears at ${time.toFixed(2)} seconds.`
-        };
-      }
-
-      setMode("4D");
-
-      if (
-        time !== null
-      ) {
-        setTimeline(time);
-      }
-
-      return {
-        changed: false,
-        message:
-          `4D mode is active at ${state.timeline.time.toFixed(2)} seconds.`
-      };
-    }
-
-    const type =
-      detectShape(
-        lower
-      );
-
-    let position =
-      parsePosition(
-        prompt
-      );
-
-    if (
-      !position &&
-      /\bwhere i'm standing\b|\bwhere i am\b|\bhere\b/.test(
-        lower
-      )
-    ) {
-      position = {
-        ...state.player
-      };
-    }
-
-    if (!position) {
-      position = {
-        ...state.player
-      };
-    }
-
-    const object =
-      createObject(
-        type,
-        {
-          position
-        }
-      );
-
-    return {
-      changed: true,
-      message:
-        `Done. I created ${object.name} at (${position.x}, ${position.y}, ${position.z}).`
-    };
-  }
-
-  function aiGenerateCode(
-    prompt
-  ) {
-    const lower =
-      prompt.toLowerCase();
-
-    let code = "";
-
-    if (
-      /\bobby\b|\bnpc\b/.test(
-        lower
-      )
-    ) {
-      code = [
-        'npc.name = "Guard";',
-        "npc.health = 100;",
-        "npc.speed = 4;",
-        'npc.behavior = "patrol";'
-      ].join("\n");
-    } else if (
-      /\bweapon\b|\bgun\b|\bsword\b/.test(
-        lower
-      )
-    ) {
-      code = [
-        'weapon.name = "Blaster";',
-        "weapon.damage = 25;",
-        "weapon.cooldown = 0.2;"
-      ].join("\n");
-    } else if (
-      /\bui\b|\bmenu\b|\bbutton\b/.test(
-        lower
-      )
-    ) {
-      code = [
-        'ui.create("MainMenu");',
-        'ui.button("Play");',
-        'ui.button("Settings");'
-      ].join("\n");
-    } else if (
-      /\bmultiplayer\b|\bmulti player\b/.test(
-        lower
-      )
-    ) {
-      code = [
-        "network.enabled = true;",
-        "network.maxPlayers = 12;",
-        'network.mode = "server-authoritative";'
-      ].join("\n");
-    } else if (
-      /\bday\b|\bnight\b|\btime\b/.test(
-        lower
-      )
-    ) {
-      code = [
-        "world.time.start = 0;",
-        "world.time.speed = 1;",
-        "world.time.cycle = true;"
-      ].join("\n");
-    } else {
-      code = [
-        'game.name = "My Game";',
-        'game.mode = "3D";',
-        "",
-        "world.gravity = 25;",
-        "player.walk.speed = 7;",
-        "player.jump.power = 9;"
-      ].join("\n");
-    }
-
-    setCodeFromAI(
-      code
-    );
-
-    return {
-      changed: true,
-      code,
-      message:
-        "I generated RiseCode for that and placed it in the RiseCode editor."
-    };
-  }
-
-  function aiExplainCode() {
-    const code =
-      els.studioCodeEditor?.value ||
-      state.project.code;
-
-    const lines =
-      code
-        .split("\n")
-        .filter(
-          (line) =>
-            line.trim()
-        );
-
-    const explanations =
-      lines
-        .slice(0, 8)
-        .map(
-          (line) =>
-            `${line.trim()}`
-        );
-
-    return {
-      changed: false,
-      message:
-        `Your current RiseCode has ${lines.length} active line${lines.length === 1 ? "" : "s"}. I can explain each statement or rewrite the system in a cleaner way.\n\n${explanations.join("\n")}`
-    };
-  }
-
-  function aiDebug() {
-    const code =
-      els.studioCodeEditor?.value ||
-      "";
-
-    const errors = [];
-
-    const lines =
-      code.split("\n");
-
-    lines.forEach(
-      (line, index) => {
-        const trimmed =
-          line.trim();
-
-        if (
-          !trimmed ||
-          trimmed.startsWith(
-            "//"
-          )
-        ) {
-          return;
-        }
-
-        if (
-          !trimmed.endsWith(";") &&
-          !trimmed.endsWith("{") &&
-          !trimmed.endsWith("}")
-        ) {
-          errors.push(
-            `Line ${index + 1}: missing semicolon.`
-          );
-        }
-
-        if (
-          /^add\.mesh\./.test(
-            trimmed
-          ) &&
-          !/^add\.mesh\.[a-z]+\(\);\s*$/i.test(
-            trimmed
-          )
-        ) {
-          errors.push(
-            `Line ${index + 1}: mesh syntax should look like add.mesh.cube();`
-          );
-        }
-      }
-    );
-
-    if (!errors.length) {
-      return {
-        changed: false,
-        message:
-          "I checked the current RiseCode and didn't find an obvious syntax problem in the statements I understand."
-      };
-    }
-
-    return {
-      changed: false,
-      message:
-        `I found ${errors.length} problem${errors.length === 1 ? "" : "s"}:\n${errors.join("\n")}`
-    };
-  }
-
-  function buildAIContext() {
-    return {
-      projectName:
-        state.project.name,
-
-      mode:
-        state.mode,
-
-      objectCount:
-        state.project.objects.length,
-
-      selected:
-        getSelectedObject()
-          ?.name || null,
-
-      objects:
-        state.project.objects.map(
-          (object) => ({
-            name:
-              object.name,
-            type:
-              object.type,
-            position:
-              object.position,
-            color:
-              object.color
-          })
-        ),
-
-      code:
-        els.studioCodeEditor
-          ?.value ||
-        state.project.code
-    };
-  }
-
-  function addAIMessage(
-    sender,
-    message,
-    user = false,
-    code = ""
-  ) {
-    if (
-      !els.aiMessages
-    ) {
-      return;
-    }
-
-    const wrapper =
-      document.createElement(
-        "div"
-      );
-
-    wrapper.className =
-      `ai-message ${
-        user
-          ? "user"
-          : "ai"
-      }`;
-
-    const title =
-      document.createElement(
-        "strong"
-      );
-
-    title.textContent =
-      sender;
-
-    const text =
-      document.createElement(
-        "p"
-      );
-
-    text.textContent =
-      message;
-
-    wrapper.appendChild(
-      title
-    );
-
-    wrapper.appendChild(
-      text
-    );
-
-    if (code) {
-      const codeBox =
-        document.createElement(
-          "pre"
-        );
-
-      codeBox.style.cssText =
-        "margin:8px 0 0;padding:10px;overflow:auto;background:#080b0f;border:1px solid #242b33;border-radius:4px;color:#dbe5ee;font-family:monospace;font-size:10px;line-height:1.5;white-space:pre;";
-
-      codeBox.textContent =
-        code;
-
-      wrapper.appendChild(
-        codeBox
-      );
-    }
-
-    els.aiMessages.appendChild(
-      wrapper
-    );
-
-    els.aiMessages.scrollTop =
-      els.aiMessages.scrollHeight;
-  }
-
-  function setCodeFromAI(code) {
-    state.project.code =
-      code;
-
-    if (
-      els.studioCodeEditor
-    ) {
-      els.studioCodeEditor.value =
-        code;
-    }
-
-    updateLineNumbers();
-    setBottom("code");
-  }
-
-  /* ========================================================
-     LOCATION / AI PLACEMENT
-     ======================================================== */
-
-  let pendingObjectType =
-    null;
-
-  function placePendingObject(
-    location
-  ) {
-    if (
-      !pendingObjectType
-    ) {
-      closeLocation();
-      return;
-    }
-
-    let position;
-
-    if (
-      location ===
-      "selected"
-    ) {
-      const selected =
-        getSelectedObject();
-
-      position =
-        selected
-          ? {
-              ...selected.position
-            }
-          : {
-              ...state.player
-            };
-    } else if (
-      location === "origin"
-    ) {
-      position = {
-        x: 0,
-        y: 0,
-        z: 0
-      };
-    } else {
-      position = {
-        ...state.player
-      };
-    }
-
-    createObject(
-      pendingObjectType,
-      {
-        position
-      }
-    );
-
-    pendingObjectType =
-      null;
-
-    closeLocation();
-  }
-
-  function openLocation(
-    type
-  ) {
-    pendingObjectType =
-      type;
-
-    els.locationModal?.classList.remove(
-      "hidden"
-    );
-  }
-
-  function closeLocation() {
-    els.locationModal?.classList.add(
-      "hidden"
-    );
-
-    pendingObjectType =
-      null;
   }
 
   /* ========================================================
@@ -3815,19 +4164,12 @@
     );
 
     consoleLog(
-      "Game started."
+      "Game started.",
+      "success"
     );
-
-    updateViewportHintForPlay();
   }
 
   function stopGame() {
-    if (
-      !state.running
-    ) {
-      return;
-    }
-
     state.running =
       false;
 
@@ -3848,23 +4190,9 @@
     );
 
     consoleLog(
-      "Game stopped."
+      "Game stopped.",
+      "success"
     );
-  }
-
-  function updateViewportHintForPlay() {
-    if (
-      !els.viewportHint
-    ) {
-      return;
-    }
-
-    if (
-      state.running
-    ) {
-      els.viewportHint.style.display =
-        "none";
-    }
   }
 
   /* ========================================================
@@ -3916,7 +4244,8 @@
 
     saveProject(false);
 
-    let games = [];
+    let games =
+      [];
 
     try {
       games =
@@ -3928,7 +4257,9 @@
         );
 
       if (
-        !Array.isArray(games)
+        !Array.isArray(
+          games
+        )
       ) {
         games = [];
       }
@@ -3936,33 +4267,29 @@
       games = [];
     }
 
-    const username =
+    const owner =
       getUsername(
         state.user
       );
 
-    const gameId =
-      `${slugify(name)}-${username}`;
+    const id =
+      `${slugify(name)}-${owner}`;
 
     const game = {
-      id: gameId,
+      id,
       name,
       title: name,
       description,
-      creator:
-        username,
-      owner:
-        username,
-      projectOwner:
-        username,
+      creator: owner,
+      owner,
+      projectOwner: owner,
+      mode: state.mode,
+      code:
+        state.project.code,
       objects:
         deepClone(
           state.project.objects
         ),
-      code:
-        state.project.code,
-      mode:
-        state.mode,
       updatedAt:
         new Date().toISOString()
     };
@@ -3970,10 +4297,12 @@
     const index =
       games.findIndex(
         (item) =>
-          item.id === gameId
+          item.id === id
       );
 
-    if (index >= 0) {
+    if (
+      index >= 0
+    ) {
       games[index] =
         game;
     } else {
@@ -3997,7 +4326,8 @@
     );
 
     consoleLog(
-      `Published ${name}.`
+      `Published "${name}".`,
+      "success"
     );
   }
 
@@ -4006,17 +4336,16 @@
      ======================================================== */
 
   function deleteProject() {
-    const approved =
-      window.confirm(
-        "Delete this project? The Studio project will be reset."
-      );
-
-    if (!approved) {
+    if (
+      !confirm(
+        "Delete this project and reset the Studio?"
+      )
+    ) {
       return;
     }
 
     localStorage.removeItem(
-      getProjectKey()
+      projectKey()
     );
 
     localStorage.removeItem(
@@ -4031,43 +4360,126 @@
         }
       );
 
-    state.mode =
-      "3D";
-
     state.selectedId =
       null;
+
+    state.mode =
+      "3D";
 
     state.timeline.time =
       0;
 
-    syncProjectName();
+    syncProjectUI();
     rebuildScene();
     renderEverything();
 
     pushHistory();
 
     toast(
-      "Project deleted and reset.",
+      "Project reset.",
       "success"
-    );
-
-    consoleLog(
-      "Project reset."
     );
   }
 
   /* ========================================================
-     RENDER EVERYTHING
+     LOCATION
+     ======================================================== */
+
+  function openLocation(
+    type
+  ) {
+    pendingLocationType =
+      type;
+
+    els.locationModal?.classList.remove(
+      "hidden"
+    );
+  }
+
+  function closeLocation() {
+    pendingLocationType =
+      null;
+
+    els.locationModal?.classList.add(
+      "hidden"
+    );
+  }
+
+  function placePendingObject(
+    location
+  ) {
+    if (
+      !pendingLocationType
+    ) {
+      closeLocation();
+      return;
+    }
+
+    let position;
+
+    if (
+      location ===
+      "origin"
+    ) {
+      position = {
+        x: 0,
+        y: 1,
+        z: 0
+      };
+    } else if (
+      location ===
+      "selected"
+    ) {
+      const selected =
+        getSelectedObject();
+
+      position =
+        selected
+          ? {
+              x:
+                selected.position.x,
+              y:
+                selected.position.y +
+                1,
+              z:
+                selected.position.z
+            }
+          : {
+              x:
+                state.player.x,
+              y: 1,
+              z:
+                state.player.z
+            };
+    } else {
+      position = {
+        x:
+          state.player.x,
+        y: 1,
+        z:
+          state.player.z
+      };
+    }
+
+    createObject(
+      pendingLocationType,
+      {
+        position
+      }
+    );
+
+    closeLocation();
+  }
+
+  /* ========================================================
+     FINAL RENDER
      ======================================================== */
 
   function renderEverything() {
-    syncProjectName();
-
     renderExplorer();
     renderInspector();
     refreshTimeline();
-
-    updateSelectionVisual();
+    syncProjectUI();
 
     if (
       els.selectionLabel
@@ -4081,384 +4493,39 @@
           : "Nothing Selected";
     }
 
-    els.mode3D?.classList.toggle(
-      "active",
-      state.mode === "3D"
-    );
-
-    els.mode4D?.classList.toggle(
-      "active",
-      state.mode === "4D"
-    );
-
-    updateLineNumbers();
-
-    if (
-      els.playButton &&
-      els.stopButton
-    ) {
-      els.playButton.classList.toggle(
-        "hidden",
-        state.running
-      );
-
-      els.stopButton.classList.toggle(
-        "hidden",
-        !state.running
-      );
-    }
-  }
-
-  /* ========================================================
-     CONSOLE
-     ======================================================== */
-
-  function consoleLog(
-    message,
-    type = "normal"
-  ) {
-    if (
-      !els.consoleOutput
-    ) {
-      return;
-    }
-
-    const line =
-      document.createElement(
-        "div"
-      );
-
-    line.style.cssText =
-      "padding:2px 0;";
-
-    if (
-      type === "error"
-    ) {
-      line.style.color =
-        "#e35d5d";
-    }
-
-    if (
-      type === "success"
-    ) {
-      line.style.color =
-        "#35c978";
-    }
-
-    line.textContent =
-      `[${new Date().toLocaleTimeString()}] ${message}`;
-
-    els.consoleOutput.appendChild(
-      line
-    );
-
-    els.consoleOutput.scrollTop =
-      els.consoleOutput.scrollHeight;
-  }
-
-  /* ========================================================
-     TOAST
-     ======================================================== */
-
-  function toast(
-    message,
-    type = "normal"
-  ) {
-    if (
-      !els.toastContainer
-    ) {
-      return;
-    }
-
-    const element =
-      document.createElement(
-        "div"
-      );
-
-    element.className =
-      `toast ${type}`;
-
-    element.textContent =
-      message;
-
-    els.toastContainer.appendChild(
-      element
-    );
-
-    setTimeout(
-      () => {
-        element.remove();
-      },
-      4000
-    );
+    updatePlayerMarker();
   }
 
   /* ========================================================
      HELPERS
      ======================================================== */
 
-  function getCurrentUser() {
-    try {
-      const raw =
-        localStorage.getItem(
-          USER_KEY
+  function findAIObject(
+    text
+  ) {
+    const objects =
+      [...state.project.objects]
+        .sort(
+          (a, b) =>
+            b.name.length -
+            a.name.length
         );
 
-      if (!raw) {
-        return "local";
-      }
-
-      try {
-        return JSON.parse(
-          raw
-        );
-      } catch {
-        return raw;
-      }
-    } catch {
-      return "local";
-    }
-  }
-
-  function getUsername(user) {
-    if (
-      !user ||
-      typeof user ===
-        "string"
-    ) {
-      return (
-        user ||
-        "Creator"
-      );
-    }
-
     return (
-      user.username ||
-      user.displayName ||
-      user.name ||
-      user.user ||
-      "Creator"
+      objects.find(
+        (object) =>
+          text.includes(
+            object.name.toLowerCase()
+          )
+      ) ||
+      objects.find(
+        (object) =>
+          text.includes(
+            object.type.toLowerCase()
+          )
+      ) ||
+      null
     );
-  }
-
-  function makeId(
-    prefix
-  ) {
-    if (
-      crypto?.randomUUID
-    ) {
-      return `${prefix}_${crypto.randomUUID()}`;
-    }
-
-    return (
-      `${prefix}_${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2, 8)}`
-    );
-  }
-
-  function vector(
-    value,
-    fallback
-  ) {
-    return {
-      x:
-        numberOr(
-          value?.x,
-          fallback
-        ),
-
-      y:
-        numberOr(
-          value?.y,
-          fallback
-        ),
-
-      z:
-        numberOr(
-          value?.z,
-          fallback
-        )
-    };
-  }
-
-  function numberOr(
-    value,
-    fallback
-  ) {
-    const number =
-      Number(value);
-
-    return Number.isFinite(
-      number
-    )
-      ? number
-      : fallback;
-  }
-
-  function radians(
-    degrees
-  ) {
-    return (
-      numberOr(
-        degrees,
-        0
-      ) *
-      Math.PI /
-      180
-    );
-  }
-
-  function normalizeColor(
-    value
-  ) {
-    let color =
-      String(
-        value ||
-          "#4da3ff"
-      ).trim();
-
-    if (
-      !color.startsWith("#")
-    ) {
-      color =
-        `#${color}`;
-    }
-
-    if (
-      /^#[0-9a-f]{3}$/i.test(
-        color
-      )
-    ) {
-      return (
-        "#" +
-        color[1] +
-        color[1] +
-        color[2] +
-        color[2] +
-        color[3] +
-        color[3]
-      ).toLowerCase();
-    }
-
-    if (
-      /^#[0-9a-f]{6}$/i.test(
-        color
-      )
-    ) {
-      return color.toLowerCase();
-    }
-
-    return "#4da3ff";
-  }
-
-  function deepClone(
-    value
-  ) {
-    return JSON.parse(
-      JSON.stringify(
-        value
-      )
-    );
-  }
-
-  function escapeHtml(
-    value
-  ) {
-    return String(
-      value
-    )
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-  }
-
-  function extractQuoted(
-    line
-  ) {
-    const match =
-      line.match(
-        /"([^"]*)"|'([^']*)'/
-      );
-
-    return match
-      ? match[1] ??
-          match[2] ??
-          null
-      : null;
-  }
-
-  function capitalize(
-    value
-  ) {
-    return (
-      value.charAt(0)
-        .toUpperCase() +
-      value.slice(1)
-    );
-  }
-
-  function normalizeShapeType(
-    value
-  ) {
-    const lower =
-      value.toLowerCase();
-
-    if (
-      lower === "cube" ||
-      lower === "part"
-    ) {
-      return "Cube";
-    }
-
-    if (
-      lower === "wedge"
-    ) {
-      return "Wedge";
-    }
-
-    if (
-      lower === "sphere"
-    ) {
-      return "Sphere";
-    }
-
-    if (
-      lower === "cylinder"
-    ) {
-      return "Cylinder";
-    }
-
-    if (
-      lower === "light"
-    ) {
-      return "Light";
-    }
-
-    if (
-      lower === "spawn"
-    ) {
-      return "Spawn";
-    }
-
-    return "Cube";
   }
 
   function detectShape(
@@ -4507,35 +4574,121 @@
     return "Cube";
   }
 
-  function findAIObject(
-    prompt
+  function normalizeShapeType(
+    type
   ) {
-    const lower =
-      prompt.toLowerCase();
+    const text =
+      String(
+        type
+      ).toLowerCase();
 
-    const objects =
-      [...state.project.objects]
-        .sort(
-          (a, b) =>
-            b.name.length -
-            a.name.length
-        );
+    if (
+      text === "cube" ||
+      text === "part"
+    ) {
+      return "Cube";
+    }
 
-    return (
-      objects.find(
-        (object) =>
-          lower.includes(
-            object.name.toLowerCase()
+    if (
+      text === "wedge"
+    ) {
+      return "Wedge";
+    }
+
+    if (
+      text === "sphere"
+    ) {
+      return "Sphere";
+    }
+
+    if (
+      text === "cylinder"
+    ) {
+      return "Cylinder";
+    }
+
+    if (
+      text === "light"
+    ) {
+      return "Light";
+    }
+
+    if (
+      text === "spawn"
+    ) {
+      return "Spawn";
+    }
+
+    return "Cube";
+  }
+
+  function parsePosition(
+    text
+  ) {
+    const xyz =
+      text.match(
+        /x\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*y\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*z\s*(-?\d+(?:\.\d+)?)/i
+      );
+
+    if (xyz) {
+      return {
+        x:
+          Number(
+            xyz[1]
+          ),
+        y:
+          Number(
+            xyz[2]
+          ),
+        z:
+          Number(
+            xyz[3]
           )
-      ) ||
-      objects.find(
-        (object) =>
-          lower.includes(
-            object.type.toLowerCase()
+      };
+    }
+
+    const tuple =
+      text.match(
+        /\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/
+      );
+
+    if (tuple) {
+      return {
+        x:
+          Number(
+            tuple[1]
+          ),
+        y:
+          Number(
+            tuple[2]
+          ),
+        z:
+          Number(
+            tuple[3]
           )
-      ) ||
-      null
-    );
+      };
+    }
+
+    return null;
+  }
+
+  function extractTime(
+    text
+  ) {
+    const match =
+      text.match(
+        /(-?\d+(?:\.\d+)?)\s*(?:seconds?|secs?|s)\b/i
+      );
+
+    return match
+      ? Math.max(
+          0,
+          Math.min(
+            state.timeline.max,
+            Number(match[1])
+          )
+        )
+      : null;
   }
 
   function extractNumber(
@@ -4549,71 +4702,6 @@
     return match
       ? Number(match[0])
       : null;
-  }
-
-  function extractTime(
-    text
-  ) {
-    const match =
-      text.match(
-        /(-?\d+(?:\.\d+)?)\s*(?:seconds?|secs?|s)\b/i
-      );
-
-    if (match) {
-      return Math.max(
-        0,
-        Math.min(
-          state.timeline.max,
-          Number(match[1])
-        )
-      );
-    }
-
-    return null;
-  }
-
-  function parsePosition(
-    text
-  ) {
-    const xyz =
-      text.match(
-        /x\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*y\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*z\s*(-?\d+(?:\.\d+)?)/i
-      );
-
-    if (xyz) {
-      return {
-        x: Number(
-          xyz[1]
-        ),
-        y: Number(
-          xyz[2]
-        ),
-        z: Number(
-          xyz[3]
-        )
-      };
-    }
-
-    const position =
-      text.match(
-        /(?:at|to|position)\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/i
-      );
-
-    if (position) {
-      return {
-        x: Number(
-          position[1]
-        ),
-        y: Number(
-          position[2]
-        ),
-        z: Number(
-          position[3]
-        )
-      };
-    }
-
-    return null;
   }
 
   function detectColor(
@@ -4647,7 +4735,9 @@
         new RegExp(
           `\\b${name}\\b`,
           "i"
-        ).test(text)
+        ).test(
+          text
+        )
       ) {
         return color;
       }
@@ -4660,6 +4750,133 @@
 
     return hex
       ? hex[0]
+      : null;
+  }
+
+  function defaultColor(
+    type
+  ) {
+    const colors = {
+      Cube: "#4da3ff",
+      Wedge: "#ff9a62",
+      Sphere: "#9b78ff",
+      Cylinder: "#4da3ff",
+      Light: "#ffd96a",
+      Spawn: "#35c978"
+    };
+
+    return (
+      colors[type] ||
+      "#4da3ff"
+    );
+  }
+
+  function normalizeVector(
+    value,
+    fallback
+  ) {
+    return {
+      x:
+        Number.isFinite(
+          Number(
+            value?.x
+          )
+        )
+          ? Number(
+              value.x
+            )
+          : fallback,
+
+      y:
+        Number.isFinite(
+          Number(
+            value?.y
+          )
+        )
+          ? Number(
+              value.y
+            )
+          : fallback,
+
+      z:
+        Number.isFinite(
+          Number(
+            value?.z
+          )
+        )
+          ? Number(
+              value.z
+            )
+          : fallback
+    };
+  }
+
+  function normalizeColor(
+    value
+  ) {
+    let color =
+      String(
+        value ||
+          "#4da3ff"
+      ).trim();
+
+    if (
+      !color.startsWith("#")
+    ) {
+      color =
+        `#${color}`;
+    }
+
+    if (
+      /^#[0-9a-f]{3}$/i.test(
+        color
+      )
+    ) {
+      return (
+        "#" +
+        color[1] +
+        color[1] +
+        color[2] +
+        color[2] +
+        color[3] +
+        color[3]
+      ).toLowerCase();
+    }
+
+    if (
+      /^#[0-9a-f]{6}$/i.test(
+        color
+      )
+    ) {
+      return color.toLowerCase();
+    }
+
+    return "#4da3ff";
+  }
+
+  function radians(
+    degrees
+  ) {
+    return (
+      (Number(degrees) ||
+        0) *
+      Math.PI /
+      180
+    );
+  }
+
+  function extractQuoted(
+    line
+  ) {
+    const match =
+      line.match(
+        /"([^"]*)"|'([^']*)'/
+      );
+
+    return match
+      ? match[1] ??
+          match[2] ??
+          null
       : null;
   }
 
@@ -4677,11 +4894,185 @@
       .replace(
         /^-+|-+$/g,
         ""
-      )
-      || "game";
+      ) ||
+      "game";
   }
 
-  function updateSelectionFromData() {
-    updateSelectionVisual();
+  function makeId(
+    prefix
+  ) {
+    if (
+      window.crypto &&
+      typeof window.crypto
+        .randomUUID ===
+        "function"
+    ) {
+      return `${prefix}_${window.crypto.randomUUID()}`;
+    }
+
+    return `${prefix}_${Date.now()}_${Math.random()
+      .toString(36)
+      .slice(2, 9)}`;
   }
+
+  function deepClone(
+    value
+  ) {
+    return JSON.parse(
+      JSON.stringify(
+        value
+      )
+    );
+  }
+
+  function escapeHtml(
+    value
+  ) {
+    return String(
+      value
+    )
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+  }
+
+  function consoleLog(
+    message,
+    type = "normal"
+  ) {
+    if (
+      !els.consoleOutput
+    ) {
+      return;
+    }
+
+    const line =
+      document.createElement(
+        "div"
+      );
+
+    line.style.cssText =
+      "padding:2px 0;";
+
+    if (
+      type === "error"
+    ) {
+      line.style.color =
+        "#e35d5d";
+    }
+
+    if (
+      type === "success"
+    ) {
+      line.style.color =
+        "#35c978";
+    }
+
+    line.textContent =
+      `[${new Date().toLocaleTimeString()}] ${message}`;
+
+    els.consoleOutput.appendChild(
+      line
+    );
+
+    els.consoleOutput.scrollTop =
+      els.consoleOutput.scrollHeight;
+  }
+
+  function toast(
+    message,
+    type = "normal"
+  ) {
+    let container =
+      document.getElementById(
+        "toastContainer"
+      );
+
+    if (!container) {
+      container =
+        document.createElement(
+          "div"
+        );
+
+      container.id =
+        "toastContainer";
+
+      container.className =
+        "toast-container";
+
+      document.body.appendChild(
+        container
+      );
+    }
+
+    const item =
+      document.createElement(
+        "div"
+      );
+
+    item.className =
+      `toast ${type}`;
+
+    item.textContent =
+      message;
+
+    container.appendChild(
+      item
+    );
+
+    setTimeout(
+      () =>
+        item.remove(),
+      3500
+    );
+  }
+
+  /* ========================================================
+     GLOBAL API
+     ======================================================== */
+
+  window.RiseUpStudio = {
+    state,
+
+    createObject,
+    deleteObject,
+    deleteSelected,
+
+    selectObject,
+
+    saveProject,
+    publishProject,
+
+    startGame,
+    stopGame,
+
+    setMode,
+    setTimeline,
+
+    undo,
+    redo,
+
+    openLocation,
+
+    getProject() {
+      return state.project;
+    }
+  };
 })();
