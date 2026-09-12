@@ -1,42 +1,47 @@
-/* =========================================================
-   RISEUP STUDIO
-   studio.js
-   ========================================================= */
-
 (() => {
   "use strict";
 
-  const STORAGE_KEYS = {
-    project: "riseup_studio_project",
-    games: "riseup_games",
-    currentUser: "riseup_currentUser",
-    codeFilesPrefix: "riseup_code_files_"
-  };
+  const USER_KEY = "riseup_currentUser";
+  const PROJECT_KEY = "riseup_studio_project";
+  const GAMES_KEY = "riseup_games";
 
   const state = {
+    user: getCurrentUser(),
+
     project: {
       name: "Untitled Game",
       description: "",
+      mode: "3D",
       objects: [],
-      settings: {
-        gridSize: 10,
-        snap: true,
-        mode: "3d"
-      }
+      code: [
+        'game.name = "My Game";',
+        'game.mode = "3D";',
+        "",
+        "world.gravity = 25;",
+        "",
+        "player.walk.speed = 7;",
+        "player.jump.power = 9;",
+        "",
+        "add.mesh.cube();",
+        'map.name = "My World";'
+      ].join("\n")
     },
 
     selectedId: null,
-    activeTool: "select",
-    activeDock: "ai",
 
-    running: false,
-    codeOpen: false,
+    tool: "select",
+
+    bottom: "ai",
+
+    mode: "3D",
 
     timeline: {
-      currentTime: 0,
-      duration: 60,
+      time: 0,
+      max: 120,
       playing: false
     },
+
+    running: false,
 
     player: {
       x: 0,
@@ -47,27 +52,25 @@
     history: [],
     historyIndex: -1,
 
-    lastSaved: null
+    ai: {
+      waiting: false,
+      conversation: []
+    },
+
+    scene: null,
+    camera: null,
+    renderer: null,
+    raycaster: null,
+    mouse: null,
+
+    meshes: new Map(),
+    grid: null,
+
+    animationFrame: null,
+    timelineFrame: null
   };
 
-  let renderer = null;
-  let scene = null;
-  let camera = null;
-  let controls = null;
-
-  let raycaster = null;
-  let mouse = null;
-
-  let animationFrame = null;
-  let timelineAnimation = null;
-
-  let THREE_REF = null;
-
   const els = {};
-
-  /* =======================================================
-     INIT
-     ======================================================= */
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -76,236 +79,307 @@
 
     loadProject();
 
-    setupUI();
-    setupKeyboard();
-    setupViewport();
+    bindUI();
+    bindKeyboard();
 
     await loadThree();
 
-    if (THREE_REF) {
-      setupThreeScene();
-      rebuildScene();
-    }
+    setupThree();
 
-    refreshAll();
+    syncProjectName();
+    renderEverything();
 
     pushHistory();
-    saveProject(false);
+
+    addAIMessage(
+      "Rise AI",
+      "I'm ready. Tell me what you want to build, change, debug, or code."
+    );
+
+    consoleLog("RiseUp Studio initialized.");
   }
+
+  /* ========================================================
+     ELEMENTS
+     ======================================================== */
 
   function cacheElements() {
-    els.viewport = document.getElementById("viewport");
+    els.projectName =
+      document.getElementById("projectName");
 
-    els.projectName = document.querySelector(".project-name");
+    els.saveStatus =
+      document.getElementById("saveStatus");
 
-    els.toolButtons = document.querySelectorAll("[data-tool]");
-    els.dockTabs = document.querySelectorAll("[data-dock]");
-    els.dockPanels = document.querySelectorAll(".dock-panel");
-
-    els.explorer = document.querySelector(".explorer");
-    els.inspector = document.querySelector(".inspector");
-
-    els.aiMessages = document.querySelector(".ai-messages");
-    els.aiInput = document.querySelector(".ai-input");
-    els.aiSend = document.querySelector(".ai-send");
-
-    els.timeline = document.querySelector(".timeline");
-    els.timelineTime = document.querySelector(".timeline-time");
-    els.timelinePlayhead = document.querySelector(".timeline-playhead");
-
-    els.codeEditor =
-      document.querySelector(".code-editor") ||
-      document.querySelector("#codeEditor");
-
-    els.consoleOutput = document.querySelector(".console-output");
-    els.consoleInput = document.querySelector(".console-input");
-
-    els.modalBackdrop = document.querySelector(".modal-backdrop");
-    els.toastContainer = document.querySelector(".toast-container");
-
-    els.playButton =
-      document.querySelector("#playButton") ||
-      document.querySelector('[data-action="play"]');
-
-    els.stopButton =
-      document.querySelector("#stopButton") ||
-      document.querySelector('[data-action="stop"]');
+    els.codeButton =
+      document.getElementById("codeButton");
 
     els.saveButton =
-      document.querySelector("#saveButton") ||
-      document.querySelector('[data-action="save"]');
+      document.getElementById("saveButton");
 
     els.publishButton =
-      document.querySelector("#publishButton") ||
-      document.querySelector('[data-action="publish"]');
+      document.getElementById("publishButton");
 
-    els.deleteButton =
-      document.querySelector("#deleteProject") ||
-      document.querySelector('[data-action="delete-project"]');
+    els.deleteProjectButton =
+      document.getElementById("deleteProjectButton");
 
-    els.newButton =
-      document.querySelector("#newProject") ||
-      document.querySelector('[data-action="new-project"]');
+    els.playButton =
+      document.getElementById("playButton");
 
-    els.undoButton =
-      document.querySelector("#undoButton") ||
-      document.querySelector('[data-action="undo"]');
+    els.stopButton =
+      document.getElementById("stopButton");
 
-    els.redoButton =
-      document.querySelector("#redoButton") ||
-      document.querySelector('[data-action="redo"]');
+    els.viewport =
+      document.getElementById("viewport");
+
+    els.editorCanvas =
+      document.getElementById("editorCanvas");
+
+    els.viewportHint =
+      document.getElementById("viewportHint");
+
+    els.playOverlay =
+      document.getElementById("playOverlay");
+
+    els.fpsCounter =
+      document.getElementById("fpsCounter");
+
+    els.mode3D =
+      document.getElementById("mode3D");
+
+    els.mode4D =
+      document.getElementById("mode4D");
+
+    els.frameButton =
+      document.getElementById("frameButton");
 
     els.resetViewButton =
-      document.querySelector("#resetView") ||
-      document.querySelector('[data-action="reset-view"]');
+      document.getElementById("resetViewButton");
 
-    els.gridButton =
-      document.querySelector("#gridToggle") ||
-      document.querySelector('[data-action="grid"]');
+    els.selectionLabel =
+      document.getElementById("selectionLabel");
 
-    els.modeButton =
-      document.querySelector("#modeButton") ||
-      document.querySelector('[data-action="mode"]');
+    els.bottomTabs =
+      document.querySelectorAll(".bottom-tab");
 
-    els.addButtons = document.querySelectorAll("[data-create]");
+    els.bottomViews =
+      document.querySelectorAll(".bottom-view");
+
+    els.aiMessages =
+      document.getElementById("aiMessages");
+
+    els.aiInput =
+      document.getElementById("aiInput");
+
+    els.aiSend =
+      document.getElementById("aiSend");
+
+    els.studioCodeEditor =
+      document.getElementById("studioCodeEditor");
+
+    els.codeSaveButton =
+      document.getElementById("codeSaveButton");
+
+    els.codeRunButton =
+      document.getElementById("codeRunButton");
+
+    els.studioLineNumbers =
+      document.getElementById("studioLineNumbers");
+
+    els.timelineTime =
+      document.getElementById("timelineTime");
+
+    els.timelineBack =
+      document.getElementById("timelineBack");
+
+    els.timelinePlay =
+      document.getElementById("timelinePlay");
+
+    els.timelineForward =
+      document.getElementById("timelineForward");
+
+    els.timelineReset =
+      document.getElementById("timelineReset");
+
+    els.timelineSlider =
+      document.getElementById("timelineSlider");
+
+    els.timelineObjects =
+      document.getElementById("timelineObjects");
+
+    els.consoleOutput =
+      document.getElementById("consoleOutput");
+
+    els.refreshExplorer =
+      document.getElementById("refreshExplorer");
+
+    els.outlinerSearch =
+      document.getElementById("outlinerSearch");
+
+    els.objectTree =
+      document.getElementById("objectTree");
+
+    els.outlinerFooter =
+      document.getElementById("outlinerFooter");
+
+    els.propertiesContent =
+      document.getElementById("propertiesContent");
+
+    els.publishModal =
+      document.getElementById("publishModal");
+
+    els.closePublish =
+      document.getElementById("closePublish");
+
+    els.cancelPublish =
+      document.getElementById("cancelPublish");
+
+    els.confirmPublish =
+      document.getElementById("confirmPublish");
+
+    els.publishName =
+      document.getElementById("publishName");
+
+    els.publishDescription =
+      document.getElementById("publishDescription");
+
+    els.locationModal =
+      document.getElementById("locationModal");
+
+    els.cancelLocation =
+      document.getElementById("cancelLocation");
+
+    els.toastContainer =
+      document.getElementById("toastContainer");
   }
 
-  /* =======================================================
-     THREE.JS LOADER
-     ======================================================= */
+  /* ========================================================
+     PROJECT
+     ======================================================== */
 
-  function loadThree() {
-    return new Promise((resolve) => {
-      if (window.THREE) {
-        THREE_REF = window.THREE;
-        resolve();
-        return;
-      }
+  function defaultProject() {
+    return {
+      name: "Untitled Game",
+      description: "",
+      mode: "3D",
 
-      const existing = document.querySelector(
-        'script[src*="three.min.js"]'
-      );
+      objects: [
+        makeObject("Spawn", {
+          name: "Spawn",
+          position: {
+            x: 0,
+            y: 0,
+            z: 0
+          },
+          color: "#35c978"
+        })
+      ],
 
-      if (existing) {
-        existing.addEventListener("load", () => {
-          THREE_REF = window.THREE || null;
-          resolve();
-        });
-
-        existing.addEventListener("error", () => {
-          resolve();
-        });
-
-        return;
-      }
-
-      const script = document.createElement("script");
-
-      script.src =
-        "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js";
-
-      script.onload = () => {
-        THREE_REF = window.THREE || null;
-        resolve();
-      };
-
-      script.onerror = () => {
-        console.warn("RiseUp Studio could not load Three.js.");
-        resolve();
-      };
-
-      document.head.appendChild(script);
-    });
-  }
-
-  /* =======================================================
-     PROJECT STORAGE
-     ======================================================= */
-
-  function getCurrentUser() {
-    return localStorage.getItem(STORAGE_KEYS.currentUser) || "local";
-  }
-
-  function getProjectStorageKey() {
-    return `${STORAGE_KEYS.project}_${getCurrentUser()}`;
+      code: [
+        'game.name = "My Game";',
+        'game.mode = "3D";',
+        "",
+        "world.gravity = 25;",
+        "",
+        "player.walk.speed = 7;",
+        "player.jump.power = 9;",
+        "",
+        "add.mesh.cube();",
+        'map.name = "My World";'
+      ].join("\n")
+    };
   }
 
   function loadProject() {
-    let raw = null;
-
-    try {
-      raw = localStorage.getItem(getProjectStorageKey());
-
-      if (!raw) {
-        raw = localStorage.getItem(STORAGE_KEYS.project);
-      }
-    } catch {
-      raw = null;
-    }
+    const raw =
+      localStorage.getItem(getProjectKey()) ||
+      localStorage.getItem(PROJECT_KEY);
 
     if (!raw) {
-      state.project = createDefaultProject();
+      state.project =
+        normalizeProject(defaultProject());
+
       return;
     }
 
     try {
-      const parsed = JSON.parse(raw);
-
-      state.project = {
-        ...createDefaultProject(),
-        ...parsed,
-        settings: {
-          ...createDefaultProject().settings,
-          ...(parsed.settings || {})
-        },
-        objects: Array.isArray(parsed.objects)
-          ? parsed.objects
-          : []
-      };
-
-      state.project.objects = state.project.objects.map(normalizeObject);
+      state.project =
+        normalizeProject(
+          JSON.parse(raw)
+        );
     } catch {
-      state.project = createDefaultProject();
+      state.project =
+        normalizeProject(defaultProject());
     }
+
+    state.mode =
+      state.project.mode || "3D";
   }
 
-  function createDefaultProject() {
-    return {
-      name: "Untitled Game",
-      description: "",
-      objects: [
-        {
-          id: createId("spawn"),
-          type: "Spawn",
-          name: "Spawn",
-          position: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0 },
-          scale: { x: 1, y: 1, z: 1 },
-          color: "#4da3ff",
-          visible: true,
-          createdAt: 0,
-          hiddenAt: null
-        }
-      ],
-      settings: {
-        gridSize: 10,
-        snap: true,
-        mode: "3d"
-      }
+  function normalizeProject(project) {
+    const base =
+      defaultProject();
+
+    const merged = {
+      ...base,
+      ...project
     };
+
+    merged.objects =
+      Array.isArray(project.objects)
+        ? project.objects.map(normalizeObject)
+        : [];
+
+    merged.code =
+      typeof project.code === "string"
+        ? project.code
+        : base.code;
+
+    merged.mode =
+      project.mode === "4D"
+        ? "4D"
+        : "3D";
+
+    return merged;
   }
 
   function normalizeObject(object) {
     return {
-      id: object.id || createId("object"),
-      type: object.type || "Part",
-      name: object.name || object.type || "Object",
+      id:
+        object.id ||
+        makeId("object"),
 
-      position: normalizeVector(object.position, 0),
-      rotation: normalizeVector(object.rotation, 0),
-      scale: normalizeVector(object.scale, 1),
+      type:
+        object.type ||
+        "Cube",
 
-      color: object.color || "#4da3ff",
+      name:
+        object.name ||
+        object.type ||
+        "Object",
+
+      position:
+        vector(
+          object.position,
+          0
+        ),
+
+      rotation:
+        vector(
+          object.rotation,
+          0
+        ),
+
+      scale:
+        vector(
+          object.scale,
+          1
+        ),
+
+      color:
+        normalizeColor(
+          object.color ||
+          "#4da3ff"
+        ),
 
       visible:
         typeof object.visible === "boolean"
@@ -313,101 +387,144 @@
           : true,
 
       createdAt:
-        Number.isFinite(Number(object.createdAt))
-          ? Number(object.createdAt)
-          : 0,
+        numberOr(
+          object.createdAt,
+          0
+        ),
 
       hiddenAt:
         object.hiddenAt === null ||
         object.hiddenAt === undefined ||
         object.hiddenAt === ""
           ? null
-          : Number(object.hiddenAt),
-
-      material: object.material || "standard"
-    };
-  }
-
-  function normalizeVector(value, fallback) {
-    return {
-      x:
-        value && Number.isFinite(Number(value.x))
-          ? Number(value.x)
-          : fallback,
-
-      y:
-        value && Number.isFinite(Number(value.y))
-          ? Number(value.y)
-          : fallback,
-
-      z:
-        value && Number.isFinite(Number(value.z))
-          ? Number(value.z)
-          : fallback
+          : numberOr(
+              object.hiddenAt,
+              null
+            )
     };
   }
 
   function saveProject(showToast = true) {
-    const snapshot = JSON.stringify(state.project);
+    state.project.name =
+      els.projectName?.value.trim() ||
+      state.project.name ||
+      "Untitled Game";
+
+    state.project.mode =
+      state.mode;
+
+    state.project.code =
+      els.studioCodeEditor?.value ??
+      state.project.code;
+
+    const data =
+      JSON.stringify(state.project);
 
     try {
-      localStorage.setItem(getProjectStorageKey(), snapshot);
-      localStorage.setItem(STORAGE_KEYS.project, snapshot);
+      localStorage.setItem(
+        getProjectKey(),
+        data
+      );
 
-      state.lastSaved = Date.now();
+      localStorage.setItem(
+        PROJECT_KEY,
+        data
+      );
+
+      setSaveStatus("Saved");
 
       if (showToast) {
-        toast("Project saved.", "success");
+        toast(
+          "Project saved.",
+          "success"
+        );
       }
 
-      consoleMessage("Project saved.");
-    } catch (error) {
-      console.error(error);
-      toast("Could not save the project.", "error");
+      consoleLog("Project saved.");
+    } catch {
+      setSaveStatus("Save failed");
+
+      toast(
+        "Could not save the project.",
+        "error"
+      );
     }
   }
 
-  /* =======================================================
+  function getProjectKey() {
+    const user =
+      getUsername(state.user);
+
+    return `${PROJECT_KEY}_${user}`;
+  }
+
+  function setSaveStatus(text) {
+    if (els.saveStatus) {
+      els.saveStatus.textContent =
+        text;
+    }
+  }
+
+  function syncProjectName() {
+    if (els.projectName) {
+      els.projectName.value =
+        state.project.name;
+    }
+
+    if (els.studioCodeEditor) {
+      els.studioCodeEditor.value =
+        state.project.code;
+    }
+
+    updateLineNumbers();
+  }
+
+  /* ========================================================
      HISTORY
-     ======================================================= */
+     ======================================================== */
 
   function pushHistory() {
-    const snapshot = JSON.stringify(state.project);
+    const snapshot =
+      JSON.stringify(state.project);
 
     if (
-      state.history[state.historyIndex] === snapshot
+      state.history[
+        state.historyIndex
+      ] === snapshot
     ) {
       return;
     }
 
-    state.history = state.history.slice(
-      0,
-      state.historyIndex + 1
-    );
+    state.history =
+      state.history.slice(
+        0,
+        state.historyIndex + 1
+      );
 
     state.history.push(snapshot);
 
-    if (state.history.length > 80) {
+    if (state.history.length > 100) {
       state.history.shift();
     }
 
-    state.historyIndex = state.history.length - 1;
-
-    refreshUndoRedo();
+    state.historyIndex =
+      state.history.length - 1;
   }
 
   function undo() {
-    if (state.historyIndex <= 0) {
+    if (
+      state.historyIndex <= 0
+    ) {
       return;
     }
 
     state.historyIndex--;
 
-    restoreHistorySnapshot(
-      state.history[state.historyIndex]
+    restoreSnapshot(
+      state.history[
+        state.historyIndex
+      ]
     );
-
-    toast("Undo", "success");
   }
 
   function redo() {
@@ -420,175 +537,289 @@
 
     state.historyIndex++;
 
-    restoreHistorySnapshot(
-      state.history[state.historyIndex]
+    restoreSnapshot(
+      state.history[
+        state.historyIndex
+      ]
+    );
+  }
+
+  function restoreSnapshot(snapshot) {
+    try {
+      state.project =
+        normalizeProject(
+          JSON.parse(snapshot)
+        );
+
+      state.mode =
+        state.project.mode;
+
+      state.selectedId = null;
+
+      syncProjectName();
+      rebuildScene();
+      renderEverything();
+
+      saveProject(false);
+    } catch {
+      toast(
+        "Could not restore project.",
+        "error"
+      );
+    }
+  }
+
+  /* ========================================================
+     UI
+     ======================================================== */
+
+  function bindUI() {
+    document
+      .querySelectorAll(".rail-tool[data-tool]")
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            setTool(
+              button.dataset.tool
+            );
+          }
+        );
+      });
+
+    document
+      .querySelectorAll(
+        ".rail-tool[data-create]"
+      )
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            createObject(
+              button.dataset.create
+            );
+          }
+        );
+      });
+
+    els.bottomTabs.forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            setBottom(
+              button.dataset.bottom
+            );
+          }
+        );
+      }
     );
 
-    toast("Redo", "success");
-  }
+    els.mode3D?.addEventListener(
+      "click",
+      () => setMode("3D")
+    );
 
-  function restoreHistorySnapshot(snapshot) {
-    try {
-      state.project = JSON.parse(snapshot);
-    } catch {
-      return;
-    }
+    els.mode4D?.addEventListener(
+      "click",
+      () => setMode("4D")
+    );
 
-    state.project.objects =
-      state.project.objects.map(normalizeObject);
+    els.codeButton?.addEventListener(
+      "click",
+      () => setBottom("code")
+    );
 
-    state.selectedId = null;
+    els.saveButton?.addEventListener(
+      "click",
+      () => saveProject(true)
+    );
 
-    rebuildScene();
-    refreshAll();
-    saveProject(false);
-  }
+    els.playButton?.addEventListener(
+      "click",
+      startGame
+    );
 
-  function refreshUndoRedo() {
-    if (els.undoButton) {
-      els.undoButton.disabled =
-        state.historyIndex <= 0;
-    }
+    els.stopButton?.addEventListener(
+      "click",
+      stopGame
+    );
 
-    if (els.redoButton) {
-      els.redoButton.disabled =
-        state.historyIndex >=
-        state.history.length - 1;
-    }
-  }
+    els.publishButton?.addEventListener(
+      "click",
+      openPublish
+    );
 
-  /* =======================================================
-     UI
-     ======================================================= */
+    els.deleteProjectButton?.addEventListener(
+      "click",
+      deleteProject
+    );
 
-  function setupUI() {
-    els.toolButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const tool = button.dataset.tool;
+    els.frameButton?.addEventListener(
+      "click",
+      frameSelected
+    );
 
-        if (!tool) {
-          return;
-        }
+    els.resetViewButton?.addEventListener(
+      "click",
+      resetView
+    );
 
-        setTool(tool);
-      });
-    });
+    els.refreshExplorer?.addEventListener(
+      "click",
+      renderExplorer
+    );
 
-    els.dockTabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const dock = tab.dataset.dock;
+    els.outlinerSearch?.addEventListener(
+      "input",
+      renderExplorer
+    );
 
-        if (!dock) {
-          return;
-        }
+    els.aiSend?.addEventListener(
+      "click",
+      submitAI
+    );
 
-        setDock(dock);
-      });
-    });
-
-    els.addButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const type =
-          button.dataset.create || "Part";
-
-        createObject(type);
-      });
-    });
-
-    if (els.aiSend) {
-      els.aiSend.addEventListener("click", submitAI);
-    }
-
-    if (els.aiInput) {
-      els.aiInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
+    els.aiInput?.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
           event.preventDefault();
           submitAI();
         }
-      });
-    }
-
-    if (els.saveButton) {
-      els.saveButton.addEventListener("click", () => {
-        saveProject(true);
-      });
-    }
-
-    if (els.playButton) {
-      els.playButton.addEventListener("click", startGame);
-    }
-
-    if (els.stopButton) {
-      els.stopButton.addEventListener("click", stopGame);
-    }
-
-    if (els.publishButton) {
-      els.publishButton.addEventListener(
-        "click",
-        publishProject
-      );
-    }
-
-    if (els.deleteButton) {
-      els.deleteButton.addEventListener(
-        "click",
-        deleteProject
-      );
-    }
-
-    if (els.newButton) {
-      els.newButton.addEventListener(
-        "click",
-        newProject
-      );
-    }
-
-    if (els.undoButton) {
-      els.undoButton.addEventListener(
-        "click",
-        undo
-      );
-    }
-
-    if (els.redoButton) {
-      els.redoButton.addEventListener(
-        "click",
-        redo
-      );
-    }
-
-    if (els.resetViewButton) {
-      els.resetViewButton.addEventListener(
-        "click",
-        resetCamera
-      );
-    }
-
-    if (els.gridButton) {
-      els.gridButton.addEventListener(
-        "click",
-        toggleGrid
-      );
-    }
-
-    if (els.modeButton) {
-      els.modeButton.addEventListener(
-        "click",
-        toggleMode
-      );
-    }
-
-    document.addEventListener(
-      "click",
-      handleDocumentClick
+      }
     );
+
+    els.codeSaveButton?.addEventListener(
+      "click",
+      () => {
+        saveCode();
+      }
+    );
+
+    els.codeRunButton?.addEventListener(
+      "click",
+      () => {
+        runCode();
+      }
+    );
+
+    els.studioCodeEditor?.addEventListener(
+      "input",
+      updateLineNumbers
+    );
+
+    els.studioCodeEditor?.addEventListener(
+      "keydown",
+      handleEditorKeydown
+    );
+
+    els.timelineSlider?.addEventListener(
+      "input",
+      () => {
+        setTimeline(
+          Number(
+            els.timelineSlider.value
+          )
+        );
+      }
+    );
+
+    els.timelinePlay?.addEventListener(
+      "click",
+      toggleTimeline
+    );
+
+    els.timelineBack?.addEventListener(
+      "click",
+      () => {
+        setTimeline(
+          state.timeline.time - 1
+        );
+      }
+    );
+
+    els.timelineForward?.addEventListener(
+      "click",
+      () => {
+        setTimeline(
+          state.timeline.time + 1
+        );
+      }
+    );
+
+    els.timelineReset?.addEventListener(
+      "click",
+      () => {
+        setTimeline(0);
+      }
+    );
+
+    els.closePublish?.addEventListener(
+      "click",
+      closePublish
+    );
+
+    els.cancelPublish?.addEventListener(
+      "click",
+      closePublish
+    );
+
+    els.confirmPublish?.addEventListener(
+      "click",
+      publishProject
+    );
+
+    els.cancelLocation?.addEventListener(
+      "click",
+      closeLocation
+    );
+
+    els.projectName?.addEventListener(
+      "input",
+      () => setSaveStatus("Unsaved")
+    );
+
+    document
+      .querySelectorAll(
+        '[data-menu]'
+      )
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            handleMenu(
+              button.dataset.menu
+            );
+          }
+        );
+      });
+
+    document
+      .querySelectorAll(
+        "[data-location]"
+      )
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            placePendingObject(
+              button.dataset.location
+            );
+          }
+        );
+      });
   }
 
-  function setupKeyboard() {
+  function bindKeyboard() {
     document.addEventListener(
       "keydown",
       (event) => {
-        const key = event.key.toLowerCase();
+        const key =
+          event.key.toLowerCase();
 
         if (
           event.ctrlKey &&
@@ -611,7 +842,8 @@
         }
 
         if (
-          (event.ctrlKey || event.metaKey) &&
+          (event.ctrlKey ||
+            event.metaKey) &&
           key === "s"
         ) {
           event.preventDefault();
@@ -621,397 +853,566 @@
 
         if (key === "f5") {
           event.preventDefault();
-          setDock("code");
-          return;
-        }
-
-        if (key === "f4") {
-          event.preventDefault();
-
-          if (state.running) {
-            stopGame();
-          } else {
-            startGame();
-          }
-
-          return;
-        }
-
-        if (event.key === "Delete") {
-          if (isTypingContext()) {
-            return;
-          }
-
-          deleteSelected();
-          return;
-        }
-
-        if (key === "w") {
-          setTool("move");
-          return;
-        }
-
-        if (key === "e") {
-          setTool("rotate");
-          return;
-        }
-
-        if (key === "r") {
-          setTool("scale");
-          return;
-        }
-
-        if (key === "q") {
-          setTool("select");
+          setBottom("code");
           return;
         }
 
         if (
-          event.key === "Escape" &&
-          state.running
+          event.key === "F4"
         ) {
-          stopGame();
+          event.preventDefault();
+
+          state.running
+            ? stopGame()
+            : startGame();
+
+          return;
         }
-      },
-      true
+
+        if (
+          event.key === "Delete" &&
+          !isTextField()
+        ) {
+          deleteSelected();
+          return;
+        }
+
+        if (
+          !isTextField()
+        ) {
+          if (key === "q") {
+            setTool("select");
+          }
+
+          if (key === "w") {
+            setTool("move");
+          }
+
+          if (key === "e") {
+            setTool("rotate");
+          }
+
+          if (key === "r") {
+            setTool("scale");
+          }
+        }
+
+        if (
+          event.key === "Escape"
+        ) {
+          closePublish();
+          closeLocation();
+
+          if (state.running) {
+            stopGame();
+          }
+        }
+      }
     );
   }
 
-  function handleDocumentClick(event) {
-    const deleteElement =
-      event.target.closest?.(
-        '[data-action="delete-selected"]'
+  function handleEditorKeydown(event) {
+    if (
+      event.key !== "Tab"
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const input =
+      els.studioCodeEditor;
+
+    const start =
+      input.selectionStart;
+
+    const end =
+      input.selectionEnd;
+
+    input.value =
+      input.value.substring(
+        0,
+        start
+      ) +
+      "  " +
+      input.value.substring(
+        end
       );
 
-    if (deleteElement) {
-      deleteSelected();
-    }
+    input.selectionStart =
+      input.selectionEnd =
+        start + 2;
+
+    updateLineNumbers();
   }
 
-  function isTypingContext() {
-    const active = document.activeElement;
+  function isTextField() {
+    const active =
+      document.activeElement;
 
     if (!active) {
       return false;
     }
 
     return (
-      active.tagName === "INPUT" ||
-      active.tagName === "TEXTAREA" ||
+      active.tagName ===
+        "INPUT" ||
+      active.tagName ===
+        "TEXTAREA" ||
       active.isContentEditable
     );
   }
 
-  /* =======================================================
-     TOOL / DOCK
-     ======================================================= */
+  function handleMenu(menu) {
+    switch (menu) {
+      case "File":
+        saveProject(true);
+        break;
+
+      case "Edit":
+        toast(
+          "Undo: Ctrl+Z   Redo: Ctrl+Shift+Z",
+          "success"
+        );
+        break;
+
+      case "Create":
+        createObject("Cube");
+        break;
+
+      case "View":
+        resetView();
+        break;
+    }
+  }
 
   function setTool(tool) {
-    const valid = [
-      "select",
-      "move",
-      "rotate",
-      "scale"
-    ];
+    state.tool =
+      tool || "select";
 
-    if (!valid.includes(tool)) {
-      return;
-    }
-
-    state.activeTool = tool;
-
-    els.toolButtons.forEach((button) => {
-      button.classList.toggle(
-        "active",
-        button.dataset.tool === tool
-      );
-    });
-
-    if (els.viewport) {
-      els.viewport.dataset.tool = tool;
-    }
+    document
+      .querySelectorAll(
+        ".rail-tool[data-tool]"
+      )
+      .forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.tool ===
+            state.tool
+        );
+      });
   }
 
-  function setDock(dock) {
-    state.activeDock = dock;
+  function setBottom(bottom) {
+    state.bottom =
+      bottom || "ai";
 
-    els.dockTabs.forEach((tab) => {
-      tab.classList.toggle(
-        "active",
-        tab.dataset.dock === dock
-      );
-    });
-
-    els.dockPanels.forEach((panel) => {
-      const panelDock =
-        panel.dataset.panel ||
-        panel.id ||
-        "";
-
-      panel.classList.toggle(
-        "active",
-        panelDock === dock ||
-          panelDock === `${dock}Panel`
-      );
-    });
-  }
-
-  /* =======================================================
-     VIEWPORT SETUP
-     ======================================================= */
-
-  function setupViewport() {
-    if (!els.viewport) {
-      return;
-    }
-
-    els.viewport.addEventListener(
-      "pointerdown",
-      onViewportPointerDown
+    els.bottomTabs.forEach(
+      (button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.bottom ===
+            state.bottom
+        );
+      }
     );
 
-    els.viewport.addEventListener(
-      "contextmenu",
-      (event) => {
-        event.preventDefault();
+    els.bottomViews.forEach(
+      (view) => {
+        const target =
+          state.bottom === "ai"
+            ? "bottomAI"
+            : state.bottom === "code"
+            ? "bottomCode"
+            : state.bottom ===
+              "timeline"
+            ? "bottomTimeline"
+            : "bottomConsole";
+
+        view.classList.toggle(
+          "active",
+          view.id === target
+        );
       }
     );
   }
 
-  function setupThreeScene() {
-    if (!els.viewport || !THREE_REF) {
+  function setMode(mode) {
+    state.mode =
+      mode === "4D"
+        ? "4D"
+        : "3D";
+
+    state.project.mode =
+      state.mode;
+
+    els.mode3D?.classList.toggle(
+      "active",
+      state.mode === "3D"
+    );
+
+    els.mode4D?.classList.toggle(
+      "active",
+      state.mode === "4D"
+    );
+
+    if (
+      state.mode === "4D"
+    ) {
+      setBottom("timeline");
+    }
+
+    refreshTimeline();
+    saveProject(false);
+  }
+
+  /* ========================================================
+     THREE
+     ======================================================== */
+
+  function loadThree() {
+    return new Promise(
+      (resolve) => {
+        if (window.THREE) {
+          resolve();
+          return;
+        }
+
+        const script =
+          document.createElement(
+            "script"
+          );
+
+        script.src =
+          "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js";
+
+        script.onload =
+          () => resolve();
+
+        script.onerror =
+          () => resolve();
+
+        document.head.appendChild(
+          script
+        );
+      }
+    );
+  }
+
+  function setupThree() {
+    if (
+      !window.THREE ||
+      !els.viewport
+    ) {
+      showFallbackViewport();
       return;
     }
 
-    const THREE = THREE_REF;
+    const THREE =
+      window.THREE;
 
-    scene = new THREE.Scene();
+    state.scene =
+      new THREE.Scene();
 
-    scene.background = new THREE.Color(
-      0x090d12
+    state.scene.background =
+      new THREE.Color(
+        0x080b0f
+      );
+
+    state.camera =
+      new THREE.PerspectiveCamera(
+        55,
+        1,
+        0.1,
+        5000
+      );
+
+    state.camera.position.set(
+      22,
+      17,
+      24
     );
 
-    camera = new THREE.PerspectiveCamera(
-      55,
-      1,
-      0.1,
-      5000
+    state.camera.lookAt(
+      0,
+      0,
+      0
     );
 
-    camera.position.set(
-      16,
-      14,
-      20
+    state.renderer =
+      new THREE.WebGLRenderer({
+        antialias: true
+      });
+
+    state.renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio ||
+          1,
+        2
+      )
     );
 
-    raycaster = new THREE.Raycaster();
-    mouse = new THREE.Vector2();
-
-    renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: false
-    });
-
-    renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio || 1, 2)
-    );
-
-    renderer.setSize(
-      els.viewport.clientWidth,
-      els.viewport.clientHeight,
-      false
-    );
-
-    renderer.outputColorSpace =
+    state.renderer.outputColorSpace =
       THREE.SRGBColorSpace;
 
     els.viewport.innerHTML = "";
+
     els.viewport.appendChild(
-      renderer.domElement
+      state.renderer.domElement
     );
 
-    addLighting();
-    addGrid();
+    state.raycaster =
+      new THREE.Raycaster();
 
-    createResizeObserver();
-
-    animate();
-  }
-
-  function addLighting() {
-    if (!scene || !THREE_REF) {
-      return;
-    }
-
-    const THREE = THREE_REF;
+    state.mouse =
+      new THREE.Vector2();
 
     const ambient =
       new THREE.HemisphereLight(
-        0xb9d5ff,
-        0x1c2027,
-        1.8
+        0xd8e6ff,
+        0x14171b,
+        2
       );
 
-    scene.add(ambient);
+    state.scene.add(
+      ambient
+    );
 
-    const directional =
+    const light =
       new THREE.DirectionalLight(
         0xffffff,
-        2.5
+        2.2
       );
 
-    directional.position.set(
+    light.position.set(
       20,
       35,
-      15
+      10
     );
 
-    directional.castShadow = false;
-
-    scene.add(directional);
-  }
-
-  let gridHelper = null;
-
-  function addGrid() {
-    if (!scene || !THREE_REF) {
-      return;
-    }
-
-    const THREE = THREE_REF;
-
-    gridHelper = new THREE.GridHelper(
-      500,
-      50,
-      0x3a444f,
-      0x202832
+    state.scene.add(
+      light
     );
 
-    gridHelper.position.y = 0;
+    state.grid =
+      new THREE.GridHelper(
+        500,
+        50,
+        0x3e4a56,
+        0x202932
+      );
 
-    scene.add(gridHelper);
+    state.scene.add(
+      state.grid
+    );
+
+    window.addEventListener(
+      "resize",
+      resizeViewport
+    );
+
+    state.renderer.domElement.addEventListener(
+      "pointerdown",
+      handleViewportClick
+    );
+
+    resizeViewport();
+
+    renderLoop();
   }
 
-  function createResizeObserver() {
-    if (!els.viewport) {
+  function showFallbackViewport() {
+    if (
+      !els.viewportHint
+    ) {
       return;
     }
 
-    const resize = () => {
-      if (!renderer || !camera) {
-        return;
-      }
+    els.viewportHint.style.display =
+      "flex";
 
-      const width =
-        els.viewport.clientWidth || 1;
-
-      const height =
-        els.viewport.clientHeight || 1;
-
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(
-        width,
-        height,
-        false
-      );
-    };
-
-    if ("ResizeObserver" in window) {
-      const observer =
-        new ResizeObserver(resize);
-
-      observer.observe(els.viewport);
-    } else {
-      window.addEventListener(
-        "resize",
-        resize
-      );
-    }
-
-    resize();
+    els.viewportHint.innerHTML =
+      "<strong>RiseUp Studio</strong><span>3D engine unavailable. Reload to try again.</span>";
   }
 
-  function animate() {
-    if (!renderer || !scene || !camera) {
+  function resizeViewport() {
+    if (
+      !state.renderer ||
+      !state.camera ||
+      !els.viewport
+    ) {
       return;
     }
 
-    renderer.render(scene, camera);
+    const width =
+      Math.max(
+        1,
+        els.viewport.clientWidth
+      );
 
-    animationFrame =
-      requestAnimationFrame(animate);
+    const height =
+      Math.max(
+        1,
+        els.viewport.clientHeight
+      );
+
+    state.renderer.setSize(
+      width,
+      height,
+      false
+    );
+
+    state.camera.aspect =
+      width / height;
+
+    state.camera.updateProjectionMatrix();
   }
 
-  /* =======================================================
-     SCENE OBJECTS
-     ======================================================= */
+  function renderLoop() {
+    if (
+      state.renderer &&
+      state.scene &&
+      state.camera
+    ) {
+      state.renderer.render(
+        state.scene,
+        state.camera
+      );
+    }
 
-  const threeObjects = new Map();
+    state.animationFrame =
+      requestAnimationFrame(
+        renderLoop
+      );
+  }
 
   function rebuildScene() {
-    if (!scene || !THREE_REF) {
-      refreshExplorer();
-      refreshInspector();
+    if (
+      !state.scene ||
+      !window.THREE
+    ) {
       return;
     }
 
-    threeObjects.forEach((object3d) => {
-      scene.remove(object3d);
-      disposeObject(object3d);
-    });
+    state.meshes.forEach(
+      (mesh) => {
+        state.scene.remove(
+          mesh
+        );
 
-    threeObjects.clear();
+        disposeMesh(mesh);
+      }
+    );
+
+    state.meshes.clear();
 
     state.project.objects.forEach(
       (object) => {
         const mesh =
-          createThreeObject(object);
+          makeMesh(object);
 
         if (!mesh) {
           return;
         }
 
-        scene.add(mesh);
-        threeObjects.set(
+        state.scene.add(
+          mesh
+        );
+
+        state.meshes.set(
           object.id,
           mesh
         );
 
-        updateObjectVisibility(
+        applyVisibility(
           object,
           mesh
         );
       }
     );
 
-    updateSelection();
-    refreshExplorer();
-    refreshInspector();
+    updateSelectionVisual();
+
+    if (
+      els.viewportHint
+    ) {
+      els.viewportHint.style.display =
+        state.project.objects.length
+          ? "none"
+          : "flex";
+    }
   }
 
-  function createThreeObject(object) {
-    const THREE = THREE_REF;
+  function makeMesh(object) {
+    const THREE =
+      window.THREE;
 
-    if (!THREE) {
-      return null;
-    }
+    let geometry;
 
-    const geometry =
-      createGeometryForType(
-        object.type
-      );
+    switch (
+      String(object.type)
+        .toLowerCase()
+    ) {
+      case "sphere":
+        geometry =
+          new THREE.SphereGeometry(
+            1,
+            32,
+            20
+          );
+        break;
 
-    if (!geometry) {
-      return null;
+      case "cylinder":
+        geometry =
+          new THREE.CylinderGeometry(
+            1,
+            1,
+            2,
+            32
+          );
+        break;
+
+      case "wedge":
+        geometry =
+          makeWedgeGeometry();
+        break;
+
+      case "spawn":
+        geometry =
+          new THREE.CylinderGeometry(
+            1,
+            1,
+            0.25,
+            32
+          );
+        break;
+
+      case "light":
+        geometry =
+          new THREE.SphereGeometry(
+            0.35,
+            16,
+            12
+          );
+        break;
+
+      default:
+        geometry =
+          new THREE.BoxGeometry(
+            2,
+            2,
+            2
+          );
     }
 
     const material =
       new THREE.MeshStandardMaterial({
-        color: object.color || "#4da3ff",
-        roughness: 0.78,
-        metalness: 0.08
+        color:
+          object.color,
+        roughness:
+          0.72,
+        metalness:
+          0.08
       });
 
     const mesh =
@@ -1020,9 +1421,6 @@
         material
       );
 
-    mesh.userData.riseId =
-      object.id;
-
     mesh.position.set(
       object.position.x,
       object.position.y,
@@ -1030,9 +1428,15 @@
     );
 
     mesh.rotation.set(
-      degToRad(object.rotation.x),
-      degToRad(object.rotation.y),
-      degToRad(object.rotation.z)
+      radians(
+        object.rotation.x
+      ),
+      radians(
+        object.rotation.y
+      ),
+      radians(
+        object.rotation.z
+      )
     );
 
     mesh.scale.set(
@@ -1041,100 +1445,50 @@
       object.scale.z
     );
 
+    mesh.userData.riseId =
+      object.id;
+
     return mesh;
   }
 
-  function createGeometryForType(type) {
-    const THREE = THREE_REF;
+  function makeWedgeGeometry() {
+    const THREE =
+      window.THREE;
 
-    switch (String(type).toLowerCase()) {
-      case "sphere":
-        return new THREE.SphereGeometry(
-          1,
-          32,
-          20
-        );
+    const vertices =
+      new Float32Array([
+        -1,-1,-1,
+         1,-1,-1,
+         1,-1, 1,
 
-      case "cylinder":
-        return new THREE.CylinderGeometry(
-          1,
-          1,
-          2,
-          32
-        );
+        -1,-1,-1,
+         1,-1, 1,
+        -1,-1, 1,
 
-      case "wedge":
-        return createWedgeGeometry();
+        -1,-1,-1,
+         1,-1,-1,
+         1, 1,-1,
 
-      case "light":
-        return new THREE.SphereGeometry(
-          0.35,
-          16,
-          12
-        );
+        -1,-1,-1,
+         1, 1,-1,
+        -1, 1,-1,
 
-      case "spawn":
-        return new THREE.CylinderGeometry(
-          1,
-          1,
-          0.3,
-          32
-        );
+        -1,-1, 1,
+         1,-1, 1,
+         1, 1,-1,
 
-      case "folder":
-        return new THREE.BoxGeometry(
-          1,
-          1,
-          1
-        );
+        -1,-1, 1,
+         1, 1,-1,
+        -1, 1,-1,
 
-      case "part":
-      case "cube":
-      default:
-        return new THREE.BoxGeometry(
-          2,
-          2,
-          2
-        );
-    }
-  }
+         1,-1,-1,
+         1,-1, 1,
+         1, 1,-1,
 
-  function createWedgeGeometry() {
-    const THREE = THREE_REF;
-
-    const vertices = new Float32Array([
-      -1, -1, -1,
-       1, -1, -1,
-       1, -1,  1,
-
-      -1, -1, -1,
-       1, -1,  1,
-      -1, -1,  1,
-
-      -1, -1, -1,
-       1, -1, -1,
-       1,  1, -1,
-
-      -1, -1, -1,
-       1,  1, -1,
-      -1,  1, -1,
-
-      -1, -1,  1,
-       1, -1,  1,
-       1,  1, -1,
-
-      -1, -1,  1,
-       1,  1, -1,
-      -1,  1, -1,
-
-       1, -1, -1,
-       1, -1,  1,
-       1,  1, -1,
-
-      -1, -1, -1,
-      -1, -1,  1,
-      -1,  1, -1
-    ]);
+        -1,-1,-1,
+        -1,-1, 1,
+        -1, 1,-1
+      ]);
 
     const geometry =
       new THREE.BufferGeometry();
@@ -1152,218 +1506,75 @@
     return geometry;
   }
 
-  function disposeObject(object3d) {
-    object3d.traverse((child) => {
-      if (child.geometry) {
-        child.geometry.dispose();
-      }
-
-      if (child.material) {
-        if (Array.isArray(child.material)) {
-          child.material.forEach(
-            (material) =>
-              material.dispose()
-          );
-        } else {
-          child.material.dispose();
-        }
-      }
-    });
-  }
-
-  /* =======================================================
-     CREATE OBJECT
-     ======================================================= */
-
-  function createObject(
-    type = "Part",
-    options = {}
-  ) {
-    const object = normalizeObject({
-      id: createId(
-        String(type).toLowerCase()
-      ),
-
-      type,
-
-      name:
-        options.name ||
-        `${type} ${
-          countObjectsOfType(type) + 1
-        }`,
-
-      position:
-        options.position ||
-        {
-          x: state.player.x,
-          y: state.player.y,
-          z: state.player.z
-        },
-
-      rotation:
-        options.rotation || {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-
-      scale:
-        options.scale || {
-          x: 1,
-          y: 1,
-          z: 1
-        },
-
-      color:
-        options.color ||
-        getDefaultColor(type),
-
-      visible:
-        options.visible !== undefined
-          ? options.visible
-          : true,
-
-      createdAt:
-        Number.isFinite(options.createdAt)
-          ? options.createdAt
-          : state.timeline.currentTime,
-
-      hiddenAt:
-        options.hiddenAt ?? null
-    });
-
-    state.project.objects.push(object);
-
-    state.selectedId = object.id;
-
-    rebuildScene();
-    refreshAll();
-
-    pushHistory();
-
-    consoleMessage(
-      `Created ${object.name}.`
-    );
-
-    return object;
-  }
-
-  function countObjectsOfType(type) {
-    return state.project.objects.filter(
-      (object) =>
-        String(object.type).toLowerCase() ===
-        String(type).toLowerCase()
-    ).length;
-  }
-
-  function getDefaultColor(type) {
-    switch (String(type).toLowerCase()) {
-      case "spawn":
-        return "#46c47b";
-
-      case "light":
-        return "#ffd76a";
-
-      case "sphere":
-        return "#a987ff";
-
-      case "cylinder":
-        return "#4da3ff";
-
-      case "wedge":
-        return "#ff9a62";
-
-      default:
-        return "#4da3ff";
-    }
-  }
-
-  /* =======================================================
-     SELECT
-     ======================================================= */
-
-  function selectObject(id) {
-    if (
-      id &&
-      !state.project.objects.some(
-        (object) => object.id === id
-      )
-    ) {
-      return;
-    }
-
-    state.selectedId = id || null;
-
-    updateSelection();
-    refreshExplorer();
-    refreshInspector();
-  }
-
-  function updateSelection() {
-    threeObjects.forEach(
-      (mesh, id) => {
-        const selected =
-          id === state.selectedId;
+  function disposeMesh(mesh) {
+    mesh.traverse(
+      (child) => {
+        child.geometry?.dispose();
 
         if (
-          mesh.material &&
-          "emissive" in mesh.material
+          child.material
         ) {
-          mesh.material.emissive.set(
-            selected ? 0x183f67 : 0x000000
-          );
-
-          mesh.material.emissiveIntensity =
-            selected ? 0.9 : 0;
+          if (
+            Array.isArray(
+              child.material
+            )
+          ) {
+            child.material.forEach(
+              (material) =>
+                material.dispose()
+            );
+          } else {
+            child.material.dispose();
+          }
         }
       }
     );
   }
 
-  function onViewportPointerDown(event) {
+  /* ========================================================
+     VIEWPORT
+     ======================================================== */
+
+  function handleViewportClick(event) {
     if (
       state.running ||
-      !raycaster ||
-      !camera ||
-      !renderer
+      !state.raycaster ||
+      !state.camera ||
+      !state.renderer
     ) {
-      return;
-    }
-
-    if (event.button !== 0) {
       return;
     }
 
     const rect =
-      renderer.domElement.getBoundingClientRect();
+      state.renderer
+        .domElement
+        .getBoundingClientRect();
 
-    mouse.x =
-      ((event.clientX - rect.left) /
+    state.mouse.x =
+      ((event.clientX -
+        rect.left) /
         rect.width) *
         2 -
       1;
 
-    mouse.y =
+    state.mouse.y =
       -(
-        (event.clientY - rect.top) /
+        (event.clientY -
+          rect.top) /
         rect.height
       ) *
         2 +
       1;
 
-    raycaster.setFromCamera(
-      mouse,
-      camera
+    state.raycaster.setFromCamera(
+      state.mouse,
+      state.camera
     );
 
-    const meshes = [
-      ...threeObjects.values()
-    ];
-
     const hits =
-      raycaster.intersectObjects(
-        meshes,
-        true
+      state.raycaster.intersectObjects(
+        [...state.meshes.values()],
+        false
       );
 
     if (!hits.length) {
@@ -1371,1337 +1582,195 @@
       return;
     }
 
-    let target =
-      hits[0].object;
-
-    while (
-      target &&
-      !target.userData.riseId
-    ) {
-      target = target.parent;
-    }
-
-    if (!target) {
-      return;
-    }
-
     selectObject(
-      target.userData.riseId
+      hits[0].object
+        .userData.riseId
     );
   }
 
-  /* =======================================================
-     INSPECTOR
-     ======================================================= */
+  function selectObject(id) {
+    state.selectedId =
+      id || null;
 
-  function refreshInspector() {
-    if (!els.inspector) {
-      return;
-    }
+    updateSelectionVisual();
+    renderExplorer();
+    renderInspector();
 
     const object =
       getSelectedObject();
 
-    if (!object) {
-      els.inspector.innerHTML = `
-        <div class="inspector-empty">
-          Select an object to edit its properties.
-        </div>
-      `;
-
-      return;
-    }
-
-    els.inspector.innerHTML = `
-      <div class="inspector-section">
-        <div class="inspector-section-title">
-          General
-        </div>
-
-        <div class="property-row">
-          <div class="property-label">Name</div>
-          <div class="property-value">
-            <input
-              class="property-input"
-              data-property="name"
-              value="${escapeHtml(object.name)}"
-            >
-          </div>
-        </div>
-
-        <div class="property-row">
-          <div class="property-label">Type</div>
-          <div class="property-value">
-            <input
-              class="property-input"
-              value="${escapeHtml(object.type)}"
-              disabled
-            >
-          </div>
-        </div>
-
-        <div class="property-row">
-          <div class="property-label">Visible</div>
-          <div class="property-value">
-            <input
-              type="checkbox"
-              data-property="visible"
-              ${object.visible ? "checked" : ""}
-            >
-          </div>
-        </div>
-      </div>
-
-      <div class="inspector-section">
-        <div class="inspector-section-title">
-          Transform
-        </div>
-
-        ${vectorProperty(
-          "Position",
-          "position",
-          object.position
-        )}
-
-        ${vectorProperty(
-          "Rotation",
-          "rotation",
-          object.rotation
-        )}
-
-        ${vectorProperty(
-          "Scale",
-          "scale",
-          object.scale
-        )}
-      </div>
-
-      <div class="inspector-section">
-        <div class="inspector-section-title">
-          Appearance
-        </div>
-
-        <div class="property-row">
-          <div class="property-label">Color</div>
-          <div class="property-value">
-            <div class="property-color">
-              <input
-                type="color"
-                data-property="color"
-                value="${safeColor(object.color)}"
-              >
-
-              <input
-                class="property-input property-color-value"
-                data-property="color-text"
-                value="${escapeHtml(object.color)}"
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="inspector-section">
-        <div class="inspector-section-title">
-          4D Timeline
-        </div>
-
-        ${numberProperty(
-          "Created At",
-          "createdAt",
-          object.createdAt
-        )}
-
-        ${numberProperty(
-          "Hidden At",
-          "hiddenAt",
-          object.hiddenAt ?? ""
-        )}
-      </div>
-
-      <div class="inspector-section">
-        <div class="inspector-section-title">
-          Actions
-        </div>
-
-        <div style="padding:8px;">
-          <button
-            class="studio-button danger"
-            data-action="delete-selected"
-            style="width:100%;"
-          >
-            Delete Object
-          </button>
-        </div>
-      </div>
-    `;
-
-    bindInspectorEvents();
-  }
-
-  function vectorProperty(
-    label,
-    property,
-    value
-  ) {
-    return `
-      <div class="property-row">
-        <div class="property-label">${label}</div>
-        <div class="property-value">
-          <div class="property-vector">
-
-            <input
-              class="property-input"
-              data-vector="${property}"
-              data-axis="x"
-              value="${value.x}"
-            >
-
-            <input
-              class="property-input"
-              data-vector="${property}"
-              data-axis="y"
-              value="${value.y}"
-            >
-
-            <input
-              class="property-input"
-              data-vector="${property}"
-              data-axis="z"
-              value="${value.z}"
-            >
-
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function numberProperty(
-    label,
-    property,
-    value
-  ) {
-    return `
-      <div class="property-row">
-        <div class="property-label">${label}</div>
-        <div class="property-value">
-          <input
-            class="property-input"
-            data-property="${property}"
-            value="${value}"
-            type="number"
-            step="0.01"
-          >
-        </div>
-      </div>
-    `;
-  }
-
-  function bindInspectorEvents() {
-    if (!els.inspector) {
-      return;
-    }
-
-    els.inspector
-      .querySelectorAll(
-        "[data-property]"
-      )
-      .forEach((input) => {
-        input.addEventListener(
-          "change",
-          () => {
-            updateInspectorProperty(
-              input
-            );
-          }
-        );
-      });
-
-    els.inspector
-      .querySelectorAll(
-        "[data-vector]"
-      )
-      .forEach((input) => {
-        input.addEventListener(
-          "change",
-          () => {
-            updateInspectorVector(
-              input
-            );
-          }
-        );
-      });
-  }
-
-  function updateInspectorProperty(input) {
-    const object =
-      getSelectedObject();
-
-    if (!object) {
-      return;
-    }
-
-    const property =
-      input.dataset.property;
-
-    if (property === "visible") {
-      object.visible = input.checked;
-    } else if (
-      property === "name"
-    ) {
-      object.name =
-        input.value.trim() ||
-        object.type;
-    } else if (
-      property === "color"
-    ) {
-      object.color =
-        normalizeHex(
-          input.value
-        );
-    } else if (
-      property === "color-text"
-    ) {
-      object.color =
-        normalizeHex(
-          input.value
-        );
-    } else if (
-      property === "createdAt"
-    ) {
-      object.createdAt =
-        Number(input.value) || 0;
-    } else if (
-      property === "hiddenAt"
-    ) {
-      object.hiddenAt =
-        input.value === ""
-          ? null
-          : Number(input.value);
-    }
-
     if (
-      property === "color-text"
+      els.selectionLabel
     ) {
-      refreshInspector();
-    }
-
-    applyObjectToThree(object);
-
-    refreshExplorer();
-    pushHistory();
-    saveProject(false);
-  }
-
-  function updateInspectorVector(input) {
-    const object =
-      getSelectedObject();
-
-    if (!object) {
-      return;
-    }
-
-    const property =
-      input.dataset.vector;
-
-    const axis =
-      input.dataset.axis;
-
-    if (
-      !object[property] ||
-      !["x", "y", "z"].includes(axis)
-    ) {
-      return;
-    }
-
-    let value =
-      Number(input.value);
-
-    if (!Number.isFinite(value)) {
-      value = 0;
-    }
-
-    if (
-      property === "scale" &&
-      value === 0
-    ) {
-      value = 0.001;
-    }
-
-    object[property][axis] =
-      state.project.settings.snap
-        ? snapValue(
-            value,
-            state.project.settings.gridSize
-          )
-        : value;
-
-    applyObjectToThree(object);
-
-    pushHistory();
-    saveProject(false);
-  }
-
-  function applyObjectToThree(object) {
-    const mesh =
-      threeObjects.get(object.id);
-
-    if (!mesh) {
-      return;
-    }
-
-    mesh.position.set(
-      object.position.x,
-      object.position.y,
-      object.position.z
-    );
-
-    mesh.rotation.set(
-      degToRad(object.rotation.x),
-      degToRad(object.rotation.y),
-      degToRad(object.rotation.z)
-    );
-
-    mesh.scale.set(
-      object.scale.x,
-      object.scale.y,
-      object.scale.z
-    );
-
-    if (mesh.material) {
-      mesh.material.color.set(
-        object.color || "#4da3ff"
-      );
-    }
-
-    updateObjectVisibility(
-      object,
-      mesh
-    );
-  }
-
-  function updateObjectVisibility(
-    object,
-    mesh
-  ) {
-    const time =
-      state.timeline.currentTime;
-
-    const beforeCreation =
-      time < object.createdAt;
-
-    const afterHidden =
-      object.hiddenAt !== null &&
-      time >= object.hiddenAt;
-
-    mesh.visible =
-      object.visible &&
-      !beforeCreation &&
-      !afterHidden;
-  }
-
-  function getSelectedObject() {
-    return (
-      state.project.objects.find(
-        (object) =>
-          object.id ===
-          state.selectedId
-      ) || null
-    );
-  }
-
-  /* =======================================================
-     EXPLORER
-     ======================================================= */
-
-  function refreshExplorer() {
-    if (!els.explorer) {
-      return;
-    }
-
-    if (!state.project.objects.length) {
-      els.explorer.innerHTML = `
-        <div class="inspector-empty">
-          No objects in the scene.
-        </div>
-      `;
-
-      return;
-    }
-
-    els.explorer.innerHTML =
-      state.project.objects
-        .map(
-          (object) => `
-            <div
-              class="tree-item ${
-                object.id ===
-                state.selectedId
-                  ? "selected"
-                  : ""
-              }"
-              data-object-id="${object.id}"
-            >
-              <span class="tree-arrow">
-                ${getTreeArrow(object)}
-              </span>
-
-              <span class="tree-icon">
-                ${getObjectSymbol(object.type)}
-              </span>
-
-              <span class="tree-name">
-                ${escapeHtml(object.name)}
-              </span>
-            </div>
-          `
-        )
-        .join("");
-
-    els.explorer
-      .querySelectorAll(
-        "[data-object-id]"
-      )
-      .forEach((item) => {
-        item.addEventListener(
-          "click",
-          () => {
-            selectObject(
-              item.dataset.objectId
-            );
-          }
-        );
-      });
-  }
-
-  function getTreeArrow(object) {
-    return object.type === "Folder"
-      ? ">"
-      : "";
-  }
-
-  function getObjectSymbol(type) {
-    switch (
-      String(type).toLowerCase()
-    ) {
-      case "spawn":
-        return "S";
-
-      case "light":
-        return "L";
-
-      case "sphere":
-        return "O";
-
-      case "cylinder":
-        return "C";
-
-      case "wedge":
-        return "W";
-
-      case "folder":
-        return "F";
-
-      default:
-        return "P";
+      els.selectionLabel.textContent =
+        object
+          ? object.name
+          : "Nothing Selected";
     }
   }
 
-  /* =======================================================
-     4D TIMELINE
-     ======================================================= */
-
-  function refreshTimeline() {
-    if (els.timelineTime) {
-      els.timelineTime.textContent =
-        `${formatTime(
-          state.timeline.currentTime
-        )} / ${formatTime(
-          state.timeline.duration
-        )}`;
-    }
-
-    if (els.timelinePlayhead) {
-      const percent =
-        (state.timeline.currentTime /
-          state.timeline.duration) *
-        100;
-
-      els.timelinePlayhead.style.left =
-        `${Math.max(
-          0,
-          Math.min(100, percent)
-        )}%`;
-    }
-
-    threeObjects.forEach(
+  function updateSelectionVisual() {
+    state.meshes.forEach(
       (mesh, id) => {
-        const object =
-          state.project.objects.find(
-            (item) =>
-              item.id === id
+        if (
+          !mesh.material
+        ) {
+          return;
+        }
+
+        if (
+          "emissive" in
+          mesh.material
+        ) {
+          mesh.material.emissive.set(
+            id ===
+              state.selectedId
+              ? 0x174d7d
+              : 0x000000
           );
 
-        if (object) {
-          updateObjectVisibility(
-            object,
-            mesh
-          );
+          mesh.material.emissiveIntensity =
+            id ===
+            state.selectedId
+              ? 1
+              : 0;
         }
       }
     );
   }
 
-  function setTimelineTime(time) {
-    state.timeline.currentTime =
-      Math.max(
-        0,
-        Math.min(
-          state.timeline.duration,
-          Number(time) || 0
-        )
-      );
+  function frameSelected() {
+    const object =
+      getSelectedObject();
 
-    refreshTimeline();
-  }
-
-  function playTimeline() {
-    if (state.timeline.playing) {
+    if (!object) {
+      resetView();
       return;
     }
 
-    state.timeline.playing = true;
-
-    const start =
-      performance.now() -
-      state.timeline.currentTime * 1000;
-
-    const tick = (now) => {
-      if (!state.timeline.playing) {
-        return;
-      }
-
-      state.timeline.currentTime =
-        (now - start) / 1000;
-
-      if (
-        state.timeline.currentTime >=
-        state.timeline.duration
-      ) {
-        state.timeline.currentTime = 0;
-      }
-
-      refreshTimeline();
-
-      timelineAnimation =
-        requestAnimationFrame(tick);
-    };
-
-    timelineAnimation =
-      requestAnimationFrame(tick);
-  }
-
-  function pauseTimeline() {
-    state.timeline.playing = false;
-
-    if (timelineAnimation) {
-      cancelAnimationFrame(
-        timelineAnimation
-      );
-
-      timelineAnimation = null;
-    }
-  }
-
-  /* =======================================================
-     AI
-     ======================================================= */
-
-  function submitAI() {
-    if (!els.aiInput) {
+    if (!state.camera) {
       return;
     }
 
-    const prompt =
-      els.aiInput.value.trim();
-
-    if (!prompt) {
-      return;
-    }
-
-    addAIMessage(
-      "You",
-      prompt,
-      true
+    state.camera.position.set(
+      object.position.x + 10,
+      object.position.y + 8,
+      object.position.z + 10
     );
 
-    els.aiInput.value = "";
-
-    const result =
-      interpretAI(prompt);
-
-    addAIMessage(
-      "Rise AI",
-      result.message,
-      false
+    state.camera.lookAt(
+      object.position.x,
+      object.position.y,
+      object.position.z
     );
-
-    if (result.changed) {
-      pushHistory();
-      saveProject(false);
-      rebuildScene();
-      refreshAll();
-    }
-
-    setDock("ai");
   }
 
-  function addAIMessage(
-    sender,
-    message,
-    user = false
+  function resetView() {
+    if (!state.camera) {
+      return;
+    }
+
+    state.camera.position.set(
+      22,
+      17,
+      24
+    );
+
+    state.camera.lookAt(
+      0,
+      0,
+      0
+    );
+  }
+
+  /* ========================================================
+     OBJECTS
+     ======================================================== */
+
+  function makeObject(
+    type,
+    options = {}
   ) {
-    if (!els.aiMessages) {
-      return;
-    }
+    return normalizeObject({
+      id:
+        options.id ||
+        makeId(
+          String(type).toLowerCase()
+        ),
 
-    const element =
-      document.createElement("div");
+      type,
 
-    element.className =
-      `ai-message ${
-        user ? "user" : ""
-      }`;
+      name:
+        options.name ||
+        `${type} ${
+          countType(type) + 1
+        }`,
 
-    element.innerHTML = `
-      <div class="sender">
-        ${escapeHtml(sender)}
-      </div>
+      position:
+        options.position ||
+        { ...state.player },
 
-      <div class="message-body">
-        ${escapeHtml(message)}
-      </div>
-    `;
+      rotation:
+        options.rotation ||
+        { x: 0, y: 0, z: 0 },
 
-    els.aiMessages.appendChild(
-      element
-    );
+      scale:
+        options.scale ||
+        { x: 1, y: 1, z: 1 },
 
-    els.aiMessages.scrollTop =
-      els.aiMessages.scrollHeight;
+      color:
+        options.color ||
+        defaultColor(type),
+
+      visible:
+        options.visible !== undefined
+          ? options.visible
+          : true,
+
+      createdAt:
+        options.createdAt ??
+        state.timeline.time,
+
+      hiddenAt:
+        options.hiddenAt ??
+        null
+    });
   }
 
-  function interpretAI(prompt) {
-    const text =
-      prompt
-        .trim()
-        .toLowerCase();
-
-    /* -----------------------------------------------
-       ADD OBJECT
-       ----------------------------------------------- */
-
-    if (
-      /\badd\b/.test(text) ||
-      /\bcreate\b/.test(text) ||
-      /\bmake\b/.test(text)
-    ) {
-      const type =
-        detectObjectType(text);
-
-      const position =
-        detectPosition(text);
-
-      const object =
-        createObject(type, {
-          position
-        });
-
-      if (
-        /\bhere\b/.test(text) ||
-        /\bwhere i'm standing\b/.test(text) ||
-        /\bwhere i am\b/.test(text)
-      ) {
-        return {
-          changed: true,
-          message:
-            `Added a ${type.toLowerCase()} at your current position.`
-        };
-      }
-
-      return {
-        changed: true,
-        message:
-          `Added ${object.name}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       DELETE
-       ----------------------------------------------- */
-
-    if (
-      /\bdelete\b/.test(text) ||
-      /\bremove\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text);
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "I could not find an object to remove."
-        };
-      }
-
-      deleteObject(target.id);
-
-      return {
-        changed: true,
-        message:
-          `Removed ${target.name}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       MOVE
-       ----------------------------------------------- */
-
-    if (
-      /\bmove\b/.test(text) ||
-      /\bput\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object to move."
-        };
-      }
-
-      const position =
-        detectPosition(
-          text,
-          target.position
-        );
-
-      target.position = position;
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `Moved ${target.name} to ${formatVector(position)}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       ROTATE
-       ----------------------------------------------- */
-
-    if (
-      /\brotate\b/.test(text) ||
-      /\bturn\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object to rotate."
-        };
-      }
-
-      const degrees =
-        extractNumber(text) ?? 90;
-
-      if (/\bx\b/.test(text)) {
-        target.rotation.x += degrees;
-      } else if (/\by\b/.test(text)) {
-        target.rotation.y += degrees;
-      } else {
-        target.rotation.y += degrees;
-      }
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `Rotated ${target.name}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       SCALE
-       ----------------------------------------------- */
-
-    if (
-      /\bscale\b/.test(text) ||
-      /\bresize\b/.test(text) ||
-      /\bmake .* bigger\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object to scale."
-        };
-      }
-
-      const amount =
-        extractNumber(text) ?? 2;
-
-      const factor =
-        amount > 0 ? amount : 1;
-
-      target.scale = {
-        x: factor,
-        y: factor,
-        z: factor
-      };
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `Scaled ${target.name} to ${factor}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       COLOR
-       ----------------------------------------------- */
-
-    if (
-      /\bcolor\b/.test(text) ||
-      /\bcolour\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object to recolor."
-        };
-      }
-
-      const color =
-        detectColor(text);
-
-      if (!color) {
-        return {
-          changed: false,
-          message:
-            "Tell me a color, such as blue, red, green, or white."
-        };
-      }
-
-      target.color = color;
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `Changed ${target.name} to ${color}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       HIDE / DISAPPEAR / 4D
-       ----------------------------------------------- */
-
-    if (
-      /\bdisappear\b/.test(text) ||
-      /\bhide\b/.test(text) ||
-      /\bvanish\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object should disappear."
-        };
-      }
-
-      const time =
-        extractTime(text);
-
-      if (time !== null) {
-        target.hiddenAt = time;
-
-        refreshTimeline();
-
-        return {
-          changed: true,
-          message:
-            `${target.name} will disappear at ${formatTime(time)}.`
-        };
-      }
-
-      target.visible = false;
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `${target.name} is now hidden.`
-      };
-    }
-
-    /* -----------------------------------------------
-       SHOW
-       ----------------------------------------------- */
-
-    if (
-      /\bshow\b/.test(text) ||
-      /\bunhide\b/.test(text) ||
-      /\bvisible\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text) ||
-        getSelectedObject();
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "Select an object or tell me which object to show."
-        };
-      }
-
-      target.visible = true;
-      target.hiddenAt = null;
-
-      applyObjectToThree(target);
-
-      return {
-        changed: true,
-        message:
-          `${target.name} is visible again.`
-      };
-    }
-
-    /* -----------------------------------------------
-       PLAYER
-       ----------------------------------------------- */
-
-    if (
-      /\bplayer\b/.test(text) &&
-      (
-        /\bmove\b/.test(text) ||
-        /\bgo\b/.test(text) ||
-        /\bposition\b/.test(text)
-      )
-    ) {
-      const position =
-        detectPosition(
-          text,
-          state.player
-        );
-
-      state.player = position;
-
-      return {
-        changed: false,
-        message:
-          `Player position set to ${formatVector(position)}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       TIMELINE
-       ----------------------------------------------- */
-
-    if (
-      /\b4d\b/.test(text) ||
-      /\btimeline\b/.test(text) ||
-      /\btime\b/.test(text)
-    ) {
-      const time =
-        extractTime(text);
-
-      if (time !== null) {
-        setTimelineTime(time);
-
-        return {
-          changed: false,
-          message:
-            `Timeline moved to ${formatTime(time)}.`
-        };
-      }
-
-      setDock("timeline");
-
-      return {
-        changed: false,
-        message:
-          "Opened the 4D timeline."
-      };
-    }
-
-    /* -----------------------------------------------
-       SELECT
-       ----------------------------------------------- */
-
-    if (
-      /\bselect\b/.test(text)
-    ) {
-      const target =
-        findObjectFromPrompt(text);
-
-      if (!target) {
-        return {
-          changed: false,
-          message:
-            "I could not find that object."
-        };
-      }
-
-      selectObject(target.id);
-
-      return {
-        changed: false,
-        message:
-          `Selected ${target.name}.`
-      };
-    }
-
-    /* -----------------------------------------------
-       FALLBACK
-       ----------------------------------------------- */
-
-    return {
-      changed: false,
-      message:
-        "I can create, move, rotate, scale, color, hide, show, delete, and timeline-control 3D objects."
-    };
-  }
-
-  function detectObjectType(text) {
-    if (/\bwedge\b/.test(text)) {
-      return "Wedge";
-    }
-
-    if (/\bsphere\b/.test(text)) {
-      return "Sphere";
-    }
-
-    if (/\bcylinder\b/.test(text)) {
-      return "Cylinder";
-    }
-
-    if (/\blight\b/.test(text)) {
-      return "Light";
-    }
-
-    if (/\bspawn\b/.test(text)) {
-      return "Spawn";
-    }
-
-    if (/\bfolder\b/.test(text)) {
-      return "Folder";
-    }
-
-    return "Part";
-  }
-
-  function detectPosition(
-    text,
-    fallback = null
+  function createObject(
+    type,
+    options = {}
   ) {
-    const standing =
-      /\bwhere i'm standing\b/.test(text) ||
-      /\bwhere i am\b/.test(text) ||
-      /\bcurrent position\b/.test(text) ||
-      /\bhere\b/.test(text);
-
-    if (standing) {
-      return {
-        ...state.player
-      };
-    }
-
-    const xyz =
-      text.match(
-        /x\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*y\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*z\s*(-?\d+(?:\.\d+)?)/i
+    const object =
+      makeObject(
+        type,
+        options
       );
 
-    if (xyz) {
-      return {
-        x: Number(xyz[1]),
-        y: Number(xyz[2]),
-        z: Number(xyz[3])
-      };
-    }
-
-    const numbers =
-      text.match(
-        /-?\d+(?:\.\d+)?/g
-      );
-
-    if (
-      numbers &&
-      numbers.length >= 3
-    ) {
-      return {
-        x: Number(numbers[0]),
-        y: Number(numbers[1]),
-        z: Number(numbers[2])
-      };
-    }
-
-    if (fallback) {
-      return {
-        ...fallback
-      };
-    }
-
-    return {
-      ...state.player
-    };
-  }
-
-  function findObjectFromPrompt(text) {
-    const objects =
-      [...state.project.objects]
-        .sort(
-          (a, b) =>
-            b.name.length -
-            a.name.length
-        );
-
-    return (
-      objects.find((object) =>
-        text.includes(
-          object.name.toLowerCase()
-        )
-      ) ||
-      objects.find(
-        (object) =>
-          text.includes(
-            object.type.toLowerCase()
-          )
-      ) ||
-      null
+    state.project.objects.push(
+      object
     );
+
+    state.selectedId =
+      object.id;
+
+    rebuildScene();
+    renderEverything();
+
+    pushHistory();
+    saveProject(false);
+
+    consoleLog(
+      `Created ${object.name}.`
+    );
+
+    return object;
   }
-
-  function detectColor(text) {
-    const colors = {
-      red: "#ff4d4d",
-      green: "#46c47b",
-      blue: "#4da3ff",
-      yellow: "#ffd34d",
-      orange: "#ff914d",
-      purple: "#9d72ff",
-      pink: "#ff72b7",
-      white: "#ffffff",
-      black: "#111111",
-      gray: "#808890",
-      grey: "#808890",
-      cyan: "#4de1ff"
-    };
-
-    for (const [name, hex] of Object.entries(
-      colors
-    )) {
-      if (
-        new RegExp(
-          `\\b${name}\\b`,
-          "i"
-        ).test(text)
-      ) {
-        return hex;
-      }
-    }
-
-    const hexMatch =
-      text.match(
-        /#[0-9a-f]{6}\b/i
-      );
-
-    return hexMatch
-      ? hexMatch[0]
-      : null;
-  }
-
-  function extractNumber(text) {
-    const match =
-      text.match(
-        /-?\d+(?:\.\d+)?/
-      );
-
-    return match
-      ? Number(match[0])
-      : null;
-  }
-
-  function extractTime(text) {
-    const seconds =
-      text.match(
-        /(-?\d+(?:\.\d+)?)\s*(?:seconds?|secs?|s)\b/i
-      );
-
-    if (seconds) {
-      return Math.max(
-        0,
-        Math.min(
-          state.timeline.duration,
-          Number(seconds[1])
-        )
-      );
-    }
-
-    const timestamp =
-      text.match(
-        /\b(\d+):(\d{1,2})\b/
-      );
-
-    if (timestamp) {
-      return Math.max(
-        0,
-        Math.min(
-          state.timeline.duration,
-          Number(timestamp[1]) * 60 +
-            Number(timestamp[2])
-        )
-      );
-    }
-
-    return null;
-  }
-
-  /* =======================================================
-     DELETE
-     ======================================================= */
 
   function deleteSelected() {
-    if (!state.selectedId) {
+    if (
+      !state.selectedId
+    ) {
       return;
     }
 
@@ -2736,98 +1805,2244 @@
     }
 
     rebuildScene();
-    refreshAll();
+    renderEverything();
 
     pushHistory();
     saveProject(false);
 
-    consoleMessage(
+    consoleLog(
       `Deleted ${object.name}.`
     );
   }
 
-  /* =======================================================
-     NEW / DELETE PROJECT
-     ======================================================= */
+  function countType(type) {
+    return state.project.objects.filter(
+      (object) =>
+        object.type
+          .toLowerCase() ===
+        String(type)
+          .toLowerCase()
+    ).length;
+  }
 
-  function newProject() {
+  function defaultColor(type) {
+    switch (
+      String(type)
+        .toLowerCase()
+    ) {
+      case "spawn":
+        return "#35c978";
+
+      case "sphere":
+        return "#9b78ff";
+
+      case "wedge":
+        return "#ff9a62";
+
+      case "cylinder":
+        return "#4da3ff";
+
+      case "light":
+        return "#ffd96a";
+
+      default:
+        return "#4da3ff";
+    }
+  }
+
+  function getSelectedObject() {
+    return (
+      state.project.objects.find(
+        (object) =>
+          object.id ===
+          state.selectedId
+      ) || null
+    );
+  }
+
+  /* ========================================================
+     EXPLORER
+     ======================================================== */
+
+  function renderExplorer() {
     if (
-      !confirm(
-        "Create a new empty project?"
-      )
+      !els.objectTree
     ) {
       return;
     }
 
-    state.project = {
-      name: "Untitled Game",
-      description: "",
-      objects: [],
-      settings: {
-        gridSize: 10,
-        snap: true,
-        mode: "3d"
+    const query =
+      (
+        els.outlinerSearch?.value ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    const objects =
+      state.project.objects.filter(
+        (object) => {
+          if (!query) {
+            return true;
+          }
+
+          return (
+            object.name
+              .toLowerCase()
+              .includes(query) ||
+            object.type
+              .toLowerCase()
+              .includes(query)
+          );
+        }
+      );
+
+    els.objectTree.innerHTML = "";
+
+    if (!objects.length) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "nothing-selected";
+
+      empty.textContent =
+        state.project.objects.length
+          ? "No matching objects."
+          : "No objects yet.";
+
+      els.objectTree.appendChild(
+        empty
+      );
+    }
+
+    objects.forEach(
+      (object) => {
+        const item =
+          document.createElement(
+            "div"
+          );
+
+        item.className =
+          "object-item";
+
+        if (
+          object.id ===
+          state.selectedId
+        ) {
+          item.classList.add(
+            "selected"
+          );
+        }
+
+        item.innerHTML = `
+          <span style="width:18px;color:#4da3ff;">
+            ${getObjectLetter(object.type)}
+          </span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;">
+            ${escapeHtml(object.name)}
+          </span>
+          <span style="color:#58636e;font-size:8px;">
+            ${escapeHtml(object.type)}
+          </span>
+        `;
+
+        item.addEventListener(
+          "click",
+          () =>
+            selectObject(
+              object.id
+            )
+        );
+
+        els.objectTree.appendChild(
+          item
+        );
       }
-    };
+    );
 
-    state.selectedId = null;
+    if (
+      els.outlinerFooter
+    ) {
+      els.outlinerFooter.textContent =
+        `${state.project.objects.length} ${
+          state.project.objects.length ===
+          1
+            ? "object"
+            : "objects"
+        }`;
+    }
+  }
 
-    rebuildScene();
-    refreshAll();
+  function getObjectLetter(type) {
+    switch (
+      String(type).toLowerCase()
+    ) {
+      case "sphere":
+        return "O";
+
+      case "wedge":
+        return "W";
+
+      case "cylinder":
+        return "C";
+
+      case "light":
+        return "L";
+
+      case "spawn":
+        return "S";
+
+      default:
+        return "P";
+    }
+  }
+
+  /* ========================================================
+     INSPECTOR
+     ======================================================== */
+
+  function renderInspector() {
+    if (
+      !els.propertiesContent
+    ) {
+      return;
+    }
+
+    const object =
+      getSelectedObject();
+
+    if (!object) {
+      els.propertiesContent.innerHTML = `
+        <div class="nothing-selected">
+          <strong>Nothing Selected</strong>
+          <span>Select an object to inspect it.</span>
+        </div>
+      `;
+
+      return;
+    }
+
+    els.propertiesContent.innerHTML = `
+      <div class="property-section">
+        <div class="property-section-title">
+          General
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Name
+          </div>
+
+          <input
+            class="property-input"
+            data-edit="name"
+            value="${escapeHtml(object.name)}"
+          >
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Type
+          </div>
+
+          <input
+            class="property-input"
+            value="${escapeHtml(object.type)}"
+            disabled
+          >
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Visible
+          </div>
+
+          <input
+            type="checkbox"
+            data-edit="visible"
+            ${object.visible ? "checked" : ""}
+          >
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">
+          Position
+        </div>
+
+        ${vectorEditor(
+          "position",
+          object.position
+        )}
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">
+          Rotation
+        </div>
+
+        ${vectorEditor(
+          "rotation",
+          object.rotation
+        )}
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">
+          Scale
+        </div>
+
+        ${vectorEditor(
+          "scale",
+          object.scale
+        )}
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">
+          Appearance
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Color
+          </div>
+
+          <input
+            class="property-input"
+            data-edit="color"
+            value="${escapeHtml(object.color)}"
+          >
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">
+          4D
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Created
+          </div>
+
+          <input
+            class="property-input"
+            type="number"
+            step="0.01"
+            data-edit="createdAt"
+            value="${object.createdAt}"
+          >
+        </div>
+
+        <div class="property-row">
+          <div class="property-name">
+            Disappear
+          </div>
+
+          <input
+            class="property-input"
+            type="number"
+            step="0.01"
+            data-edit="hiddenAt"
+            value="${
+              object.hiddenAt ??
+              ""
+            }"
+          >
+        </div>
+      </div>
+
+      <div style="padding:10px;">
+        <button
+          id="inspectorDelete"
+          type="button"
+          class="top-actions danger"
+          style="width:100%;height:31px;"
+        >
+          Delete Object
+        </button>
+      </div>
+    `;
+
+    els.propertiesContent
+      .querySelectorAll(
+        "[data-edit]"
+      )
+      .forEach(
+        (input) => {
+          input.addEventListener(
+            "change",
+            () =>
+              applyInspectorEdit(
+                input
+              )
+          );
+        }
+      );
+
+    els.propertiesContent
+      .querySelectorAll(
+        "[data-vector]"
+      )
+      .forEach(
+        (input) => {
+          input.addEventListener(
+            "change",
+            () =>
+              applyVectorEdit(
+                input
+              )
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "inspectorDelete"
+      )
+      ?.addEventListener(
+        "click",
+        deleteSelected
+      );
+  }
+
+  function vectorEditor(
+    property,
+    vectorValue
+  ) {
+    return `
+      <div class="property-row">
+        <div class="property-name">
+          XYZ
+        </div>
+
+        <div class="vector-inputs">
+          <input
+            class="property-input"
+            data-vector="${property}"
+            data-axis="x"
+            value="${vectorValue.x}"
+          >
+
+          <input
+            class="property-input"
+            data-vector="${property}"
+            data-axis="y"
+            value="${vectorValue.y}"
+          >
+
+          <input
+            class="property-input"
+            data-vector="${property}"
+            data-axis="z"
+            value="${vectorValue.z}"
+          >
+        </div>
+      </div>
+    `;
+  }
+
+  function applyInspectorEdit(
+    input
+  ) {
+    const object =
+      getSelectedObject();
+
+    if (!object) {
+      return;
+    }
+
+    const property =
+      input.dataset.edit;
+
+    if (
+      property === "name"
+    ) {
+      object.name =
+        input.value.trim() ||
+        object.type;
+    }
+
+    if (
+      property === "visible"
+    ) {
+      object.visible =
+        input.checked;
+    }
+
+    if (
+      property === "color"
+    ) {
+      object.color =
+        normalizeColor(
+          input.value
+        );
+    }
+
+    if (
+      property === "createdAt"
+    ) {
+      object.createdAt =
+        numberOr(
+          input.value,
+          0
+        );
+    }
+
+    if (
+      property === "hiddenAt"
+    ) {
+      object.hiddenAt =
+        input.value === ""
+          ? null
+          : numberOr(
+              input.value,
+              null
+            );
+    }
+
+    applyObjectToMesh(
+      object
+    );
+
+    pushHistory();
+    saveProject(false);
+    renderEverything();
+  }
+
+  function applyVectorEdit(
+    input
+  ) {
+    const object =
+      getSelectedObject();
+
+    if (!object) {
+      return;
+    }
+
+    const property =
+      input.dataset.vector;
+
+    const axis =
+      input.dataset.axis;
+
+    object[property][axis] =
+      numberOr(
+        input.value,
+        0
+      );
+
+    applyObjectToMesh(
+      object
+    );
+
+    pushHistory();
+    saveProject(false);
+    renderEverything();
+  }
+
+  function applyObjectToMesh(
+    object
+  ) {
+    const mesh =
+      state.meshes.get(
+        object.id
+      );
+
+    if (!mesh) {
+      return;
+    }
+
+    mesh.position.set(
+      object.position.x,
+      object.position.y,
+      object.position.z
+    );
+
+    mesh.rotation.set(
+      radians(
+        object.rotation.x
+      ),
+      radians(
+        object.rotation.y
+      ),
+      radians(
+        object.rotation.z
+      )
+    );
+
+    mesh.scale.set(
+      object.scale.x,
+      object.scale.y,
+      object.scale.z
+    );
+
+    if (
+      mesh.material?.color
+    ) {
+      mesh.material.color.set(
+        object.color
+      );
+    }
+
+    applyVisibility(
+      object,
+      mesh
+    );
+  }
+
+  /* ========================================================
+     4D
+     ======================================================== */
+
+  function refreshTimeline() {
+    if (
+      els.timelineTime
+    ) {
+      els.timelineTime.textContent =
+        `${state.timeline.time.toFixed(2)}s`;
+    }
+
+    if (
+      els.timelineSlider
+    ) {
+      els.timelineSlider.value =
+        state.timeline.time;
+    }
+
+    state.meshes.forEach(
+      (mesh, id) => {
+        const object =
+          state.project.objects.find(
+            (item) =>
+              item.id === id
+          );
+
+        if (object) {
+          applyVisibility(
+            object,
+            mesh
+          );
+        }
+      }
+    );
+
+    renderTimelineObjects();
+  }
+
+  function setTimeline(time) {
+    state.timeline.time =
+      Math.max(
+        0,
+        Math.min(
+          state.timeline.max,
+          Number(time) || 0
+        )
+      );
+
+    refreshTimeline();
+  }
+
+  function toggleTimeline() {
+    if (
+      state.timeline.playing
+    ) {
+      pauseTimeline();
+      return;
+    }
+
+    state.timeline.playing =
+      true;
+
+    els.timelinePlay.textContent =
+      "Pause";
+
+    const start =
+      performance.now() -
+      state.timeline.time * 1000;
+
+    const tick =
+      (now) => {
+        if (
+          !state.timeline.playing
+        ) {
+          return;
+        }
+
+        let time =
+          (now - start) /
+          1000;
+
+        if (
+          time >
+          state.timeline.max
+        ) {
+          time = 0;
+        }
+
+        state.timeline.time =
+          time;
+
+        refreshTimeline();
+
+        state.timelineFrame =
+          requestAnimationFrame(
+            tick
+          );
+      };
+
+    state.timelineFrame =
+      requestAnimationFrame(
+        tick
+      );
+  }
+
+  function pauseTimeline() {
+    state.timeline.playing =
+      false;
+
+    if (
+      state.timelineFrame
+    ) {
+      cancelAnimationFrame(
+        state.timelineFrame
+      );
+    }
+
+    if (
+      els.timelinePlay
+    ) {
+      els.timelinePlay.textContent =
+        "Play";
+    }
+  }
+
+  function applyVisibility(
+    object,
+    mesh
+  ) {
+    const time =
+      state.timeline.time;
+
+    const before =
+      time <
+      object.createdAt;
+
+    const after =
+      object.hiddenAt !== null &&
+      time >= object.hiddenAt;
+
+    mesh.visible =
+      object.visible &&
+      !before &&
+      !after;
+  }
+
+  function renderTimelineObjects() {
+    if (
+      !els.timelineObjects
+    ) {
+      return;
+    }
+
+    els.timelineObjects.innerHTML = "";
+
+    state.project.objects.forEach(
+      (object) => {
+        const row =
+          document.createElement(
+            "div"
+          );
+
+        row.style.cssText =
+          "height:24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;position:relative;padding-left:8px;color:#89939e;font-size:9px;";
+
+        const title =
+          document.createElement(
+            "span"
+          );
+
+        title.textContent =
+          object.name;
+
+        row.appendChild(
+          title
+        );
+
+        if (
+          object.createdAt <=
+          state.timeline.max
+        ) {
+          const start =
+            document.createElement(
+              "span"
+            );
+
+          start.textContent =
+            `  ${object.createdAt.toFixed(1)}s`;
+
+          start.style.cssText =
+            "margin-left:auto;color:#4da3ff;padding-right:8px;";
+
+          row.appendChild(
+            start
+          );
+        }
+
+        if (
+          object.hiddenAt !==
+          null
+        ) {
+          const end =
+            document.createElement(
+              "span"
+            );
+
+          end.textContent =
+            `→ ${object.hiddenAt.toFixed(1)}s`;
+
+          end.style.cssText =
+            "color:#e35d5d;padding-right:8px;";
+
+          row.appendChild(
+            end
+          );
+        }
+
+        els.timelineObjects.appendChild(
+          row
+        );
+      }
+    );
+  }
+
+  /* ========================================================
+     RISECODE
+     ======================================================== */
+
+  function updateLineNumbers() {
+    if (
+      !els.studioCodeEditor ||
+      !els.studioLineNumbers
+    ) {
+      return;
+    }
+
+    const lines =
+      els.studioCodeEditor.value
+        .split("\n")
+        .length;
+
+    els.studioLineNumbers.innerHTML =
+      Array.from(
+        {
+          length: lines
+        },
+        (_, index) =>
+          index + 1
+      ).join("<br>");
+  }
+
+  function saveCode() {
+    state.project.code =
+      els.studioCodeEditor?.value ||
+      "";
+
+    pushHistory();
+    saveProject(true);
+
+    consoleLog(
+      "RiseCode saved."
+    );
+  }
+
+  function runCode() {
+    const code =
+      els.studioCodeEditor?.value ||
+      "";
+
+    state.project.code =
+      code;
+
+    const result =
+      executeRiseCode(code);
+
+    renderEverything();
+
+    if (
+      result.errors.length
+    ) {
+      result.errors.forEach(
+        (error) =>
+          consoleLog(
+            error,
+            "error"
+          )
+      );
+
+      toast(
+        "RiseCode has errors.",
+        "error"
+      );
+
+      return;
+    }
 
     pushHistory();
     saveProject(false);
 
     toast(
-      "New project created.",
+      `RiseCode ran: ${result.executed} statement${
+        result.executed === 1
+          ? ""
+          : "s"
+      }.`,
       "success"
     );
   }
 
-  function deleteProject() {
+  function executeRiseCode(code) {
+    const lines =
+      code.split(/\r?\n/);
+
+    const errors = [];
+
+    let executed = 0;
+
+    for (
+      let i = 0;
+      i < lines.length;
+      i++
+    ) {
+      const raw =
+        lines[i].trim();
+
+      if (
+        !raw ||
+        raw.startsWith("//")
+      ) {
+        continue;
+      }
+
+      try {
+        if (
+          /^game\.name\s*=/.test(
+            raw
+          )
+        ) {
+          const value =
+            extractQuoted(raw);
+
+          if (value !== null) {
+            state.project.name =
+              value;
+          }
+
+          executed++;
+          continue;
+        }
+
+        if (
+          /^game\.mode\s*=/.test(
+            raw
+          )
+        ) {
+          const value =
+            extractQuoted(raw);
+
+          if (
+            value?.toUpperCase() ===
+            "4D"
+          ) {
+            setMode("4D");
+          } else {
+            setMode("3D");
+          }
+
+          executed++;
+          continue;
+        }
+
+        if (
+          /^add\.mesh\./.test(
+            raw
+          )
+        ) {
+          const match =
+            raw.match(
+              /^add\.mesh\.([a-z]+)\s*\(\s*\)\s*;?$/i
+            );
+
+          if (!match) {
+            throw new Error(
+              `Unknown mesh syntax on line ${i + 1}.`
+            );
+          }
+
+          const type =
+            capitalize(
+              match[1]
+            );
+
+          createObject(
+            normalizeShapeType(
+              type
+            )
+          );
+
+          executed++;
+          continue;
+        }
+
+        if (
+          /^player\.walk\.speed\s*=/.test(
+            raw
+          )
+        ) {
+          executed++;
+          continue;
+        }
+
+        if (
+          /^player\.jump\.power\s*=/.test(
+            raw
+          )
+        ) {
+          executed++;
+          continue;
+        }
+
+        if (
+          /^world\.gravity\s*=/.test(
+            raw
+          )
+        ) {
+          executed++;
+          continue;
+        }
+
+        if (
+          /^map\.name\s*=/.test(
+            raw
+          )
+        ) {
+          executed++;
+          continue;
+        }
+
+        if (
+          /^color\./.test(
+            raw
+          )
+        ) {
+          executed++;
+          continue;
+        }
+
+        throw new Error(
+          `Unknown RiseCode on line ${i + 1}.`
+        );
+      } catch (error) {
+        errors.push(
+          error.message
+        );
+      }
+    }
+
+    syncProjectName();
+
+    return {
+      errors,
+      executed
+    };
+  }
+
+  /* ========================================================
+     AI
+     ======================================================== */
+
+  function submitAI() {
+    const prompt =
+      els.aiInput?.value.trim();
+
+    if (!prompt) {
+      return;
+    }
+
+    addAIMessage(
+      "You",
+      prompt,
+      true
+    );
+
+    els.aiInput.value = "";
+
+    state.ai.waiting =
+      true;
+
+    const result =
+      aiThink(prompt);
+
+    state.ai.waiting =
+      false;
+
     if (
-      !confirm(
-        "Delete this project? This will reset the Studio project."
+      result.code
+    ) {
+      addAIMessage(
+        "Rise AI",
+        result.message,
+        false,
+        result.code
+      );
+    } else {
+      addAIMessage(
+        "Rise AI",
+        result.message,
+        false
+      );
+    }
+
+    if (
+      result.changed
+    ) {
+      pushHistory();
+      saveProject(false);
+      rebuildScene();
+      renderEverything();
+    }
+  }
+
+  function aiThink(prompt) {
+    const text =
+      prompt.trim();
+
+    const lower =
+      text.toLowerCase();
+
+    const context =
+      buildAIContext();
+
+    /*
+      The local assistant has two modes:
+
+      1. World mode:
+         Create/edit 3D + 4D objects.
+
+      2. Coding mode:
+         Generate or explain RiseCode.
+    */
+
+    if (
+      /\b(debug|fix|error|broken)\b/.test(
+        lower
       )
+    ) {
+      return aiDebug(text);
+    }
+
+    if (
+      /\b(write|generate|make|create)\b/.test(
+        lower
+      ) &&
+      /\b(code|risecode|script)\b/.test(
+        lower
+      )
+    ) {
+      return aiGenerateCode(text);
+    }
+
+    if (
+      /\b(explain|what does|how does)\b/.test(
+        lower
+      ) &&
+      /\b(code|risecode|script)\b/.test(
+        lower
+      )
+    ) {
+      return aiExplainCode(text);
+    }
+
+    if (
+      /\bshow\b|\bbuild\b|\bcreate\b|\badd\b|\bmake\b|\bput\b|\bplace\b|\bspawn\b/.test(
+        lower
+      )
+    ) {
+      return aiWorldCommand(
+        text,
+        context
+      );
+    }
+
+    if (
+      /\bmove\b|\brotate\b|\bscale\b|\bresize\b|\bcolor\b|\brecolor\b|\bdelete\b|\bremove\b|\bhide\b|\bdisappear\b|\bvanish\b|\bvisible\b|\bshow\b/.test(
+        lower
+      )
+    ) {
+      return aiWorldCommand(
+        text,
+        context
+      );
+    }
+
+    if (
+      /\b4d\b|\btimeline\b|\bseconds\b|\bsecond\b|\btime\b/.test(
+        lower
+      )
+    ) {
+      return aiWorldCommand(
+        text,
+        context
+      );
+    }
+
+    if (
+      /\bwhat\b.*\bcan\b.*\byou\b|\bhelp\b|\bwhat can you do\b/.test(
+        lower
+      )
+    ) {
+      return {
+        changed: false,
+        message:
+          "I'm Rise AI, the coding edition built into RiseUp Studio. I can understand your project, create and modify 3D worlds, work with 4D timelines, generate RiseCode, explain code, debug code, and turn natural-language instructions into game systems."
+      };
+    }
+
+    return {
+      changed: false,
+      message:
+        `I understand the current project: "${context.projectName}" with ${context.objectCount} object${context.objectCount === 1 ? "" : "s"}. Tell me what you want to build, code, change, debug, or explain.`
+    };
+  }
+
+  function aiWorldCommand(
+    prompt,
+    context
+  ) {
+    const lower =
+      prompt.toLowerCase();
+
+    if (
+      /\bdelete\b|\bremove\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt);
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "I couldn't tell which object you want removed. Give me its name, such as 'delete Cube 1'."
+        };
+      }
+
+      deleteObject(
+        object.id
+      );
+
+      return {
+        changed: true,
+        message:
+          `Done. I removed ${object.name} from the world.`
+      };
+    }
+
+    if (
+      /\bhide\b|\bdisappear\b|\bvanish\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt);
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Which object should disappear?"
+        };
+      }
+
+      const time =
+        extractTime(prompt);
+
+      if (
+        time !== null
+      ) {
+        object.hiddenAt =
+          time;
+
+        return {
+          changed: true,
+          message:
+            `Done. ${object.name} will disappear at ${time.toFixed(2)} seconds.`
+        };
+      }
+
+      object.visible =
+        false;
+
+      return {
+        changed: true,
+        message:
+          `${object.name} is now hidden.`
+      };
+    }
+
+    if (
+      /\bshow\b|\bvisible\b|\bunhide\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt);
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Which object should I show?"
+        };
+      }
+
+      object.visible =
+        true;
+
+      object.hiddenAt =
+        null;
+
+      return {
+        changed: true,
+        message:
+          `${object.name} is visible again.`
+      };
+    }
+
+    if (
+      /\bmove\b|\bput\b|\bplace\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Tell me which object to move, or select one in the Explorer."
+        };
+      }
+
+      const position =
+        parsePosition(
+          prompt
+        );
+
+      if (
+        position
+      ) {
+        object.position =
+          position;
+
+        return {
+          changed: true,
+          message:
+            `Moved ${object.name} to (${position.x}, ${position.y}, ${position.z}).`
+        };
+      }
+
+      if (
+        /\bwhere i'm standing\b|\bwhere i am\b|\bhere\b/.test(
+          lower
+        )
+      ) {
+        object.position = {
+          ...state.player
+        };
+
+        return {
+          changed: true,
+          message:
+            `Placed ${object.name} where the player is standing.`
+        };
+      }
+
+      return {
+        changed: false,
+        message:
+          "Tell me a location like 'move the cube to x 10 y 5 z 20' or say 'move it where I'm standing'."
+      };
+    }
+
+    if (
+      /\brotate\b|\bturn\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select the object you want rotated."
+        };
+      }
+
+      const amount =
+        extractNumber(
+          prompt
+        ) ?? 90;
+
+      if (
+        /\bx\b/.test(
+          lower
+        )
+      ) {
+        object.rotation.x +=
+          amount;
+      } else if (
+        /\bz\b/.test(
+          lower
+        )
+      ) {
+        object.rotation.z +=
+          amount;
+      } else {
+        object.rotation.y +=
+          amount;
+      }
+
+      return {
+        changed: true,
+        message:
+          `Rotated ${object.name} by ${amount} degrees.`
+      };
+    }
+
+    if (
+      /\bscale\b|\bresize\b|\bbigger\b|\bsmaller\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt) ||
+        getSelectedObject();
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select the object you want to resize."
+        };
+      }
+
+      let amount =
+        extractNumber(
+          prompt
+        );
+
+      if (
+        amount === null
+      ) {
+        amount =
+          /\bsmaller\b/.test(
+            lower
+          )
+            ? 0.5
+            : 2;
+      }
+
+      object.scale = {
+        x: amount,
+        y: amount,
+        z: amount
+      };
+
+      return {
+        changed: true,
+        message:
+          `Scaled ${object.name} to ${amount}.`
+      };
+    }
+
+    if (
+      /\bcolor\b|\bcolour\b|\brecolor\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt) ||
+        getSelectedObject();
+
+      const color =
+        detectColor(
+          lower
+        );
+
+      if (!object) {
+        return {
+          changed: false,
+          message:
+            "Select an object and tell me its new color."
+        };
+      }
+
+      if (!color) {
+        return {
+          changed: false,
+          message:
+            "Tell me a color such as blue, red, green, purple, orange, or white."
+        };
+      }
+
+      object.color =
+        color;
+
+      return {
+        changed: true,
+        message:
+          `Changed ${object.name} to ${color}.`
+      };
+    }
+
+    if (
+      /\b4d\b|\btimeline\b|\bdisappear\b|\bappear\b/.test(
+        lower
+      )
+    ) {
+      const object =
+        findAIObject(prompt);
+
+      const time =
+        extractTime(
+          prompt
+        );
+
+      if (
+        object &&
+        /\bdisappear\b|\bvanish\b/.test(
+          lower
+        ) &&
+        time !== null
+      ) {
+        object.hiddenAt =
+          time;
+
+        setMode("4D");
+
+        return {
+          changed: true,
+          message:
+            `4D enabled. ${object.name} disappears at ${time.toFixed(2)} seconds.`
+        };
+      }
+
+      setMode("4D");
+
+      if (
+        time !== null
+      ) {
+        setTimeline(time);
+      }
+
+      return {
+        changed: false,
+        message:
+          `4D mode is active at ${state.timeline.time.toFixed(2)} seconds.`
+      };
+    }
+
+    const type =
+      detectShape(
+        lower
+      );
+
+    let position =
+      parsePosition(
+        prompt
+      );
+
+    if (
+      !position &&
+      /\bwhere i'm standing\b|\bwhere i am\b|\bhere\b/.test(
+        lower
+      )
+    ) {
+      position = {
+        ...state.player
+      };
+    }
+
+    if (!position) {
+      position = {
+        ...state.player
+      };
+    }
+
+    const object =
+      createObject(
+        type,
+        {
+          position
+        }
+      );
+
+    return {
+      changed: true,
+      message:
+        `Done. I created ${object.name} at (${position.x}, ${position.y}, ${position.z}).`
+    };
+  }
+
+  function aiGenerateCode(
+    prompt
+  ) {
+    const lower =
+      prompt.toLowerCase();
+
+    let code = "";
+
+    if (
+      /\bobby\b|\bnpc\b/.test(
+        lower
+      )
+    ) {
+      code = [
+        'npc.name = "Guard";',
+        "npc.health = 100;",
+        "npc.speed = 4;",
+        'npc.behavior = "patrol";'
+      ].join("\n");
+    } else if (
+      /\bweapon\b|\bgun\b|\bsword\b/.test(
+        lower
+      )
+    ) {
+      code = [
+        'weapon.name = "Blaster";',
+        "weapon.damage = 25;",
+        "weapon.cooldown = 0.2;"
+      ].join("\n");
+    } else if (
+      /\bui\b|\bmenu\b|\bbutton\b/.test(
+        lower
+      )
+    ) {
+      code = [
+        'ui.create("MainMenu");',
+        'ui.button("Play");',
+        'ui.button("Settings");'
+      ].join("\n");
+    } else if (
+      /\bmultiplayer\b|\bmulti player\b/.test(
+        lower
+      )
+    ) {
+      code = [
+        "network.enabled = true;",
+        "network.maxPlayers = 12;",
+        'network.mode = "server-authoritative";'
+      ].join("\n");
+    } else if (
+      /\bday\b|\bnight\b|\btime\b/.test(
+        lower
+      )
+    ) {
+      code = [
+        "world.time.start = 0;",
+        "world.time.speed = 1;",
+        "world.time.cycle = true;"
+      ].join("\n");
+    } else {
+      code = [
+        'game.name = "My Game";',
+        'game.mode = "3D";',
+        "",
+        "world.gravity = 25;",
+        "player.walk.speed = 7;",
+        "player.jump.power = 9;"
+      ].join("\n");
+    }
+
+    setCodeFromAI(
+      code
+    );
+
+    return {
+      changed: true,
+      code,
+      message:
+        "I generated RiseCode for that and placed it in the RiseCode editor."
+    };
+  }
+
+  function aiExplainCode() {
+    const code =
+      els.studioCodeEditor?.value ||
+      state.project.code;
+
+    const lines =
+      code
+        .split("\n")
+        .filter(
+          (line) =>
+            line.trim()
+        );
+
+    const explanations =
+      lines
+        .slice(0, 8)
+        .map(
+          (line) =>
+            `${line.trim()}`
+        );
+
+    return {
+      changed: false,
+      message:
+        `Your current RiseCode has ${lines.length} active line${lines.length === 1 ? "" : "s"}. I can explain each statement or rewrite the system in a cleaner way.\n\n${explanations.join("\n")}`
+    };
+  }
+
+  function aiDebug() {
+    const code =
+      els.studioCodeEditor?.value ||
+      "";
+
+    const errors = [];
+
+    const lines =
+      code.split("\n");
+
+    lines.forEach(
+      (line, index) => {
+        const trimmed =
+          line.trim();
+
+        if (
+          !trimmed ||
+          trimmed.startsWith(
+            "//"
+          )
+        ) {
+          return;
+        }
+
+        if (
+          !trimmed.endsWith(";") &&
+          !trimmed.endsWith("{") &&
+          !trimmed.endsWith("}")
+        ) {
+          errors.push(
+            `Line ${index + 1}: missing semicolon.`
+          );
+        }
+
+        if (
+          /^add\.mesh\./.test(
+            trimmed
+          ) &&
+          !/^add\.mesh\.[a-z]+\(\);\s*$/i.test(
+            trimmed
+          )
+        ) {
+          errors.push(
+            `Line ${index + 1}: mesh syntax should look like add.mesh.cube();`
+          );
+        }
+      }
+    );
+
+    if (!errors.length) {
+      return {
+        changed: false,
+        message:
+          "I checked the current RiseCode and didn't find an obvious syntax problem in the statements I understand."
+      };
+    }
+
+    return {
+      changed: false,
+      message:
+        `I found ${errors.length} problem${errors.length === 1 ? "" : "s"}:\n${errors.join("\n")}`
+    };
+  }
+
+  function buildAIContext() {
+    return {
+      projectName:
+        state.project.name,
+
+      mode:
+        state.mode,
+
+      objectCount:
+        state.project.objects.length,
+
+      selected:
+        getSelectedObject()
+          ?.name || null,
+
+      objects:
+        state.project.objects.map(
+          (object) => ({
+            name:
+              object.name,
+            type:
+              object.type,
+            position:
+              object.position,
+            color:
+              object.color
+          })
+        ),
+
+      code:
+        els.studioCodeEditor
+          ?.value ||
+        state.project.code
+    };
+  }
+
+  function addAIMessage(
+    sender,
+    message,
+    user = false,
+    code = ""
+  ) {
+    if (
+      !els.aiMessages
     ) {
       return;
     }
 
-    const backup =
-      JSON.stringify(state.project);
-
-    try {
-      localStorage.setItem(
-        `${getProjectStorageKey()}_deleted_backup`,
-        backup
+    const wrapper =
+      document.createElement(
+        "div"
       );
 
-      localStorage.removeItem(
-        getProjectStorageKey()
+    wrapper.className =
+      `ai-message ${
+        user
+          ? "user"
+          : "ai"
+      }`;
+
+    const title =
+      document.createElement(
+        "strong"
       );
 
-      localStorage.removeItem(
-        STORAGE_KEYS.project
+    title.textContent =
+      sender;
+
+    const text =
+      document.createElement(
+        "p"
       );
-    } catch {
-      /* Ignore localStorage errors. */
+
+    text.textContent =
+      message;
+
+    wrapper.appendChild(
+      title
+    );
+
+    wrapper.appendChild(
+      text
+    );
+
+    if (code) {
+      const codeBox =
+        document.createElement(
+          "pre"
+        );
+
+      codeBox.style.cssText =
+        "margin:8px 0 0;padding:10px;overflow:auto;background:#080b0f;border:1px solid #242b33;border-radius:4px;color:#dbe5ee;font-family:monospace;font-size:10px;line-height:1.5;white-space:pre;";
+
+      codeBox.textContent =
+        code;
+
+      wrapper.appendChild(
+        codeBox
+      );
     }
 
-    state.project = {
-      name: "Untitled Game",
-      description: "",
-      objects: [],
-      settings: {
-        gridSize: 10,
-        snap: true,
-        mode: "3d"
+    els.aiMessages.appendChild(
+      wrapper
+    );
+
+    els.aiMessages.scrollTop =
+      els.aiMessages.scrollHeight;
+  }
+
+  function setCodeFromAI(code) {
+    state.project.code =
+      code;
+
+    if (
+      els.studioCodeEditor
+    ) {
+      els.studioCodeEditor.value =
+        code;
+    }
+
+    updateLineNumbers();
+    setBottom("code");
+  }
+
+  /* ========================================================
+     LOCATION / AI PLACEMENT
+     ======================================================== */
+
+  let pendingObjectType =
+    null;
+
+  function placePendingObject(
+    location
+  ) {
+    if (
+      !pendingObjectType
+    ) {
+      closeLocation();
+      return;
+    }
+
+    let position;
+
+    if (
+      location ===
+      "selected"
+    ) {
+      const selected =
+        getSelectedObject();
+
+      position =
+        selected
+          ? {
+              ...selected.position
+            }
+          : {
+              ...state.player
+            };
+    } else if (
+      location === "origin"
+    ) {
+      position = {
+        x: 0,
+        y: 0,
+        z: 0
+      };
+    } else {
+      position = {
+        ...state.player
+      };
+    }
+
+    createObject(
+      pendingObjectType,
+      {
+        position
       }
+    );
+
+    pendingObjectType =
+      null;
+
+    closeLocation();
+  }
+
+  function openLocation(
+    type
+  ) {
+    pendingObjectType =
+      type;
+
+    els.locationModal?.classList.remove(
+      "hidden"
+    );
+  }
+
+  function closeLocation() {
+    els.locationModal?.classList.add(
+      "hidden"
+    );
+
+    pendingObjectType =
+      null;
+  }
+
+  /* ========================================================
+     PLAY
+     ======================================================== */
+
+  function startGame() {
+    if (
+      state.running
+    ) {
+      return;
+    }
+
+    state.running =
+      true;
+
+    document.body.classList.add(
+      "play-mode"
+    );
+
+    els.playButton?.classList.add(
+      "hidden"
+    );
+
+    els.stopButton?.classList.remove(
+      "hidden"
+    );
+
+    els.playOverlay?.classList.remove(
+      "hidden"
+    );
+
+    consoleLog(
+      "Game started."
+    );
+
+    updateViewportHintForPlay();
+  }
+
+  function stopGame() {
+    if (
+      !state.running
+    ) {
+      return;
+    }
+
+    state.running =
+      false;
+
+    document.body.classList.remove(
+      "play-mode"
+    );
+
+    els.playButton?.classList.remove(
+      "hidden"
+    );
+
+    els.stopButton?.classList.add(
+      "hidden"
+    );
+
+    els.playOverlay?.classList.add(
+      "hidden"
+    );
+
+    consoleLog(
+      "Game stopped."
+    );
+  }
+
+  function updateViewportHintForPlay() {
+    if (
+      !els.viewportHint
+    ) {
+      return;
+    }
+
+    if (
+      state.running
+    ) {
+      els.viewportHint.style.display =
+        "none";
+    }
+  }
+
+  /* ========================================================
+     PUBLISH
+     ======================================================== */
+
+  function openPublish() {
+    if (
+      els.publishName
+    ) {
+      els.publishName.value =
+        state.project.name;
+    }
+
+    if (
+      els.publishDescription
+    ) {
+      els.publishDescription.value =
+        state.project.description ||
+        "";
+    }
+
+    els.publishModal?.classList.remove(
+      "hidden"
+    );
+  }
+
+  function closePublish() {
+    els.publishModal?.classList.add(
+      "hidden"
+    );
+  }
+
+  function publishProject() {
+    const name =
+      els.publishName?.value.trim() ||
+      state.project.name ||
+      "Untitled Game";
+
+    const description =
+      els.publishDescription?.value.trim() ||
+      "";
+
+    state.project.name =
+      name;
+
+    state.project.description =
+      description;
+
+    saveProject(false);
+
+    let games = [];
+
+    try {
+      games =
+        JSON.parse(
+          localStorage.getItem(
+            GAMES_KEY
+          ) ||
+          "[]"
+        );
+
+      if (
+        !Array.isArray(games)
+      ) {
+        games = [];
+      }
+    } catch {
+      games = [];
+    }
+
+    const username =
+      getUsername(
+        state.user
+      );
+
+    const gameId =
+      `${slugify(name)}-${username}`;
+
+    const game = {
+      id: gameId,
+      name,
+      title: name,
+      description,
+      creator:
+        username,
+      owner:
+        username,
+      projectOwner:
+        username,
+      objects:
+        deepClone(
+          state.project.objects
+        ),
+      code:
+        state.project.code,
+      mode:
+        state.mode,
+      updatedAt:
+        new Date().toISOString()
     };
 
-    state.selectedId = null;
+    const index =
+      games.findIndex(
+        (item) =>
+          item.id === gameId
+      );
 
+    if (index >= 0) {
+      games[index] =
+        game;
+    } else {
+      games.push(
+        game
+      );
+    }
+
+    localStorage.setItem(
+      GAMES_KEY,
+      JSON.stringify(
+        games
+      )
+    );
+
+    closePublish();
+
+    toast(
+      `"${name}" published.`,
+      "success"
+    );
+
+    consoleLog(
+      `Published ${name}.`
+    );
+  }
+
+  /* ========================================================
+     DELETE PROJECT
+     ======================================================== */
+
+  function deleteProject() {
+    const approved =
+      window.confirm(
+        "Delete this project? The Studio project will be reset."
+      );
+
+    if (!approved) {
+      return;
+    }
+
+    localStorage.removeItem(
+      getProjectKey()
+    );
+
+    localStorage.removeItem(
+      PROJECT_KEY
+    );
+
+    state.project =
+      normalizeProject(
+        {
+          ...defaultProject(),
+          objects: []
+        }
+      );
+
+    state.mode =
+      "3D";
+
+    state.selectedId =
+      null;
+
+    state.timeline.time =
+      0;
+
+    syncProjectName();
     rebuildScene();
-    refreshAll();
+    renderEverything();
 
     pushHistory();
 
@@ -2836,252 +4051,99 @@
       "success"
     );
 
-    consoleMessage(
+    consoleLog(
       "Project reset."
     );
   }
 
-  /* =======================================================
-     PUBLISH
-     ======================================================= */
+  /* ========================================================
+     RENDER EVERYTHING
+     ======================================================== */
 
-  function publishProject() {
-    saveProject(false);
+  function renderEverything() {
+    syncProjectName();
 
-    const games =
-      readStorageArray(
-        STORAGE_KEYS.games
-      );
-
-    const currentUser =
-      getCurrentUser();
-
-    const gameId =
-      createGameId(
-        state.project.name
-      );
-
-    const existingIndex =
-      games.findIndex(
-        (game) =>
-          game.id === gameId
-      );
-
-    const game = {
-      id: gameId,
-      name:
-        state.project.name ||
-        "Untitled Game",
-      description:
-        state.project.description ||
-        "",
-      owner:
-        currentUser,
-      objects:
-        deepClone(
-          state.project.objects
-        ),
-      settings:
-        deepClone(
-          state.project.settings
-        ),
-      updatedAt:
-        new Date().toISOString(),
-      createdAt:
-        existingIndex >= 0
-          ? games[existingIndex]
-              .createdAt
-          : new Date().toISOString()
-    };
-
-    if (existingIndex >= 0) {
-      games[existingIndex] =
-        game;
-    } else {
-      games.push(game);
-    }
-
-    try {
-      localStorage.setItem(
-        STORAGE_KEYS.games,
-        JSON.stringify(games)
-      );
-    } catch {
-      toast(
-        "Could not publish the game.",
-        "error"
-      );
-
-      return;
-    }
-
-    toast(
-      "Game published.",
-      "success"
-    );
-
-    consoleMessage(
-      `Published "${game.name}".`
-    );
-  }
-
-  function readStorageArray(key) {
-    try {
-      const value =
-        JSON.parse(
-          localStorage.getItem(key) ||
-            "[]"
-        );
-
-      return Array.isArray(value)
-        ? value
-        : [];
-    } catch {
-      return [];
-    }
-  }
-
-  /* =======================================================
-     PLAY MODE
-     ======================================================= */
-
-  function startGame() {
-    if (state.running) {
-      return;
-    }
-
-    state.running = true;
-
-    document.body.classList.add(
-      "play-mode"
-    );
-
-    pauseTimeline();
-
-    refreshPlayButtons();
-
-    consoleMessage(
-      "Game started."
-    );
-
-    if (els.viewport) {
-      els.viewport.focus();
-    }
-  }
-
-  function stopGame() {
-    if (!state.running) {
-      return;
-    }
-
-    state.running = false;
-
-    document.body.classList.remove(
-      "play-mode"
-    );
-
-    refreshPlayButtons();
-
-    consoleMessage(
-      "Game stopped."
-    );
-  }
-
-  function refreshPlayButtons() {
-    if (els.playButton) {
-      els.playButton.disabled =
-        state.running;
-    }
-
-    if (els.stopButton) {
-      els.stopButton.disabled =
-        !state.running;
-    }
-  }
-
-  /* =======================================================
-     VIEW
-     ======================================================= */
-
-  function resetCamera() {
-    if (!camera) {
-      return;
-    }
-
-    camera.position.set(
-      16,
-      14,
-      20
-    );
-
-    camera.lookAt(
-      0,
-      0,
-      0
-    );
-
-    toast(
-      "View reset.",
-      "success"
-    );
-  }
-
-  function toggleGrid() {
-    if (!gridHelper) {
-      return;
-    }
-
-    gridHelper.visible =
-      !gridHelper.visible;
-
-    if (els.gridButton) {
-      els.gridButton.classList.toggle(
-        "active",
-        gridHelper.visible
-      );
-    }
-  }
-
-  function toggleMode() {
-    state.project.settings.mode =
-      state.project.settings.mode ===
-      "3d"
-        ? "4d"
-        : "3d";
-
-    if (els.modeButton) {
-      els.modeButton.textContent =
-        state.project.settings.mode.toUpperCase();
-    }
-
-    setDock(
-      state.project.settings.mode ===
-        "4d"
-        ? "timeline"
-        : "ai"
-    );
-
+    renderExplorer();
+    renderInspector();
     refreshTimeline();
-    saveProject(false);
+
+    updateSelectionVisual();
+
+    if (
+      els.selectionLabel
+    ) {
+      const object =
+        getSelectedObject();
+
+      els.selectionLabel.textContent =
+        object
+          ? object.name
+          : "Nothing Selected";
+    }
+
+    els.mode3D?.classList.toggle(
+      "active",
+      state.mode === "3D"
+    );
+
+    els.mode4D?.classList.toggle(
+      "active",
+      state.mode === "4D"
+    );
+
+    updateLineNumbers();
+
+    if (
+      els.playButton &&
+      els.stopButton
+    ) {
+      els.playButton.classList.toggle(
+        "hidden",
+        state.running
+      );
+
+      els.stopButton.classList.toggle(
+        "hidden",
+        !state.running
+      );
+    }
   }
 
-  /* =======================================================
+  /* ========================================================
      CONSOLE
-     ======================================================= */
+     ======================================================== */
 
-  function consoleMessage(
+  function consoleLog(
     message,
-    type = "info"
+    type = "normal"
   ) {
-    if (!els.consoleOutput) {
+    if (
+      !els.consoleOutput
+    ) {
       return;
     }
 
     const line =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
-    line.className =
-      `console-line ${type}`;
+    line.style.cssText =
+      "padding:2px 0;";
+
+    if (
+      type === "error"
+    ) {
+      line.style.color =
+        "#e35d5d";
+    }
+
+    if (
+      type === "success"
+    ) {
+      line.style.color =
+        "#35c978";
+    }
 
     line.textContent =
       `[${new Date().toLocaleTimeString()}] ${message}`;
@@ -3094,225 +4156,179 @@
       els.consoleOutput.scrollHeight;
   }
 
-  if (els.consoleInput) {
-    els.consoleInput.addEventListener(
-      "keydown",
-      (event) => {
-        if (
-          event.key !== "Enter"
-        ) {
-          return;
-        }
+  /* ========================================================
+     TOAST
+     ======================================================== */
 
-        const command =
-          els.consoleInput.value.trim();
+  function toast(
+    message,
+    type = "normal"
+  ) {
+    if (
+      !els.toastContainer
+    ) {
+      return;
+    }
 
-        if (!command) {
-          return;
-        }
+    const element =
+      document.createElement(
+        "div"
+      );
 
-        els.consoleInput.value = "";
+    element.className =
+      `toast ${type}`;
 
-        consoleMessage(
-          `> ${command}`
-        );
+    element.textContent =
+      message;
 
-        interpretConsoleCommand(
-          command
-        );
-      }
+    els.toastContainer.appendChild(
+      element
+    );
+
+    setTimeout(
+      () => {
+        element.remove();
+      },
+      4000
     );
   }
 
-  function interpretConsoleCommand(command) {
-    const normalized =
-      command.toLowerCase();
-
-    if (normalized === "clear") {
-      if (els.consoleOutput) {
-        els.consoleOutput.innerHTML = "";
-      }
-
-      return;
-    }
-
-    if (normalized === "help") {
-      consoleMessage(
-        "Commands: clear, save, play, stop, objects, time."
-      );
-
-      return;
-    }
-
-    if (normalized === "save") {
-      saveProject(true);
-      return;
-    }
-
-    if (normalized === "play") {
-      startGame();
-      return;
-    }
-
-    if (normalized === "stop") {
-      stopGame();
-      return;
-    }
-
-    if (normalized === "objects") {
-      consoleMessage(
-        state.project.objects
-          .map(
-            (object) =>
-              `${object.name} (${object.type})`
-          )
-          .join(", ") ||
-          "No objects."
-      );
-
-      return;
-    }
-
-    if (
-      normalized.startsWith(
-        "time "
-      )
-    ) {
-      const time =
-        Number(
-          normalized.slice(5)
-        );
-
-      if (Number.isFinite(time)) {
-        setTimelineTime(time);
-
-        consoleMessage(
-          `Timeline set to ${time}s.`
-        );
-
-        return;
-      }
-    }
-
-    consoleMessage(
-      "Unknown command. Type help."
-    );
-  }
-
-  /* =======================================================
-     REFRESH
-     ======================================================= */
-
-  function refreshAll() {
-    if (els.projectName) {
-      els.projectName.textContent =
-        state.project.name ||
-        "Untitled Game";
-    }
-
-    refreshExplorer();
-    refreshInspector();
-    refreshTimeline();
-    refreshUndoRedo();
-    refreshPlayButtons();
-
-    if (els.modeButton) {
-      els.modeButton.textContent =
-        state.project.settings.mode.toUpperCase();
-    }
-
-    if (
-      els.gridButton &&
-      gridHelper
-    ) {
-      els.gridButton.classList.toggle(
-        "active",
-        gridHelper.visible
-      );
-    }
-  }
-
-  /* =======================================================
+  /* ========================================================
      HELPERS
-     ======================================================= */
+     ======================================================== */
 
-  function createId(prefix) {
+  function getCurrentUser() {
+    try {
+      const raw =
+        localStorage.getItem(
+          USER_KEY
+        );
+
+      if (!raw) {
+        return "local";
+      }
+
+      try {
+        return JSON.parse(
+          raw
+        );
+      } catch {
+        return raw;
+      }
+    } catch {
+      return "local";
+    }
+  }
+
+  function getUsername(user) {
     if (
-      window.crypto &&
-      typeof window.crypto.randomUUID ===
-        "function"
+      !user ||
+      typeof user ===
+        "string"
     ) {
-      return `${prefix}_${window.crypto.randomUUID()}`;
+      return (
+        user ||
+        "Creator"
+      );
     }
 
     return (
-      `${prefix}_${Date.now()}_` +
-      Math.random()
-        .toString(36)
-        .slice(2, 10)
+      user.username ||
+      user.displayName ||
+      user.name ||
+      user.user ||
+      "Creator"
     );
   }
 
-  function createGameId(name) {
-    const slug =
-      String(name || "game")
-        .toLowerCase()
-        .replace(
-          /[^a-z0-9]+/g,
-          "-"
-        )
-        .replace(
-          /^-+|-+$/g,
-          ""
-        ) ||
-      "game";
+  function makeId(
+    prefix
+  ) {
+    if (
+      crypto?.randomUUID
+    ) {
+      return `${prefix}_${crypto.randomUUID()}`;
+    }
 
-    return `${slug}-${getCurrentUser()}`;
+    return (
+      `${prefix}_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 8)}`
+    );
   }
 
-  function degToRad(value) {
+  function vector(
+    value,
+    fallback
+  ) {
+    return {
+      x:
+        numberOr(
+          value?.x,
+          fallback
+        ),
+
+      y:
+        numberOr(
+          value?.y,
+          fallback
+        ),
+
+      z:
+        numberOr(
+          value?.z,
+          fallback
+        )
+    };
+  }
+
+  function numberOr(
+    value,
+    fallback
+  ) {
+    const number =
+      Number(value);
+
+    return Number.isFinite(
+      number
+    )
+      ? number
+      : fallback;
+  }
+
+  function radians(
+    degrees
+  ) {
     return (
-      (Number(value) || 0) *
+      numberOr(
+        degrees,
+        0
+      ) *
       Math.PI /
       180
     );
   }
 
-  function snapValue(
-    value,
-    gridSize
+  function normalizeColor(
+    value
   ) {
-    const size =
-      Number(gridSize) || 1;
-
-    return (
-      Math.round(value / size) *
-      size
-    );
-  }
-
-  function safeColor(value) {
-    const normalized =
-      normalizeHex(value);
-
-    return /^#[0-9a-f]{6}$/i.test(
-      normalized
-    )
-      ? normalized
-      : "#4da3ff";
-  }
-
-  function normalizeHex(value) {
     let color =
-      String(value || "")
-        .trim();
+      String(
+        value ||
+          "#4da3ff"
+      ).trim();
 
-    if (!color.startsWith("#")) {
-      color = `#${color}`;
+    if (
+      !color.startsWith("#")
+    ) {
+      color =
+        `#${color}`;
     }
 
     if (
-      /^#[0-9a-f]{3}$/i.test(color)
+      /^#[0-9a-f]{3}$/i.test(
+        color
+      )
     ) {
       return (
         "#" +
@@ -3322,123 +4338,350 @@
         color[2] +
         color[3] +
         color[3]
-      );
+      ).toLowerCase();
     }
 
-    return /^#[0-9a-f]{6}$/i.test(
-      color
-    )
-      ? color.toLowerCase()
-      : "#4da3ff";
+    if (
+      /^#[0-9a-f]{6}$/i.test(
+        color
+      )
+    ) {
+      return color.toLowerCase();
+    }
+
+    return "#4da3ff";
   }
 
-  function escapeHtml(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function deepClone(value) {
+  function deepClone(
+    value
+  ) {
     return JSON.parse(
-      JSON.stringify(value)
+      JSON.stringify(
+        value
+      )
     );
   }
 
-  function formatVector(vector) {
-    return `(${Number(
-      vector.x || 0
-    )}, ${Number(
-      vector.y || 0
-    )}, ${Number(
-      vector.z || 0
-    )})`;
+  function escapeHtml(
+    value
+  ) {
+    return String(
+      value
+    )
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
   }
 
-  function formatTime(seconds) {
-    const total =
-      Math.max(
-        0,
-        Math.floor(
-          Number(seconds) || 0
-        )
+  function extractQuoted(
+    line
+  ) {
+    const match =
+      line.match(
+        /"([^"]*)"|'([^']*)'/
       );
 
-    const minutes =
-      Math.floor(total / 60);
+    return match
+      ? match[1] ??
+          match[2] ??
+          null
+      : null;
+  }
 
-    const secs =
-      total % 60;
+  function capitalize(
+    value
+  ) {
+    return (
+      value.charAt(0)
+        .toUpperCase() +
+      value.slice(1)
+    );
+  }
+
+  function normalizeShapeType(
+    value
+  ) {
+    const lower =
+      value.toLowerCase();
+
+    if (
+      lower === "cube" ||
+      lower === "part"
+    ) {
+      return "Cube";
+    }
+
+    if (
+      lower === "wedge"
+    ) {
+      return "Wedge";
+    }
+
+    if (
+      lower === "sphere"
+    ) {
+      return "Sphere";
+    }
+
+    if (
+      lower === "cylinder"
+    ) {
+      return "Cylinder";
+    }
+
+    if (
+      lower === "light"
+    ) {
+      return "Light";
+    }
+
+    if (
+      lower === "spawn"
+    ) {
+      return "Spawn";
+    }
+
+    return "Cube";
+  }
+
+  function detectShape(
+    text
+  ) {
+    if (
+      /\bwedge\b/.test(
+        text
+      )
+    ) {
+      return "Wedge";
+    }
+
+    if (
+      /\bsphere\b|\bball\b/.test(
+        text
+      )
+    ) {
+      return "Sphere";
+    }
+
+    if (
+      /\bcylinder\b/.test(
+        text
+      )
+    ) {
+      return "Cylinder";
+    }
+
+    if (
+      /\blight\b/.test(
+        text
+      )
+    ) {
+      return "Light";
+    }
+
+    if (
+      /\bspawn\b/.test(
+        text
+      )
+    ) {
+      return "Spawn";
+    }
+
+    return "Cube";
+  }
+
+  function findAIObject(
+    prompt
+  ) {
+    const lower =
+      prompt.toLowerCase();
+
+    const objects =
+      [...state.project.objects]
+        .sort(
+          (a, b) =>
+            b.name.length -
+            a.name.length
+        );
 
     return (
-      `${String(minutes).padStart(
-        2,
-        "0"
-      )}:` +
-      `${String(secs).padStart(
-        2,
-        "0"
-      )}`
+      objects.find(
+        (object) =>
+          lower.includes(
+            object.name.toLowerCase()
+          )
+      ) ||
+      objects.find(
+        (object) =>
+          lower.includes(
+            object.type.toLowerCase()
+          )
+      ) ||
+      null
     );
   }
 
-  function toast(
-    message,
-    type = "info"
+  function extractNumber(
+    text
   ) {
-    if (!els.toastContainer) {
-      return;
-    }
+    const match =
+      text.match(
+        /-?\d+(?:\.\d+)?/
+      );
 
-    const item =
-      document.createElement("div");
-
-    item.className =
-      `toast ${type}`;
-
-    item.textContent = message;
-
-    els.toastContainer.appendChild(
-      item
-    );
-
-    setTimeout(() => {
-      item.remove();
-    }, 4200);
+    return match
+      ? Number(match[0])
+      : null;
   }
 
-  /* =======================================================
-     EXPOSE RISEUP STUDIO API
-     ======================================================= */
+  function extractTime(
+    text
+  ) {
+    const match =
+      text.match(
+        /(-?\d+(?:\.\d+)?)\s*(?:seconds?|secs?|s)\b/i
+      );
 
-  window.RiseUpStudio = {
-    state,
-
-    createObject,
-    deleteObject,
-    deleteSelected,
-
-    selectObject,
-
-    saveProject,
-    publishProject,
-
-    startGame,
-    stopGame,
-
-    setTimelineTime,
-    playTimeline,
-    pauseTimeline,
-
-    undo,
-    redo,
-
-    resetCamera,
-
-    getProject() {
-      return state.project;
+    if (match) {
+      return Math.max(
+        0,
+        Math.min(
+          state.timeline.max,
+          Number(match[1])
+        )
+      );
     }
-  };
+
+    return null;
+  }
+
+  function parsePosition(
+    text
+  ) {
+    const xyz =
+      text.match(
+        /x\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*y\s*(-?\d+(?:\.\d+)?)\s*(?:,|and)?\s*z\s*(-?\d+(?:\.\d+)?)/i
+      );
+
+    if (xyz) {
+      return {
+        x: Number(
+          xyz[1]
+        ),
+        y: Number(
+          xyz[2]
+        ),
+        z: Number(
+          xyz[3]
+        )
+      };
+    }
+
+    const position =
+      text.match(
+        /(?:at|to|position)\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/i
+      );
+
+    if (position) {
+      return {
+        x: Number(
+          position[1]
+        ),
+        y: Number(
+          position[2]
+        ),
+        z: Number(
+          position[3]
+        )
+      };
+    }
+
+    return null;
+  }
+
+  function detectColor(
+    text
+  ) {
+    const colors = {
+      red: "#ff4d4d",
+      green: "#35c978",
+      blue: "#4da3ff",
+      yellow: "#ffd34d",
+      orange: "#ff914d",
+      purple: "#9b78ff",
+      pink: "#ff72b7",
+      white: "#ffffff",
+      black: "#111111",
+      gray: "#808890",
+      grey: "#808890",
+      cyan: "#4de1ff",
+      brown: "#8b5a3c"
+    };
+
+    for (
+      const [
+        name,
+        color
+      ] of Object.entries(
+        colors
+      )
+    ) {
+      if (
+        new RegExp(
+          `\\b${name}\\b`,
+          "i"
+        ).test(text)
+      ) {
+        return color;
+      }
+    }
+
+    const hex =
+      text.match(
+        /#[0-9a-f]{6}/i
+      );
+
+    return hex
+      ? hex[0]
+      : null;
+  }
+
+  function slugify(
+    value
+  ) {
+    return String(
+      value
+    )
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        "-"
+      )
+      .replace(
+        /^-+|-+$/g,
+        ""
+      )
+      || "game";
+  }
+
+  function updateSelectionFromData() {
+    updateSelectionVisual();
+  }
 })();
