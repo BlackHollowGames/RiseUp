@@ -1,194 +1,437 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>RiseUp Studio</title>
-  <link rel="stylesheet" href="studio.css">
+
+  <link
+    rel="stylesheet"
+    href="studio.css"
+  >
+
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 </head>
+
 <body>
-<div class="studio">
+  <div class="studio">
 
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-mark">R</div>
-    <div class="brand-name">RiseUp <span>Studio</span></div>
-  </div>
+    <header class="topbar studio-topbar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
 
-  <div class="project-title">
-    <input id="projectName" value="Untitled Game">
-    <span id="saveStatus">Saved</span>
-  </div>
-
-  <nav class="menu">
-    <button data-menu="File">File</button>
-    <button data-menu="Edit">Edit</button>
-    <button data-menu="Create">Create</button>
-    <button data-menu="View">View</button>
-  </nav>
-
-  <div class="top-actions">
-    <button id="codeButton">Code</button>
-    <button id="saveButton">Save</button>
-    <button id="publishButton">Publish</button>
-    <button id="deleteProjectButton" class="danger">Delete</button>
-    <button id="playButton" class="play-button">Play</button>
-    <button id="stopButton" class="stop-button hidden">Stop</button>
-  </div>
-</header>
-
-<div class="workspace">
-
-<aside class="left-rail">
-  <div class="rail-title">TOOLS</div>
-
-  <button class="rail-tool active" data-tool="select">
-    <strong>↖</strong><span>Select</span>
-  </button>
-
-  <button class="rail-tool" data-tool="move">
-    <strong>+</strong><span>Move</span>
-  </button>
-
-  <button class="rail-tool" data-tool="rotate">
-    <strong>⟳</strong><span>Rotate</span>
-  </button>
-
-  <button class="rail-tool" data-tool="scale">
-    <strong>□</strong><span>Scale</span>
-  </button>
-
-  <div class="rail-divider"></div>
-
-  <button class="rail-tool create" data-create="Cube">
-    <strong>■</strong><span>Cube</span>
-  </button>
-
-  <button class="rail-tool create" data-create="Wedge">
-    <strong>◆</strong><span>Wedge</span>
-  </button>
-
-  <button class="rail-tool create" data-create="Sphere">
-    <strong>●</strong><span>Sphere</span>
-  </button>
-
-  <button class="rail-tool create" data-create="Cylinder">
-    <strong>●</strong><span>Cylinder</span>
-  </button>
-
-  <button class="rail-tool create" data-create="Light">
-    <strong>✦</strong><span>Light</span>
-  </button>
-
-  <button class="rail-tool create" data-create="Spawn">
-    <strong>⌂</strong><span>Spawn</span>
-  </button>
-</aside>
-
-<main class="main-area">
-
-<section class="viewport-area">
-  <div class="viewport-toolbar">
-    <div class="viewport-left">
-      <button id="mode3D" class="active">3D</button>
-      <button id="mode4D">4D</button>
-      <span class="separator"></span>
-      <span id="selectionLabel">Nothing Selected</span>
-    </div>
-
-```
-<div class="viewport-right">
-  <button id="frameButton">Frame</button>
-  <button id="resetViewButton">Reset View</button>
-</div>
-```
-
-  </div>
-
-  <div id="viewport">
-    <canvas id="editorCanvas"></canvas>
-
-```
-<div id="viewportHint" class="viewport-hint">
-  <strong>RiseUp Studio</strong>
-  <span>Ask Rise AI to build your world.</span>
-</div>
-
-<div id="playOverlay" class="play-overlay hidden">
-  <div class="play-hud">
-    <span id="fpsCounter">60 FPS</span>
-    <span>WASD Move</span>
-    <span>Mouse Look</span>
-    <span>ESC Release Mouse</span>
-  </div>
-</div>
-```
-
-  </div>
-
-  <div class="bottom-dock">
-
-```
-<div class="bottom-tabs">
-  <button class="bottom-tab active" data-bottom="ai">Rise AI</button>
-  <button class="bottom-tab" data-bottom="code">RiseCode</button>
-  <button class="bottom-tab" data-bottom="timeline">4D Timeline</button>
-  <button class="bottom-tab" data-bottom="console">Console</button>
-</div>
-
-<div class="bottom-content">
-
-  <section id="bottomAI" class="bottom-view active">
-    <div class="ai-header">
-      <div>
-        <strong>Rise AI</strong>
-        <span>3D + 4D Game Builder</span>
+        <div class="brand-name">
+          RiseUp <span>Studio</span>
+        </div>
       </div>
-      <span class="ai-status">Ready</span>
-    </div>
 
-    <div id="aiMessages" class="ai-messages">
-      <div class="ai-message ai">
-        <strong>Rise AI</strong>
-        <p>
-          Tell me what you want to build. I understand 3D and 4D
-          scenes, objects, positions, movement, lighting and time.
-        </p>
+      <div class="project-title">
+        <input
+          id="projectName"
+          value="Untitled Game"
+          autocomplete="off"
+        >
+
+        <span id="saveStatus">Saved</span>
       </div>
-    </div>
 
-    <div class="ai-input-row">
-      <input
-        id="aiInput"
-        autocomplete="off"
-        placeholder="Tell Rise AI what to build..."
+      <nav
+        class="menu"
+        aria-label="Studio menu"
       >
-      <button id="aiSend">Send</button>
-    </div>
-  </section>
+        <button type="button" data-menu="File">
+          File
+        </button>
 
-  <section id="bottomCode" class="bottom-view">
-    <div class="code-header">
-      <strong>RiseCode</strong>
-      <div>
-        <button id="codeSaveButton">Save</button>
-        <button id="codeRunButton">Run</button>
+        <button type="button" data-menu="Edit">
+          Edit
+        </button>
+
+        <button type="button" data-menu="Create">
+          Create
+        </button>
+
+        <button type="button" data-menu="View">
+          View
+        </button>
+      </nav>
+
+      <div class="top-actions">
+        <button
+          id="codeButton"
+          type="button"
+        >
+          Code
+        </button>
+
+        <button
+          id="saveButton"
+          type="button"
+        >
+          Save
+        </button>
+
+        <button
+          id="publishButton"
+          type="button"
+        >
+          Publish
+        </button>
+
+        <button
+          id="deleteProjectButton"
+          class="danger"
+          type="button"
+        >
+          Delete
+        </button>
+
+        <button
+          id="playButton"
+          class="play-button"
+          type="button"
+        >
+          Play
+        </button>
+
+        <button
+          id="stopButton"
+          class="stop-button hidden"
+          type="button"
+        >
+          Stop
+        </button>
       </div>
-    </div>
+    </header>
 
-    <div class="code-editor">
-      <div id="studioLineNumbers" class="line-numbers">1</div>
-      <textarea
-        id="studioCodeEditor"
-        spellcheck="false"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-      >game.name = "My Game";
-```
+    <div class="workspace">
 
+      <aside class="left-rail">
+        <div class="rail-title">TOOLS</div>
+
+        <button
+          class="rail-tool active"
+          data-tool="select"
+          type="button"
+        >
+          <strong>Q</strong>
+          <span>Select</span>
+        </button>
+
+        <button
+          class="rail-tool"
+          data-tool="move"
+          type="button"
+        >
+          <strong>W</strong>
+          <span>Move</span>
+        </button>
+
+        <button
+          class="rail-tool"
+          data-tool="rotate"
+          type="button"
+        >
+          <strong>E</strong>
+          <span>Rotate</span>
+        </button>
+
+        <button
+          class="rail-tool"
+          data-tool="scale"
+          type="button"
+        >
+          <strong>R</strong>
+          <span>Scale</span>
+        </button>
+
+        <div class="rail-divider"></div>
+
+        <button
+          class="rail-tool create"
+          data-create="Cube"
+          type="button"
+        >
+          <strong>C</strong>
+          <span>Cube</span>
+        </button>
+
+        <button
+          class="rail-tool create"
+          data-create="Wedge"
+          type="button"
+        >
+          <strong>W</strong>
+          <span>Wedge</span>
+        </button>
+
+        <button
+          class="rail-tool create"
+          data-create="Sphere"
+          type="button"
+        >
+          <strong>S</strong>
+          <span>Sphere</span>
+        </button>
+
+        <button
+          class="rail-tool create"
+          data-create="Cylinder"
+          type="button"
+        >
+          <strong>C</strong>
+          <span>Cylinder</span>
+        </button>
+
+        <button
+          class="rail-tool create"
+          data-create="Light"
+          type="button"
+        >
+          <strong>L</strong>
+          <span>Light</span>
+        </button>
+
+        <button
+          class="rail-tool create"
+          data-create="Spawn"
+          type="button"
+        >
+          <strong>P</strong>
+          <span>Spawn</span>
+        </button>
+      </aside>
+
+      <main class="main-area">
+
+        <section class="viewport-area">
+
+          <div class="viewport-toolbar">
+            <div class="viewport-left">
+
+              <button
+                id="mode3D"
+                class="active"
+                type="button"
+              >
+                3D
+              </button>
+
+              <button
+                id="mode4D"
+                type="button"
+              >
+                4D
+              </button>
+
+              <span class="separator"></span>
+
+              <span id="selectionLabel">
+                Nothing Selected
+              </span>
+
+            </div>
+
+            <div class="viewport-right">
+
+              <button
+                id="frameButton"
+                type="button"
+              >
+                Frame
+              </button>
+
+              <button
+                id="resetViewButton"
+                type="button"
+              >
+                Reset View
+              </button>
+
+            </div>
+          </div>
+
+          <div id="viewport">
+
+            <canvas id="editorCanvas"></canvas>
+
+            <div
+              id="viewportHint"
+              class="viewport-hint"
+            >
+              <strong>RiseUp Studio</strong>
+              <span>
+                Ask Rise AI to build your world.
+              </span>
+            </div>
+
+            <div
+              id="playOverlay"
+              class="play-overlay hidden"
+            >
+              <div class="play-hud">
+                <span id="fpsCounter">
+                  60 FPS
+                </span>
+
+                <span>
+                  WASD Move
+                </span>
+
+                <span>
+                  Mouse Look
+                </span>
+
+                <span>
+                  ESC Release Mouse
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="bottom-dock">
+
+            <div class="bottom-tabs">
+
+              <button
+                class="bottom-tab active"
+                data-bottom="ai"
+                type="button"
+              >
+                Rise AI
+              </button>
+
+              <button
+                class="bottom-tab"
+                data-bottom="code"
+                type="button"
+              >
+                RiseCode
+              </button>
+
+              <button
+                class="bottom-tab"
+                data-bottom="timeline"
+                type="button"
+              >
+                4D Timeline
+              </button>
+
+              <button
+                class="bottom-tab"
+                data-bottom="console"
+                type="button"
+              >
+                Console
+              </button>
+
+            </div>
+
+            <div class="bottom-content">
+
+              <section
+                id="bottomAI"
+                class="bottom-view active"
+              >
+                <div class="ai-header">
+
+                  <div>
+                    <strong>Rise AI</strong>
+                    <span>
+                      3D + 4D Game Builder
+                    </span>
+                  </div>
+
+                  <span class="ai-status">
+                    Ready
+                  </span>
+
+                </div>
+
+                <div
+                  id="aiMessages"
+                  class="ai-messages"
+                >
+                  <div class="ai-message ai">
+
+                    <strong>Rise AI</strong>
+
+                    <p>
+                      Tell me what you want to
+                      build. I understand 3D and
+                      4D scenes, objects,
+                      positions, movement,
+                      lighting and time.
+                    </p>
+
+                  </div>
+                </div>
+
+                <div class="ai-input-row">
+
+                  <input
+                    id="aiInput"
+                    autocomplete="off"
+                    placeholder="Tell Rise AI what to build..."
+                  >
+
+                  <button
+                    id="aiSend"
+                    type="button"
+                  >
+                    Send
+                  </button>
+
+                </div>
+              </section>
+
+              <section
+                id="bottomCode"
+                class="bottom-view"
+              >
+                <div class="code-header">
+
+                  <strong>RiseCode</strong>
+
+                  <div>
+                    <button
+                      id="codeSaveButton"
+                      type="button"
+                    >
+                      Save
+                    </button>
+
+                    <button
+                      id="codeRunButton"
+                      type="button"
+                    >
+                      Run
+                    </button>
+                  </div>
+
+                </div>
+
+                <div class="code-editor">
+
+                  <div
+                    id="studioLineNumbers"
+                    class="line-numbers"
+                  >
+                    1
+                  </div>
+
+                  <textarea
+                    id="studioCodeEditor"
+                    spellcheck="false"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                  >game.name = "My Game";
 game.mode = "3D";
 
 world.gravity = 25;
@@ -197,144 +440,287 @@ player.walk.speed = 7;
 player.jump.power = 9;
 
 add.mesh.cube();
-map.name = "My World";</textarea> </div> </section>
+map.name = "My World";</textarea>
 
-```
-  <section id="bottomTimeline" class="bottom-view">
-    <div class="timeline-header">
-      <strong>4D Timeline</strong>
-      <span id="timelineTime">0.00s</span>
+                </div>
+              </section>
+
+              <section
+                id="bottomTimeline"
+                class="bottom-view"
+              >
+
+                <div class="timeline-header">
+                  <strong>4D Timeline</strong>
+
+                  <span id="timelineTime">
+                    0.00s
+                  </span>
+                </div>
+
+                <div class="timeline-controls">
+
+                  <button
+                    id="timelineBack"
+                    type="button"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    id="timelinePlay"
+                    type="button"
+                  >
+                    Play
+                  </button>
+
+                  <button
+                    id="timelineForward"
+                    type="button"
+                  >
+                    Forward
+                  </button>
+
+                  <button
+                    id="timelineReset"
+                    type="button"
+                  >
+                    Reset
+                  </button>
+
+                </div>
+
+                <input
+                  id="timelineSlider"
+                  class="timeline-slider"
+                  type="range"
+                  min="0"
+                  max="120"
+                  step="0.01"
+                  value="0"
+                >
+
+                <div class="timeline-ruler">
+
+                  <span>0s</span>
+                  <span>24s</span>
+                  <span>48s</span>
+                  <span>72s</span>
+                  <span>96s</span>
+                  <span>120s</span>
+
+                </div>
+
+                <div
+                  id="timelineObjects"
+                  class="timeline-objects"
+                ></div>
+
+              </section>
+
+              <section
+                id="bottomConsole"
+                class="bottom-view console-view"
+              >
+                <div id="consoleOutput">
+                  RiseUp Studio ready.
+                </div>
+              </section>
+
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
+      <aside class="right-column">
+
+        <section class="panel outliner">
+
+          <div class="panel-title">
+            <strong>Explorer</strong>
+
+            <button
+              id="refreshExplorer"
+              type="button"
+              aria-label="Refresh Explorer"
+            >
+              Refresh
+            </button>
+          </div>
+
+          <input
+            id="outlinerSearch"
+            class="panel-search"
+            placeholder="Search objects..."
+            autocomplete="off"
+          >
+
+          <div
+            id="objectTree"
+            class="object-tree"
+          ></div>
+
+          <div
+            id="outlinerFooter"
+            class="panel-footer"
+          >
+            0 objects
+          </div>
+
+        </section>
+
+        <section class="panel inspector">
+
+          <div class="panel-title">
+            <strong>Inspector</strong>
+          </div>
+
+          <div
+            id="propertiesContent"
+            class="properties"
+          >
+            <div class="nothing-selected">
+
+              <strong>
+                Nothing Selected
+              </strong>
+
+              <span>
+                Select an object to inspect it.
+              </span>
+
+            </div>
+          </div>
+
+        </section>
+
+      </aside>
+
     </div>
-
-    <div class="timeline-controls">
-      <button id="timelineBack">◀</button>
-      <button id="timelinePlay">Play</button>
-      <button id="timelineForward">▶</button>
-      <button id="timelineReset">Reset</button>
-    </div>
-
-    <input
-      id="timelineSlider"
-      class="timeline-slider"
-      type="range"
-      min="0"
-      max="120"
-      step="0.01"
-      value="0"
-    >
-
-    <div class="timeline-ruler">
-      <span>0s</span>
-      <span>24s</span>
-      <span>48s</span>
-      <span>72s</span>
-      <span>96s</span>
-      <span>120s</span>
-    </div>
-
-    <div id="timelineObjects" class="timeline-objects"></div>
-  </section>
-
-  <section id="bottomConsole" class="bottom-view console-view">
-    <div id="consoleOutput">RiseUp Studio ready.</div>
-  </section>
-
-</div>
-```
-
-  </div>
-</section>
-
-</main>
-
-<aside class="right-column">
-
-<section class="panel outliner">
-  <div class="panel-title">
-    <strong>Explorer</strong>
-    <button id="refreshExplorer">↻</button>
   </div>
 
-<input
-id="outlinerSearch"
-class="panel-search"
-placeholder="Search objects..."
+  <div
+    id="publishModal"
+    class="modal hidden"
+  >
+    <div class="modal-box">
 
->
+      <button
+        id="closePublish"
+        class="modal-close"
+        type="button"
+        aria-label="Close"
+      >
+        X
+      </button>
 
-  <div id="objectTree" class="object-tree"></div>
+      <h2>Publish Game</h2>
 
-  <div id="outlinerFooter" class="panel-footer">0 objects</div>
-</section>
+      <p>
+        Your game will be published to RiseUp.
+      </p>
 
-<section class="panel inspector">
-  <div class="panel-title">
-    <strong>Inspector</strong>
-  </div>
+      <label>
+        Game Name
 
-  <div id="propertiesContent" class="properties">
-    <div class="nothing-selected">
-      <strong>Nothing Selected</strong>
-      <span>Select an object to inspect it.</span>
+        <input
+          id="publishName"
+          placeholder="My Game"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Description
+
+        <textarea
+          id="publishDescription"
+          placeholder="Describe your game..."
+        ></textarea>
+      </label>
+
+      <div class="modal-actions">
+
+        <button
+          id="cancelPublish"
+          type="button"
+        >
+          Cancel
+        </button>
+
+        <button
+          id="confirmPublish"
+          class="modal-primary"
+          type="button"
+        >
+          Publish
+        </button>
+
+      </div>
+
     </div>
   </div>
-</section>
 
-</aside>
+  <div
+    id="locationModal"
+    class="modal hidden"
+  >
+    <div class="modal-box location-box">
 
-</div>
-</div>
+      <h2>
+        Where should I place it?
+      </h2>
 
-<div id="publishModal" class="modal hidden">
-  <div class="modal-box">
-    <button id="closePublish" class="modal-close">×</button>
+      <p>
+        Rise AI needs a location before
+        it can create the object.
+      </p>
 
-```
-<h2>Publish Game</h2>
-<p>Your game will be published to RiseUp.</p>
+      <div class="location-buttons">
 
-<label>
-  Game Name
-  <input id="publishName" placeholder="My Game">
-</label>
+        <button
+          data-location="standing"
+          type="button"
+        >
+          Where I'm standing
+        </button>
 
-<label>
-  Description
-  <textarea id="publishDescription" placeholder="Describe your game..."></textarea>
-</label>
+        <button
+          data-location="selected"
+          type="button"
+        >
+          At the selected object
+        </button>
 
-<div class="modal-actions">
-  <button id="cancelPublish">Cancel</button>
-  <button id="confirmPublish" class="modal-primary">Publish</button>
-</div>
-```
+        <button
+          data-location="origin"
+          type="button"
+        >
+          At the world origin
+        </button>
 
+      </div>
+
+      <button
+        id="cancelLocation"
+        type="button"
+      >
+        Cancel
+      </button>
+
+    </div>
   </div>
-</div>
 
-<div id="locationModal" class="modal hidden">
-  <div class="modal-box location-box">
-    <h2>Where should I place it?</h2>
-    <p>Rise AI needs a location before it can create the object.</p>
+  <div
+    id="toastContainer"
+    class="toast-container"
+  ></div>
 
-```
-<div class="location-buttons">
-  <button data-location="standing">Where I'm standing</button>
-  <button data-location="selected">At the selected object</button>
-  <button data-location="origin">At the world origin</button>
-</div>
-
-<button id="cancelLocation">Cancel</button>
-```
-
-  </div>
-</div>
-
-<script src="risecode.js"></script>
-
-<script src="risecode-runtime.js"></script>
-
-<script src="studio.js"></script>
+  <script src="risecode.js"></script>
+  <script src="risecode-runtime.js"></script>
+  <script src="studio.js"></script>
 
 </body>
 </html>
