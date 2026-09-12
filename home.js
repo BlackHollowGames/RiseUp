@@ -1,59 +1,370 @@
-/* home.js */
-(function () {
+(() => {
   "use strict";
 
-  const CURRENT_USER_KEY = "riseup_currentUser";
+  const USER_KEY = "riseup_currentUser";
   const GAMES_KEY = "riseup_games";
-  const RECENT_KEY = "riseup_recent_games";
-  const FAVORITES_PREFIX = "riseup_favorites_";
 
-  let currentUser = "";
-  let games = [];
-  let favorites = [];
-  let recentIds = [];
-  let selectedGame = null;
+  const user = getCurrentUser();
 
-  const $ = (id) => document.getElementById(id);
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
 
-  function readJSON(key, fallback) {
-    try {
-      const value = localStorage.getItem(key);
-      return value ? JSON.parse(value) : fallback;
-    } catch {
-      return fallback;
+  const els = {
+    brandButton: document.getElementById("brandButton"),
+    welcomeName: document.getElementById("welcomeName"),
+    menuName: document.getElementById("menuName"),
+    avatarLetter: document.getElementById("avatarLetter"),
+    avatarButton: document.getElementById("avatarButton"),
+    profileMenu: document.getElementById("profileMenu"),
+    ruxAmount: document.getElementById("ruxAmount"),
+    friendsCount: document.getElementById("friendsCount"),
+    friendsRow: document.getElementById("friendsRow"),
+    searchInput: document.getElementById("searchInput"),
+    continueGrid: document.getElementById("continueGrid"),
+    recommendedGrid: document.getElementById("recommendedGrid"),
+    allGamesGrid: document.getElementById("allGamesGrid"),
+    continueEmpty: document.getElementById("continueEmpty"),
+    recommendedEmpty: document.getElementById("recommendedEmpty"),
+    allEmpty: document.getElementById("allEmpty"),
+    toast: document.getElementById("toast"),
+    friendsSection: document.getElementById("friendsSection"),
+    allGamesSection: document.getElementById("allGamesSection")
+  };
+
+  const state = {
+    user,
+    games: readGames(),
+    friends: readFriends(),
+    query: ""
+  };
+
+  initialize();
+  bindEvents();
+
+  function initialize() {
+    const displayName = getDisplayName(state.user);
+    const letter = displayName.charAt(0).toUpperCase() || "R";
+
+    els.welcomeName.textContent = displayName;
+    els.menuName.textContent = displayName;
+    els.avatarLetter.textContent = letter;
+    els.ruxAmount.textContent = formatNumber(getRux(state.user));
+    els.friendsCount.textContent = String(state.friends.length);
+
+    renderFriends();
+    renderGames();
+  }
+
+  function bindEvents() {
+    els.brandButton?.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      setActiveTopNav(
+        document.querySelector('.top-nav-item[data-page="home"]')
+      );
+
+      setActiveSideItem(
+        document.querySelector('.side-item[data-section="home"]')
+      );
+    });
+
+    document.querySelectorAll(".top-nav-item[data-page]").forEach((button) => {
+      button.addEventListener("click", () => {
+        handleTopNavigation(button.dataset.page, button);
+      });
+    });
+
+    document.querySelectorAll(".side-item[data-section]").forEach((button) => {
+      button.addEventListener("click", () => {
+        handleSidebarSection(button.dataset.section);
+        setActiveSideItem(button);
+      });
+    });
+
+    document.getElementById("createTop")?.addEventListener("click", goToStudio);
+    document.getElementById("createSidebar")?.addEventListener("click", goToStudio);
+    document.getElementById("emptyCreate")?.addEventListener("click", goToStudio);
+    document.getElementById("allCreate")?.addEventListener("click", goToStudio);
+
+    document.getElementById("studioButton")?.addEventListener("click", goToStudio);
+    document.getElementById("profileStudio")?.addEventListener("click", goToStudio);
+
+    document.getElementById("riseCodeButton")?.addEventListener("click", goToRiseCode);
+    document.getElementById("profileCode")?.addEventListener("click", goToRiseCode);
+
+    document.getElementById("settingsButton")?.addEventListener("click", () => {
+      showToast("Settings are coming next.");
+    });
+
+    document.getElementById("messagesButton")?.addEventListener("click", () => {
+      showToast("No new messages.");
+    });
+
+    document.getElementById("notificationsButton")?.addEventListener("click", () => {
+      showToast("No new notifications.");
+    });
+
+    document.getElementById("ruxButton")?.addEventListener("click", () => {
+      showToast(`You have ${formatNumber(getRux(state.user))} RUX.`);
+    });
+
+    document.getElementById("viewFriends")?.addEventListener("click", () => {
+      scrollToElement(els.friendsSection);
+
+      if (!state.friends.length) {
+        showToast("You do not have any friends yet.");
+      }
+    });
+
+    document.getElementById("continueAll")?.addEventListener("click", () => {
+      scrollToElement(els.allGamesSection);
+    });
+
+    document.getElementById("recommendedAll")?.addEventListener("click", () => {
+      scrollToElement(els.allGamesSection);
+    });
+
+    els.searchInput?.addEventListener("input", () => {
+      state.query = els.searchInput.value.trim().toLowerCase();
+      renderGames();
+    });
+
+    els.searchInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        els.searchInput.value = "";
+        state.query = "";
+        renderGames();
+        els.searchInput.blur();
+      }
+    });
+
+    els.avatarButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      els.profileMenu.classList.toggle("open");
+    });
+
+    document.getElementById("logoutButton")?.addEventListener("click", logout);
+
+    document.addEventListener("click", (event) => {
+      if (
+        els.profileMenu &&
+        !els.profileMenu.contains(event.target) &&
+        event.target !== els.avatarButton
+      ) {
+        els.profileMenu.classList.remove("open");
+      }
+    });
+
+    window.addEventListener("storage", () => {
+      state.games = readGames();
+      state.friends = readFriends();
+
+      els.friendsCount.textContent = String(state.friends.length);
+
+      renderFriends();
+      renderGames();
+    });
+  }
+
+  function handleTopNavigation(page, button) {
+    setActiveTopNav(button);
+
+    if (page === "home") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      setActiveSideItem(
+        document.querySelector('.side-item[data-section="home"]')
+      );
+
+      return;
+    }
+
+    if (page === "discover") {
+      scrollToElement(els.allGamesSection);
+      setActiveSideItem(
+        document.querySelector('.side-item[data-section="discover"]')
+      );
+
+      showToast(
+        state.games.length
+          ? `Showing ${state.games.length} available experience${state.games.length === 1 ? "" : "s"}.`
+          : "No experiences have been created yet."
+      );
+
+      return;
+    }
+
+    if (page === "marketplace") {
+      setActiveSideItem(
+        document.querySelector('.side-item[data-section="marketplace"]')
+      );
+
+      showToast("Marketplace is coming next.");
+    }
+  }
+
+  function handleSidebarSection(section) {
+    switch (section) {
+      case "home":
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+        setActiveTopNav(
+          document.querySelector('.top-nav-item[data-page="home"]')
+        );
+        break;
+
+      case "discover":
+        scrollToElement(els.allGamesSection);
+        setActiveTopNav(
+          document.querySelector('.top-nav-item[data-page="discover"]')
+        );
+        showToast(
+          state.games.length
+            ? `Showing ${state.games.length} available experience${state.games.length === 1 ? "" : "s"}.`
+            : "No experiences have been created yet."
+        );
+        break;
+
+      case "friends":
+        scrollToElement(els.friendsSection);
+
+        if (!state.friends.length) {
+          showToast("You do not have any friends yet.");
+        }
+        break;
+
+      case "marketplace":
+        setActiveTopNav(
+          document.querySelector('.top-nav-item[data-page="marketplace"]')
+        );
+        showToast("Marketplace is coming next.");
+        break;
+
+      case "messages":
+        showToast("No new messages.");
+        break;
+
+      case "avatar":
+        showToast("Avatar is coming next.");
+        break;
+
+      case "inventory":
+        showToast("Inventory is coming next.");
+        break;
     }
   }
 
   function getCurrentUser() {
-    const raw = localStorage.getItem(CURRENT_USER_KEY);
-
-    if (!raw) {
-      window.location.href = "index.html";
-      return "";
-    }
-
     try {
-      const parsed = JSON.parse(raw);
+      const raw = localStorage.getItem(USER_KEY);
 
-      if (typeof parsed === "string") {
-        return parsed.trim();
+      if (!raw) {
+        return null;
       }
 
-      if (parsed && typeof parsed === "object") {
-        return String(
-          parsed.username ||
-          parsed.userName ||
-          parsed.name ||
-          parsed.displayName ||
-          parsed.email ||
-          ""
-        ).trim();
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return raw;
       }
     } catch {
-      return raw.trim();
+      return null;
+    }
+  }
+
+  function getDisplayName(account) {
+    if (!account) {
+      return "Creator";
     }
 
-    return "";
+    if (typeof account === "string") {
+      return account;
+    }
+
+    return (
+      account.displayName ||
+      account.username ||
+      account.name ||
+      account.user ||
+      "Creator"
+    );
+  }
+
+  function getUsername(account) {
+    if (!account) {
+      return "Creator";
+    }
+
+    if (typeof account === "string") {
+      return account;
+    }
+
+    return (
+      account.username ||
+      account.name ||
+      account.user ||
+      account.displayName ||
+      "Creator"
+    );
+  }
+
+  function getRux(account) {
+    if (!account || typeof account === "string") {
+      return 0;
+    }
+
+    const value =
+      account.rux ??
+      account.RUX ??
+      account.balance ??
+      account.currency ??
+      0;
+
+    const number = Number(value);
+
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function formatNumber(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return "0";
+    }
+
+    return new Intl.NumberFormat("en-US").format(number);
+  }
+
+  function readGames() {
+    try {
+      const raw = localStorage.getItem(GAMES_KEY);
+
+      if (!raw) {
+        return [];
+      }
+
+      const data = JSON.parse(raw);
+
+      if (!Array.isArray(data)) {
+        return [];
+      }
+
+      return data
+        .map(normalizeGame)
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
   }
 
   function normalizeGame(game, index) {
@@ -61,182 +372,260 @@
       return null;
     }
 
-    const id = String(
-      game.id ||
-      game.projectId ||
-      game.gameId ||
-      `game-${index}`
-    );
-
     const name = String(
       game.name ||
-      game.projectName ||
       game.title ||
-      "Untitled Game"
+      game.gameName ||
+      "Untitled Experience"
     ).trim();
 
     const creator = String(
       game.creator ||
-      game.projectOwner ||
+      game.creatorName ||
       game.owner ||
       game.username ||
+      game.projectOwner ||
       "Unknown Creator"
     ).trim();
 
-    const projectOwner = String(
+    const owner = String(
       game.projectOwner ||
       game.owner ||
       game.creator ||
-      ""
-    ).trim();
-
-    const description = String(
-      game.description ||
-      game.desc ||
-      ""
-    ).trim();
-
-    const thumbnail = String(
-      game.thumbnail ||
-      game.thumbnailUrl ||
-      game.image ||
-      game.imageUrl ||
-      game.cover ||
-      game.coverUrl ||
-      game.icon ||
-      game.iconUrl ||
+      game.creatorName ||
+      game.username ||
       ""
     ).trim();
 
     return {
-      ...game,
-      id,
+      id: String(game.id ?? game.gameId ?? `game-${index}`),
       name,
       creator,
-      projectOwner,
-      projectName: name,
-      description,
-      thumbnail,
-      objects: Array.isArray(game.objects) ? game.objects : [],
-      codeFiles: Array.isArray(game.codeFiles) ? game.codeFiles : [],
-      publishedAt: game.publishedAt || game.createdAt || null
+      owner,
+      description: String(game.description || "").trim(),
+      thumbnail: String(
+        game.thumbnail ||
+        game.thumbnailUrl ||
+        game.image ||
+        ""
+      ).trim(),
+      updatedAt: game.updatedAt || game.createdAt || null,
+      createdAt: game.createdAt || null
     };
   }
 
-  function loadGames() {
-    const stored = readJSON(GAMES_KEY, []);
+  function readFriends() {
+    const username = getUsername(state.user);
+    const displayName = getDisplayName(state.user);
 
-    if (!Array.isArray(stored)) {
-      games = [];
+    const possibleKeys = [
+      `riseup_friends_${username}`,
+      `riseup_friends_${displayName}`
+    ];
+
+    const uniqueKeys = [...new Set(possibleKeys)];
+
+    for (const key of uniqueKeys) {
+      try {
+        const raw = localStorage.getItem(key);
+
+        if (!raw) {
+          continue;
+        }
+
+        const data = JSON.parse(raw);
+
+        if (Array.isArray(data)) {
+          return data
+            .map(normalizeFriend)
+            .filter(Boolean);
+        }
+      } catch {
+        // Try the next supported key.
+      }
+    }
+
+    return [];
+  }
+
+  function normalizeFriend(friend) {
+    if (typeof friend === "string") {
+      const name = friend.trim();
+
+      return name
+        ? {
+            name
+          }
+        : null;
+    }
+
+    if (!friend || typeof friend !== "object") {
+      return null;
+    }
+
+    const name = String(
+      friend.displayName ||
+      friend.username ||
+      friend.name ||
+      friend.user ||
+      "Friend"
+    ).trim();
+
+    if (!name) {
+      return null;
+    }
+
+    return {
+      name
+    };
+  }
+
+  function renderFriends() {
+    els.friendsRow.replaceChildren();
+
+    if (!state.friends.length) {
+      const empty = document.createElement("div");
+      empty.className = "friends-empty";
+
+      const placeholder = document.createElement("div");
+      placeholder.className = "friend-placeholder";
+
+      const textWrap = document.createElement("div");
+
+      const strong = document.createElement("strong");
+      strong.textContent = "No friends yet";
+
+      const span = document.createElement("span");
+      span.textContent = "Add friends to see them here.";
+
+      textWrap.appendChild(strong);
+      textWrap.appendChild(span);
+
+      empty.appendChild(placeholder);
+      empty.appendChild(textWrap);
+
+      els.friendsRow.appendChild(empty);
       return;
     }
 
-    games = stored
-      .map(normalizeGame)
-      .filter(Boolean);
-  }
-
-  function loadFavorites() {
-    const key = FAVORITES_PREFIX + currentUser;
-    const stored = readJSON(key, []);
-
-    favorites = Array.isArray(stored)
-      ? stored.map(String)
-      : [];
-  }
-
-  function loadRecent() {
-    const stored = readJSON(RECENT_KEY, []);
-
-    recentIds = Array.isArray(stored)
-      ? stored.map(String)
-      : [];
-  }
-
-  function saveFavorites() {
-    localStorage.setItem(
-      FAVORITES_PREFIX + currentUser,
-      JSON.stringify(favorites)
-    );
-  }
-
-  function saveRecent() {
-    localStorage.setItem(
-      RECENT_KEY,
-      JSON.stringify(recentIds)
-    );
-  }
-
-  function isOwner(game) {
-    return Boolean(
-      currentUser &&
-      game &&
-      String(game.projectOwner).toLowerCase() ===
-      String(currentUser).toLowerCase()
-    );
-  }
-
-  function isFavorite(game) {
-    return favorites.includes(String(game.id));
-  }
-
-  function getThumbnail(game, className) {
     const wrapper = document.createElement("div");
-    wrapper.className = className || "game-thumbnail";
+    wrapper.className = "friend-list";
 
-    if (game.thumbnail) {
-      const image = document.createElement("img");
+    state.friends.forEach((friend) => {
+      const card = document.createElement("div");
+      card.className = "friend-card";
 
-      image.src = game.thumbnail;
-      image.alt = game.name;
-      image.loading = "lazy";
+      const avatar = document.createElement("div");
+      avatar.className = "friend-avatar";
+      avatar.textContent = friend.name.charAt(0).toUpperCase() || "F";
 
-      image.onerror = function () {
-        wrapper.innerHTML = "";
-        wrapper.classList.add("thumbnail-empty");
+      const name = document.createElement("span");
+      name.className = "friend-name";
+      name.textContent = friend.name;
 
-        const text = document.createElement("span");
-        text.textContent = "No thumbnail";
-        wrapper.appendChild(text);
-      };
+      card.appendChild(avatar);
+      card.appendChild(name);
 
-      wrapper.appendChild(image);
-    } else {
-      wrapper.classList.add("thumbnail-empty");
+      wrapper.appendChild(card);
+    });
 
-      const text = document.createElement("span");
-      text.textContent = "No thumbnail";
-
-      wrapper.appendChild(text);
-    }
-
-    return wrapper;
+    els.friendsRow.appendChild(wrapper);
   }
 
-  function formatDate(date) {
-    if (!date) {
-      return "";
+  function renderGames() {
+    const filtered = getFilteredGames();
+
+    const continueGames = getContinueGames(filtered);
+    const recommendedGames = filtered.slice(0, 8);
+    const allGames = filtered;
+
+    renderGameGrid(els.continueGrid, continueGames);
+    renderGameGrid(els.recommendedGrid, recommendedGames);
+    renderGameGrid(els.allGamesGrid, allGames);
+
+    els.continueEmpty.hidden = continueGames.length > 0;
+    els.recommendedEmpty.hidden = recommendedGames.length > 0;
+    els.allEmpty.hidden = allGames.length > 0;
+
+    updateSearchState(filtered.length);
+  }
+
+  function getFilteredGames() {
+    if (!state.query) {
+      return [...state.games];
     }
 
-    const parsed = new Date(date);
+    return state.games.filter((game) => {
+      const searchable = [
+        game.name,
+        game.creator,
+        game.description
+      ]
+        .join(" ")
+        .toLowerCase();
 
-    if (Number.isNaN(parsed.getTime())) {
-      return "";
+      return searchable.includes(state.query);
+    });
+  }
+
+  function updateSearchState(resultCount) {
+    if (!state.query) {
+      els.allEmpty.querySelector("h3").textContent = "No games yet";
+      els.allEmpty.querySelector("p").textContent =
+        "Be the first creator to make a game.";
+      return;
     }
 
-    return parsed.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
+    if (resultCount > 0) {
+      return;
+    }
+
+    els.allEmpty.querySelector("h3").textContent = "No results found";
+    els.allEmpty.querySelector("p").textContent =
+      `Nothing matched "${state.query}".`;
+  }
+
+  function getContinueGames(games) {
+    const current = getUsername(state.user).toLowerCase();
+
+    return games
+      .filter((game) => {
+        const owner = game.owner.toLowerCase();
+        const creator = game.creator.toLowerCase();
+
+        return owner === current || creator === current;
+      })
+      .slice(0, 8);
+  }
+
+  function renderGameGrid(container, games) {
+    container.replaceChildren();
+
+    games.forEach((game) => {
+      container.appendChild(createGameCard(game));
     });
   }
 
   function createGameCard(game) {
     const card = document.createElement("article");
     card.className = "game-card";
-    card.dataset.gameId = game.id;
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `Open ${game.name}`);
 
-    const thumbnail = getThumbnail(game, "game-thumbnail");
+    const thumbnail = document.createElement("div");
+    thumbnail.className = "game-thumbnail";
+
+    if (game.thumbnail) {
+      const safeThumbnail = sanitizeImageUrl(game.thumbnail);
+
+      if (safeThumbnail) {
+        thumbnail.style.backgroundImage =
+          `url("${escapeCssUrl(safeThumbnail)}")`;
+        thumbnail.style.backgroundSize = "cover";
+        thumbnail.style.backgroundPosition = "center";
+      }
+    }
 
     const info = document.createElement("div");
     info.className = "game-info";
@@ -245,831 +634,132 @@
     title.className = "game-title";
     title.textContent = game.name;
 
-    const creator = document.createElement("p");
+    const creator = document.createElement("div");
     creator.className = "game-creator";
-    creator.textContent = "by " + game.creator;
+    creator.textContent = `By ${game.creator}`;
 
     info.appendChild(title);
     info.appendChild(creator);
 
-    if (game.publishedAt) {
-      const date = document.createElement("span");
-      date.className = "game-date";
-      date.textContent = formatDate(game.publishedAt);
-      info.appendChild(date);
-    }
-
     card.appendChild(thumbnail);
     card.appendChild(info);
 
-    card.addEventListener("click", function (event) {
-      if (event.target.closest(".delete-game")) {
-        return;
-      }
+    card.addEventListener("click", () => openGame(game));
 
-      openGame(game);
-    });
-
-    if (isOwner(game)) {
-      const deleteButton = document.createElement("button");
-
-      deleteButton.type = "button";
-      deleteButton.className = "delete-game";
-      deleteButton.textContent = "Delete";
-      deleteButton.title = "Delete this game";
-
-      deleteButton.addEventListener("click", function (event) {
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        event.stopPropagation();
-
-        deleteGame(game);
-      });
-
-      card.appendChild(deleteButton);
-    }
+        openGame(game);
+      }
+    });
 
     return card;
   }
 
-  function renderGrid(element, list) {
-    if (!element) {
-      return;
-    }
-
-    element.innerHTML = "";
-
-    list.forEach(function (game) {
-      element.appendChild(createGameCard(game));
-    });
-  }
-
-  function getRecentGames() {
-    const result = [];
-
-    recentIds.forEach(function (id) {
-      const game = games.find(
-        item => String(item.id) === String(id)
-      );
-
-      if (game && !result.some(item => item.id === game.id)) {
-        result.push(game);
-      }
-    });
-
-    return result;
-  }
-
-  function getDiscoverGames() {
-    return [...games].sort(function (a, b) {
-      const aDate = a.publishedAt
-        ? new Date(a.publishedAt).getTime()
-        : 0;
-
-      const bDate = b.publishedAt
-        ? new Date(b.publishedAt).getTime()
-        : 0;
-
-      return bDate - aDate;
-    });
-  }
-
-  function getFavoriteGames() {
-    return favorites
-      .map(function (id) {
-        return games.find(
-          game => String(game.id) === String(id)
-        );
-      })
-      .filter(Boolean);
-  }
-
-  function renderFeatured() {
-    const featured = $("featured");
-
-    if (!featured) {
-      return;
-    }
-
-    featured.innerHTML = "";
-
-    const game = getDiscoverGames()[0];
-
-    if (!game) {
-      featured.classList.add("hidden");
-      return;
-    }
-
-    featured.classList.remove("hidden");
-
-    const box = document.createElement("div");
-    box.className = "featured-game";
-
-    const image = getThumbnail(game, "featured-image");
-
-    const content = document.createElement("div");
-    content.className = "featured-content";
-
-    const title = document.createElement("h2");
-    title.textContent = game.name;
-
-    const creator = document.createElement("p");
-    creator.textContent = "by " + game.creator;
-
-    const play = document.createElement("button");
-    play.type = "button";
-    play.className = "featured-play";
-    play.textContent = "Play";
-
-    play.addEventListener("click", function () {
-      openGame(game);
-    });
-
-    content.appendChild(title);
-    content.appendChild(creator);
-
-    if (game.description) {
-      const description = document.createElement("p");
-      description.className = "featured-description";
-      description.textContent = game.description;
-      content.appendChild(description);
-    }
-
-    content.appendChild(play);
-
-    box.appendChild(image);
-    box.appendChild(content);
-
-    featured.appendChild(box);
-  }
-
-  function renderHome() {
-    loadGames();
-    loadFavorites();
-    loadRecent();
-
-    const recent = getRecentGames();
-    const discover = getDiscoverGames();
-    const favoriteGames = getFavoriteGames();
-
-    renderFeatured();
-
-    renderGrid(
-      $("continueGrid"),
-      recent
-    );
-
-    renderGrid(
-      $("discoverGrid"),
-      discover
-    );
-
-    renderGrid(
-      $("favoritesGrid"),
-      favoriteGames
-    );
-
-    updateSection(
-      "continue",
-      recent.length > 0
-    );
-
-    updateSection(
-      "discover",
-      discover.length > 0
-    );
-
-    updateSection(
-      "favorites",
-      favoriteGames.length > 0
-    );
-
-    const noGames = $("noGames");
-
-    if (noGames) {
-      noGames.classList.toggle(
-        "hidden",
-        games.length !== 0
-      );
-    }
-
-    updateUserUI();
-    updateRux();
-  }
-
-  function updateSection(id, visible) {
-    const section = $(id);
-
-    if (!section) {
-      return;
-    }
-
-    section.classList.toggle(
-      "hidden",
-      !visible
-    );
-  }
-
   function openGame(game) {
-    if (!game) {
-      return;
+    try {
+      localStorage.setItem("riseup_play_game_id", game.id);
+      localStorage.setItem("riseup_last_game_id", game.id);
+    } catch {
+      // Continue to Studio even when storage is unavailable.
     }
 
-    selectedGame = game;
-
-    addRecentGame(game);
-
-    const modal = $("gameModal");
-
-    if (!modal) {
-      return;
-    }
-
-    const title = $("modalTitle");
-    const creator = $("modalCreator");
-    const description = $("modalDescription");
-    const modalImage = $("modalImage");
-    const favoriteButton = $("favoriteGame");
-
-    if (title) {
-      title.textContent = game.name;
-    }
-
-    if (creator) {
-      creator.textContent = "by " + game.creator;
-    }
-
-    if (description) {
-      description.textContent =
-        game.description || "";
-    }
-
-    if (modalImage) {
-      modalImage.innerHTML = "";
-
-      const image = getThumbnail(
-        game,
-        "modal-game-image"
-      );
-
-      modalImage.appendChild(image);
-    }
-
-    if (favoriteButton) {
-      favoriteButton.textContent =
-        isFavorite(game)
-          ? "♥"
-          : "♡";
-
-      favoriteButton.classList.toggle(
-        "active",
-        isFavorite(game)
-      );
-    }
-
-    modal.classList.remove("hidden");
-  }
-
-  function closeModal() {
-    const modal = $("gameModal");
-
-    if (modal) {
-      modal.classList.add("hidden");
-    }
-
-    selectedGame = null;
-  }
-
-  function addRecentGame(game) {
-    if (!game) {
-      return;
-    }
-
-    const id = String(game.id);
-
-    recentIds = recentIds.filter(
-      recentId => String(recentId) !== id
-    );
-
-    recentIds.unshift(id);
-
-    recentIds = recentIds.slice(0, 20);
-
-    saveRecent();
-  }
-
-  function toggleFavorite() {
-    if (!selectedGame) {
-      return;
-    }
-
-    const id = String(selectedGame.id);
-
-    if (favorites.includes(id)) {
-      favorites = favorites.filter(
-        favoriteId => String(favoriteId) !== id
-      );
-
-      showToast("Removed from favorites");
-    } else {
-      favorites.push(id);
-
-      showToast("Added to favorites");
-    }
-
-    saveFavorites();
-
-    const button = $("favoriteGame");
-
-    if (button) {
-      button.textContent =
-        isFavorite(selectedGame)
-          ? "♥"
-          : "♡";
-
-      button.classList.toggle(
-        "active",
-        isFavorite(selectedGame)
-      );
-    }
-
-    renderHome();
-  }
-
-  function deleteGame(game) {
-    if (!game || !isOwner(game)) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      'Delete "' + game.name + '"? This cannot be undone.'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    const gameId = String(game.id);
-
-    const storedGames = readJSON(
-      GAMES_KEY,
-      []
-    );
-
-    if (!Array.isArray(storedGames)) {
-      return;
-    }
-
-    const filteredGames = storedGames.filter(
-      function (storedGame) {
-        if (!storedGame || typeof storedGame !== "object") {
-          return true;
-        }
-
-        const storedId = String(
-          storedGame.id ||
-          storedGame.projectId ||
-          storedGame.gameId ||
-          ""
-        );
-
-        const storedOwner = String(
-          storedGame.projectOwner ||
-          storedGame.owner ||
-          storedGame.creator ||
-          ""
-        );
-
-        const sameGame =
-          storedId === gameId;
-
-        const sameOwner =
-          storedOwner.toLowerCase() ===
-          currentUser.toLowerCase();
-
-        return !(sameGame && sameOwner);
-      }
-    );
-
-    localStorage.setItem(
-      GAMES_KEY,
-      JSON.stringify(filteredGames)
-    );
-
-    recentIds = recentIds.filter(
-      id => String(id) !== gameId
-    );
-
-    favorites = favorites.filter(
-      id => String(id) !== gameId
-    );
-
-    saveRecent();
-    saveFavorites();
-
-    if (
-      selectedGame &&
-      String(selectedGame.id) === gameId
-    ) {
-      closeModal();
-    }
-
-    showToast("Game deleted");
-
-    renderHome();
-  }
-
-  function searchGames(query) {
-    const value = query.trim().toLowerCase();
-
-    const featured = $("featured");
-    const continueSection = $("continue");
-    const favoritesSection = $("favorites");
-    const discoverGrid = $("discoverGrid");
-    const discoverTitle = document.querySelector(
-      "#discover .section-title h2"
-    );
-
-    if (!value) {
-      if (featured) {
-        featured.classList.remove("hidden");
-      }
-
-      renderHome();
-      return;
-    }
-
-    if (featured) {
-      featured.classList.add("hidden");
-    }
-
-    if (continueSection) {
-      continueSection.classList.add("hidden");
-    }
-
-    if (favoritesSection) {
-      favoritesSection.classList.add("hidden");
-    }
-
-    const results = games.filter(function (game) {
-      return (
-        game.name.toLowerCase().includes(value) ||
-        game.creator.toLowerCase().includes(value) ||
-        game.description.toLowerCase().includes(value)
-      );
-    });
-
-    if (discoverTitle) {
-      discoverTitle.textContent =
-        results.length +
-        (results.length === 1
-          ? " Result"
-          : " Results");
-    }
-
-    renderGrid(
-      discoverGrid,
-      results
-    );
-
-    const noGames = $("noGames");
-
-    if (noGames) {
-      noGames.classList.toggle(
-        "hidden",
-        results.length !== 0
-      );
-
-      const strong = noGames.querySelector("strong");
-      const span = noGames.querySelector("span");
-
-      if (results.length === 0) {
-        if (strong) {
-          strong.textContent = "No results";
-        }
-
-        if (span) {
-          span.textContent =
-            "No published games matched your search.";
-        }
-      }
-    }
-  }
-
-  function updateUserUI() {
-    const firstLetter =
-      currentUser
-        ? currentUser.charAt(0).toUpperCase()
-        : "R";
-
-    const avatarLetter = $("avatarLetter");
-    const menuAvatar = $("menuAvatar");
-    const menuUsername = $("menuUsername");
-
-    if (avatarLetter) {
-      avatarLetter.textContent = firstLetter;
-    }
-
-    if (menuAvatar) {
-      menuAvatar.textContent = firstLetter;
-    }
-
-    if (menuUsername) {
-      menuUsername.textContent =
-        currentUser || "Player";
-    }
-  }
-
-  function updateRux() {
-    const possibleKeys = [
-      "riseup_rux_" + currentUser,
-      "riseup_rux",
-      "rux_" + currentUser
-    ];
-
-    let balance = 0;
-
-    for (const key of possibleKeys) {
-      const value = localStorage.getItem(key);
-
-      if (value !== null) {
-        const number = Number(value);
-
-        if (Number.isFinite(number)) {
-          balance = number;
-          break;
-        }
-
-        const parsed = readJSON(key, null);
-
-        if (
-          parsed &&
-          typeof parsed === "object" &&
-          Number.isFinite(Number(parsed.balance))
-        ) {
-          balance = Number(parsed.balance);
-          break;
-        }
-      }
-    }
-
-    const element = $("ruxBalance");
-
-    if (element) {
-      element.textContent =
-        Math.max(0, balance).toLocaleString();
-    }
-  }
-
-  function showToast(message) {
-    const toast = $("toast");
-
-    if (!toast) {
-      return;
-    }
-
-    toast.textContent = message;
-    toast.classList.remove("hidden");
-
-    clearTimeout(
-      showToast.timeout
-    );
-
-    showToast.timeout = setTimeout(
-      function () {
-        toast.classList.add("hidden");
-      },
-      2200
-    );
-  }
-
-  function toggleUserMenu() {
-    const menu = $("userMenu");
-
-    if (!menu) {
-      return;
-    }
-
-    menu.classList.toggle("hidden");
-  }
-
-  function closeUserMenu() {
-    const menu = $("userMenu");
-
-    if (menu) {
-      menu.classList.add("hidden");
-    }
+    window.location.href = "studio.html";
   }
 
   function goToStudio() {
     window.location.href = "studio.html";
   }
 
-  function goToCode() {
+  function goToRiseCode() {
     window.location.href = "code.html";
   }
 
+  function setActiveTopNav(activeButton) {
+    document.querySelectorAll(".top-nav-item").forEach((button) => {
+      button.classList.toggle("active", button === activeButton);
+    });
+  }
+
+  function setActiveSideItem(activeButton) {
+    document.querySelectorAll(".side-item[data-section]").forEach((button) => {
+      button.classList.toggle("active", button === activeButton);
+    });
+  }
+
+  function scrollToElement(element) {
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
   function logout() {
-    localStorage.removeItem(
-      CURRENT_USER_KEY
-    );
+    try {
+      localStorage.removeItem(USER_KEY);
+    } catch {
+      // Continue to the login page.
+    }
 
     window.location.href = "index.html";
   }
 
-  function setupEvents() {
-    const searchInput = $("searchInput");
-
-    if (searchInput) {
-      searchInput.addEventListener(
-        "input",
-        function () {
-          searchGames(
-            searchInput.value
-          );
-        }
-      );
+  function showToast(message) {
+    if (!els.toast) {
+      return;
     }
 
-    const studioButton = $("studioButton");
+    els.toast.textContent = message;
+    els.toast.classList.add("show");
 
-    if (studioButton) {
-      studioButton.addEventListener(
-        "click",
-        goToStudio
-      );
-    }
+    clearTimeout(showToast.timer);
 
-    const emptyStudio = $("emptyStudio");
-
-    if (emptyStudio) {
-      emptyStudio.addEventListener(
-        "click",
-        goToStudio
-      );
-    }
-
-    const menuStudio = $("menuStudio");
-
-    if (menuStudio) {
-      menuStudio.addEventListener(
-        "click",
-        function () {
-          closeUserMenu();
-          goToStudio();
-        }
-      );
-    }
-
-    const menuCode = $("menuCode");
-
-    if (menuCode) {
-      menuCode.addEventListener(
-        "click",
-        function () {
-          closeUserMenu();
-          goToCode();
-        }
-      );
-    }
-
-    const menuLogout = $("menuLogout");
-
-    if (menuLogout) {
-      menuLogout.addEventListener(
-        "click",
-        logout
-      );
-    }
-
-    const avatarButton = $("avatarButton");
-
-    if (avatarButton) {
-      avatarButton.addEventListener(
-        "click",
-        function (event) {
-          event.stopPropagation();
-          toggleUserMenu();
-        }
-      );
-    }
-
-    const closeModalButton =
-      $("closeModal");
-
-    if (closeModalButton) {
-      closeModalButton.addEventListener(
-        "click",
-        closeModal
-      );
-    }
-
-    const favoriteButton =
-      $("favoriteGame");
-
-    if (favoriteButton) {
-      favoriteButton.addEventListener(
-        "click",
-        toggleFavorite
-      );
-    }
-
-    const playButton =
-      $("playGame");
-
-    if (playButton) {
-      playButton.addEventListener(
-        "click",
-        function () {
-          if (!selectedGame) {
-            return;
-          }
-
-          /*
-           * Keep the selected game available for
-           * whatever player/preview page you use.
-           *
-           * The homepage does NOT pretend that
-           * studio.html is a game player.
-           */
-          addRecentGame(selectedGame);
-
-          localStorage.setItem(
-            "riseup_play_game_id",
-            String(selectedGame.id)
-          );
-
-          /*
-           * Your actual player page should handle
-           * this ID. If you already have one,
-           * replace player.html with its filename.
-           */
-          window.location.href =
-            "player.html";
-        }
-      );
-    }
-
-    const modal = $("gameModal");
-
-    if (modal) {
-      modal.addEventListener(
-        "click",
-        function (event) {
-          if (event.target === modal) {
-            closeModal();
-          }
-        }
-      );
-    }
-
-    document.addEventListener(
-      "click",
-      function (event) {
-        const menu = $("userMenu");
-        const avatar = $("avatarButton");
-
-        if (
-          menu &&
-          !menu.classList.contains("hidden") &&
-          !menu.contains(event.target) &&
-          !avatar?.contains(event.target)
-        ) {
-          closeUserMenu();
-        }
-      }
-    );
-
-    document.addEventListener(
-      "keydown",
-      function (event) {
-        if (event.key === "Escape") {
-          closeModal();
-          closeUserMenu();
-        }
-      }
-    );
-
-    window.addEventListener(
-      "storage",
-      function (event) {
-        if (
-          event.key === GAMES_KEY ||
-          event.key === CURRENT_USER_KEY
-        ) {
-          currentUser = getCurrentUser();
-          renderHome();
-        }
-      }
-    );
+    showToast.timer = setTimeout(() => {
+      els.toast.classList.remove("show");
+    }, 2400);
   }
 
-  currentUser = getCurrentUser();
+  function sanitizeImageUrl(value) {
+    const input = String(value || "").trim();
 
-  if (!currentUser) {
-    return;
+    if (!input) {
+      return "";
+    }
+
+    if (
+      input.startsWith("data:image/") ||
+      input.startsWith("blob:") ||
+      input.startsWith("./") ||
+      input.startsWith("../") ||
+      input.startsWith("/")
+    ) {
+      return input;
+    }
+
+    try {
+      const url = new URL(input, window.location.href);
+
+      if (
+        url.protocol === "https:" ||
+        url.protocol === "http:"
+      ) {
+        return url.href;
+      }
+    } catch {
+      return "";
+    }
+
+    return "";
   }
 
-  setupEvents();
-  renderHome();
-
+  function escapeCssUrl(value) {
+    return String(value)
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "");
+  }
 })();
