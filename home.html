@@ -6,37 +6,74 @@
   <title>RiseUp</title>
   <link rel="stylesheet" href="home.css">
 </head>
+
 <body>
   <header class="topbar">
     <button class="brand" id="brandButton" type="button">RiseUp</button>
 
     <nav class="top-nav" aria-label="Main navigation">
-      <button class="top-nav-item active" data-page="home" type="button">Home</button>
-      <button class="top-nav-item" data-page="discover" type="button">Discover</button>
-      <button class="top-nav-item" data-page="marketplace" type="button">Marketplace</button>
-      <button class="top-nav-item" id="createTop" type="button">Create</button>
+      <button class="top-nav-item active" data-page="home" type="button">
+        Home
+      </button>
+
+      <button class="top-nav-item" data-page="discover" type="button">
+        Discover
+      </button>
+
+      <button class="top-nav-item" data-page="marketplace" type="button">
+        Marketplace
+      </button>
+
+      <a class="top-nav-item create-nav-button" href="studio.html">
+        Create
+      </a>
     </nav>
 
     <div class="top-actions">
       <label class="search">
         <span class="search-icon" aria-hidden="true"></span>
-        <input id="searchInput" type="search" autocomplete="off" placeholder="Search">
+        <input
+          id="searchInput"
+          type="search"
+          autocomplete="off"
+          placeholder="Search"
+        >
       </label>
 
-      <button class="icon-btn" id="messagesButton" type="button" aria-label="Messages">
+      <button
+        class="icon-btn"
+        id="messagesButton"
+        type="button"
+        aria-label="Messages"
+      >
         <span class="message-icon" aria-hidden="true"></span>
       </button>
 
-      <button class="icon-btn" id="notificationsButton" type="button" aria-label="Notifications">
+      <button
+        class="icon-btn"
+        id="notificationsButton"
+        type="button"
+        aria-label="Notifications"
+      >
         <span class="bell-icon" aria-hidden="true"></span>
       </button>
 
-      <button class="rux" id="ruxButton" type="button" aria-label="RUX balance">
+      <button
+        class="rux"
+        id="ruxButton"
+        type="button"
+        aria-label="RUX balance"
+      >
         <span class="rux-mark">R</span>
         <span id="ruxAmount">0</span>
       </button>
 
-      <button class="avatar" id="avatarButton" type="button" aria-label="Account">
+      <button
+        class="avatar"
+        id="avatarButton"
+        type="button"
+        aria-label="Account"
+      >
         <span id="avatarLetter">R</span>
       </button>
     </div>
@@ -45,22 +82,38 @@
   <div class="app">
     <aside class="sidebar">
       <div class="side-group">
-        <button class="side-item active" data-section="home" type="button">
+        <button
+          class="side-item active"
+          data-section="home"
+          type="button"
+        >
           <span class="side-icon home-icon" aria-hidden="true"></span>
           <span>Home</span>
         </button>
 
-        <button class="side-item" data-section="discover" type="button">
+        <button
+          class="side-item"
+          data-section="discover"
+          type="button"
+        >
           <span class="side-icon compass-icon" aria-hidden="true"></span>
           <span>Discover</span>
         </button>
 
-        <button class="side-item" data-section="avatar" type="button">
+        <button
+          class="side-item"
+          data-section="avatar"
+          type="button"
+        >
           <span class="side-icon user-icon" aria-hidden="true"></span>
           <span>Avatar</span>
         </button>
 
-        <button class="side-item" data-section="inventory" type="button">
+        <button
+          class="side-item"
+          data-section="inventory"
+          type="button"
+        >
           <span class="side-icon inventory-icon" aria-hidden="true"></span>
           <span>Inventory</span>
         </button>
@@ -69,18 +122,30 @@
       <div class="divider"></div>
 
       <div class="side-group">
-        <button class="side-item" data-section="friends" type="button">
+        <button
+          class="side-item"
+          data-section="friends"
+          type="button"
+        >
           <span class="side-icon friends-icon" aria-hidden="true"></span>
           <span>Friends</span>
           <span class="count" id="friendsCount">0</span>
         </button>
 
-        <button class="side-item" data-section="messages" type="button">
+        <button
+          class="side-item"
+          data-section="messages"
+          type="button"
+        >
           <span class="side-icon message-icon" aria-hidden="true"></span>
           <span>Messages</span>
         </button>
 
-        <button class="side-item" data-section="marketplace" type="button">
+        <button
+          class="side-item"
+          data-section="marketplace"
+          type="button"
+        >
           <span class="side-icon shop-icon" aria-hidden="true"></span>
           <span>Marketplace</span>
         </button>
@@ -89,27 +154,31 @@
       <div class="divider"></div>
 
       <div class="side-group">
-        <button class="side-item" id="studioButton" type="button">
+        <a class="side-item" id="studioButton" href="studio.html">
           <span class="side-icon cube-icon" aria-hidden="true"></span>
           <span>Studio</span>
-        </button>
+        </a>
 
-        <button class="side-item" id="riseCodeButton" type="button">
+        <a class="side-item" id="riseCodeButton" href="code.html">
           <span class="side-icon code-icon" aria-hidden="true"></span>
           <span>RiseCode</span>
-        </button>
+        </a>
 
-        <button class="side-item" id="settingsButton" type="button">
+        <button
+          class="side-item"
+          id="settingsButton"
+          type="button"
+        >
           <span class="side-icon settings-icon" aria-hidden="true"></span>
           <span>Settings</span>
         </button>
       </div>
 
       <div class="sidebar-bottom">
-        <button class="create-button" id="createSidebar" type="button">
+        <a class="create-button" href="studio.html">
           <span>+</span>
           <strong>Create</strong>
-        </button>
+        </a>
       </div>
     </aside>
 
@@ -117,76 +186,205 @@
       <section class="welcome">
         <div>
           <span class="eyebrow">RISEUP</span>
-          <h1>Welcome back, <span id="welcomeName">Creator</span></h1>
-          <p>Jump back into your experiences or discover something new.</p>
+
+          <h1>
+            Welcome back,
+            <span id="welcomeName">Creator</span>
+          </h1>
+
+          <p>
+            Jump back into your experiences or discover something new.
+          </p>
         </div>
+
+        <a class="welcome-create-button" href="studio.html">
+          Create
+        </a>
       </section>
 
       <section class="feed-section" id="friendsSection">
         <div class="section-header">
           <h2>Friends</h2>
-          <button class="view-button" id="viewFriends" type="button">View All</button>
+
+          <button
+            class="view-button"
+            id="viewFriends"
+            type="button"
+          >
+            View All
+          </button>
         </div>
 
-        <div class="friends-row" id="friendsRow"></div>
+        <div
+          class="friends-row"
+          id="friendsRow"
+        ></div>
       </section>
 
       <section class="feed-section">
         <div class="section-header">
           <h2>Continue Playing</h2>
-          <button class="view-button" id="continueAll" type="button">View All</button>
+
+          <button
+            class="view-button"
+            id="continueAll"
+            type="button"
+          >
+            View All
+          </button>
         </div>
 
-        <div class="games-grid" id="continueGrid"></div>
+        <div
+          class="games-grid"
+          id="continueGrid"
+        ></div>
 
-        <div class="section-empty" id="continueEmpty">
-          <div class="empty-art" aria-hidden="true"><span></span></div>
+        <div
+          class="section-empty"
+          id="continueEmpty"
+        >
+          <div
+            class="empty-art"
+            aria-hidden="true"
+          >
+            <span></span>
+          </div>
+
           <h3>No games to continue</h3>
-          <p>Play an experience and it will appear here.</p>
+
+          <p>
+            Play an experience and it will appear here.
+          </p>
         </div>
       </section>
 
       <section class="feed-section">
         <div class="section-header">
           <h2>Recommended For You</h2>
-          <button class="view-button" id="recommendedAll" type="button">View All</button>
+
+          <button
+            class="view-button"
+            id="recommendedAll"
+            type="button"
+          >
+            View All
+          </button>
         </div>
 
-        <div class="games-grid" id="recommendedGrid"></div>
+        <div
+          class="games-grid"
+          id="recommendedGrid"
+        ></div>
 
-        <div class="section-empty" id="recommendedEmpty">
-          <div class="empty-art" aria-hidden="true"><span></span></div>
+        <div
+          class="section-empty"
+          id="recommendedEmpty"
+        >
+          <div
+            class="empty-art"
+            aria-hidden="true"
+          >
+            <span></span>
+          </div>
+
           <h3>No experiences yet</h3>
-          <p>Be the first creator to make a game.</p>
-          <button class="primary-button" id="emptyCreate" type="button">Create a Game</button>
+
+          <p>
+            Be the first creator to make a game.
+          </p>
+
+          <a
+            class="primary-button"
+            id="emptyCreate"
+            href="studio.html"
+          >
+            Create a Game
+          </a>
         </div>
       </section>
 
-      <section class="feed-section" id="allGamesSection">
+      <section
+        class="feed-section"
+        id="allGamesSection"
+      >
         <div class="section-header">
           <h2>All Experiences</h2>
         </div>
 
-        <div class="games-grid" id="allGamesGrid"></div>
+        <div
+          class="games-grid"
+          id="allGamesGrid"
+        ></div>
 
-        <div class="section-empty" id="allEmpty">
-          <div class="empty-art" aria-hidden="true"><span></span></div>
+        <div
+          class="section-empty"
+          id="allEmpty"
+        >
+          <div
+            class="empty-art"
+            aria-hidden="true"
+          >
+            <span></span>
+          </div>
+
           <h3>No games yet</h3>
-          <p>Be the first creator to make a game.</p>
-          <button class="primary-button" id="allCreate" type="button">Create a Game</button>
+
+          <p>
+            Be the first creator to make a game.
+          </p>
+
+          <a
+            class="primary-button"
+            id="allCreate"
+            href="studio.html"
+          >
+            Create a Game
+          </a>
         </div>
       </section>
     </main>
   </div>
 
-  <div class="profile-menu" id="profileMenu">
-    <div class="profile-menu-name" id="menuName">Creator</div>
-    <button id="profileStudio" type="button">Studio</button>
-    <button id="profileCode" type="button">RiseCode</button>
-    <button id="logoutButton" class="danger" type="button">Log Out</button>
+  <div
+    class="profile-menu"
+    id="profileMenu"
+  >
+    <div
+      class="profile-menu-name"
+      id="menuName"
+    >
+      Creator
+    </div>
+
+    <a
+      id="profileStudio"
+      href="studio.html"
+    >
+      Studio
+    </a>
+
+    <a
+      id="profileCode"
+      href="code.html"
+    >
+      RiseCode
+    </a>
+
+    <button
+      id="logoutButton"
+      class="danger"
+      type="button"
+    >
+      Log Out
+    </button>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
 
   <script src="home.js"></script>
 </body>
