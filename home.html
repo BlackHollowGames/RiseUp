@@ -1,391 +1,5521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiseUp</title>
-  <link rel="stylesheet" href="home.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RiseUp</title>
+
+<style>
+:root{
+  --bg:#0b0e12;
+  --bg2:#10141a;
+  --panel:#141920;
+  --panel2:#1a2028;
+  --panel3:#202833;
+  --border:#29323d;
+  --border2:#3a4654;
+  --text:#f4f7fa;
+  --muted:#a7b1bc;
+  --muted2:#707c88;
+  --blue:#4da3ff;
+  --blue2:#255f94;
+  --gold:#ffd84d;
+  --green:#3dcc7b;
+  --red:#e26565;
+  --top:54px;
+  --side:238px;
+}
+
+*{
+  box-sizing:border-box;
+  scrollbar-width:thin;
+  scrollbar-color:#303a45 transparent;
+}
+
+*::-webkit-scrollbar{
+  width:7px;
+  height:7px;
+}
+
+*::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+*::-webkit-scrollbar-thumb{
+  background:#303a45;
+  border-radius:99px;
+}
+
+html{
+  min-height:100%;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+}
+
+button,
+input,
+textarea{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible{
+  outline:2px solid var(--blue);
+  outline-offset:2px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* ================= TOPBAR ================= */
+
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:var(--top);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  background:#0d1116;
+  border-bottom:1px solid var(--border);
+}
+
+.brand{
+  width:var(--side);
+  height:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 16px;
+  color:white;
+  background:transparent;
+  text-align:left;
+}
+
+.logo{
+  width:31px;
+  height:31px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:7px;
+  background:linear-gradient(135deg,#69baff,#23689f);
+  font-size:14px;
+  font-weight:900;
+}
+
+.brand-name{
+  font-size:16px;
+  font-weight:850;
+}
+
+.top-nav{
+  display:flex;
+  align-items:center;
+  gap:3px;
+  flex:1;
+}
+
+.top-nav button{
+  height:34px;
+  padding:0 12px;
+  border-radius:5px;
+  color:var(--muted);
+  background:transparent;
+  font-size:10px;
+  font-weight:700;
+}
+
+.top-nav button:hover,
+.top-nav button.active{
+  color:white;
+  background:#182029;
+}
+
+.top-nav .create-top{
+  color:white;
+  background:var(--blue2);
+  border:1px solid #337ab5;
+}
+
+.top-nav .create-top:hover{
+  background:var(--blue);
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding-right:8px;
+}
+
+.search{
+  width:220px;
+  height:33px;
+}
+
+.search input{
+  width:100%;
+  height:100%;
+  padding:0 11px;
+  color:white;
+  background:#090d12;
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:10px;
+}
+
+.search input:focus{
+  border-color:var(--blue);
+}
+
+.icon-btn,
+.token-btn,
+.profile-btn{
+  height:33px;
+  border-radius:5px;
+  color:var(--muted);
+  background:transparent;
+}
+
+.icon-btn{
+  width:33px;
+  font-size:9px;
+  font-weight:800;
+}
+
+.icon-btn:hover,
+.token-btn:hover,
+.profile-btn:hover{
+  color:white;
+  background:#182029;
+}
+
+.token-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 8px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.token-circle{
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:8px;
+  font-weight:900;
+}
+
+.profile-btn{
+  width:33px;
+  color:white;
+  background:#394754;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+  position:fixed;
+  top:var(--top);
+  left:0;
+  bottom:0;
+  width:var(--side);
+  z-index:900;
+  display:flex;
+  flex-direction:column;
+  background:#0d1116;
+  border-right:1px solid var(--border);
+}
+
+.sidebar-scroll{
+  flex:1;
+  overflow:auto;
+  padding:10px 9px;
+}
+
+.side-group{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.side-divider{
+  height:1px;
+  margin:10px 7px;
+  background:var(--border);
+}
+
+.side-btn{
+  width:100%;
+  height:38px;
+  display:flex;
+  align-items:center;
+  padding:0 11px;
+  border-radius:5px;
+  color:var(--muted);
+  background:transparent;
+  text-align:left;
+  font-size:10px;
+  font-weight:700;
+}
+
+.side-btn:hover{
+  color:white;
+  background:#182029;
+}
+
+.side-btn.active{
+  color:white;
+  background:#173a5a;
+}
+
+.side-count{
+  margin-left:auto;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.side-bottom{
+  padding:10px;
+  border-top:1px solid var(--border);
+}
+
+.side-create{
+  width:100%;
+  height:40px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #337ab5;
+  border-radius:5px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.side-create:hover{
+  background:var(--blue);
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  min-height:100vh;
+  margin-left:var(--side);
+  padding:calc(var(--top) + 28px) 38px 50px;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(48,91,125,.13),transparent 35%),
+    var(--bg);
+}
+
+.page{
+  display:none;
+  max-width:1450px;
+  margin:auto;
+}
+
+.page.active{
+  display:block;
+}
+
+.hero{
+  min-height:190px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  padding:28px;
+  margin-bottom:30px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:
+    linear-gradient(135deg,rgba(43,85,116,.43),rgba(18,24,31,.9));
+}
+
+.eyebrow{
+  color:var(--blue);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:1.2px;
+}
+
+.page-header{
+  margin-bottom:22px;
+}
+
+.page-header h1,
+.hero h1{
+  margin:7px 0;
+  font-size:31px;
+  line-height:1.05;
+  letter-spacing:-.8px;
+}
+
+.subtitle,
+.hero p{
+  margin:0;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.55;
+}
+
+.primary{
+  min-height:35px;
+  padding:0 14px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #337ab5;
+  border-radius:5px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.primary:hover{
+  background:var(--blue);
+}
+
+.secondary{
+  min-height:35px;
+  padding:0 14px;
+  color:var(--muted);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:10px;
+  font-weight:700;
+}
+
+.secondary:hover{
+  color:white;
+  background:var(--panel3);
+}
+
+.section{
+  margin-bottom:34px;
+}
+
+.section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:13px;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:17px;
+}
+
+.section-head p{
+  margin:3px 0 0;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+.link{
+  color:var(--blue);
+  background:transparent;
+  font-size:9px;
+  font-weight:800;
+}
+
+.link:hover{
+  color:white;
+}
+
+/* ================= GRIDS ================= */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:13px;
+}
+
+.game{
+  overflow:hidden;
+  padding:0;
+  color:white;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+  text-align:left;
+  transition:.15s ease;
+}
+
+.game:hover{
+  transform:translateY(-2px);
+  background:var(--panel2);
+  border-color:var(--border2);
+}
+
+.game-image{
+  aspect-ratio:16/9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#204d6c,#12202b);
+  color:rgba(255,255,255,.15);
+  font-size:29px;
+  font-weight:900;
+}
+
+.game-info{
+  padding:10px;
+}
+
+.game-title{
+  overflow:hidden;
+  margin:0 0 4px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.game-creator{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+/* ================= EMPTY ================= */
+
+.empty{
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+  text-align:center;
+  background:var(--panel);
+  border:1px dashed var(--border2);
+  border-radius:8px;
+}
+
+.empty-art{
+  width:40px;
+  height:40px;
+  margin-bottom:9px;
+  border-radius:9px;
+  background:linear-gradient(135deg,#1f5077,#14222f);
+}
+
+.empty h3{
+  margin:0 0 5px;
+  font-size:12px;
+}
+
+.empty p{
+  margin:0 0 13px;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+/* ================= AVATAR ================= */
+
+.avatar-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:17px;
+}
+
+.card{
+  padding:20px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.avatar-preview-card{
+  min-height:420px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.avatar-preview{
+  width:190px;
+  height:265px;
+  position:relative;
+}
+
+.avatar-head{
+  position:absolute;
+  left:46px;
+  top:8px;
+  width:98px;
+  height:98px;
+  border-radius:50%;
+  background:#ffe047;
+}
+
+.eye{
+  position:absolute;
+  top:38px;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#111;
+}
+
+.eye.left{left:29px}
+.eye.right{right:29px}
+
+.smile{
+  position:absolute;
+  left:31px;
+  right:31px;
+  bottom:25px;
+  height:13px;
+  border-bottom:3px solid #111;
+  border-radius:50%;
+}
+
+.avatar-body{
+  position:absolute;
+  left:51px;
+  top:105px;
+  width:88px;
+  height:89px;
+  border-radius:31px;
+  background:#249bff;
+}
+
+.avatar-arms span{
+  position:absolute;
+  top:112px;
+  width:25px;
+  height:72px;
+  border-radius:16px;
+  background:#ffe047;
+}
+
+.avatar-arms span:first-child{left:27px}
+.avatar-arms span:last-child{right:27px}
+
+.avatar-legs span{
+  position:absolute;
+  top:187px;
+  width:31px;
+  height:70px;
+  border-radius:15px;
+  background:#00a82d;
+}
+
+.avatar-legs span:first-child{left:52px}
+.avatar-legs span:last-child{right:52px}
+
+.avatar-name{
+  margin-top:8px;
+  font-size:15px;
+  font-weight:800;
+}
+
+.setting-row{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  font-size:10px;
+}
+
+.choice{
+  height:29px;
+  padding:0 10px;
+  color:var(--muted);
+  background:var(--panel3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-size:9px;
+}
+
+.choice.active{
+  color:white;
+  background:#183b59;
+  border-color:var(--blue);
+}
+
+/* ================= TABS ================= */
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-bottom:17px;
+}
+
+.tab{
+  height:31px;
+  padding:0 11px;
+  color:var(--muted);
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:9px;
+  font-weight:700;
+}
+
+.tab:hover,
+.tab.active{
+  color:white;
+  background:#1a2530;
+  border-color:#365065;
+}
+
+/* ================= FRIENDS ================= */
+
+.toolbar{
+  display:flex;
+  gap:7px;
+  margin-bottom:17px;
+}
+
+.toolbar input{
+  width:310px;
+  height:35px;
+  padding:0 10px;
+  color:white;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:10px;
+}
+
+.friend-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:10px;
+}
+
+.friend{
+  min-height:74px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.friend-avatar{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 40px;
+  border-radius:50%;
+  color:white;
+  background:#394754;
+  font-size:12px;
+  font-weight:900;
+}
+
+.friend-name{
+  font-size:10px;
+  font-weight:750;
+}
+
+/* ================= INVENTORY ================= */
+
+.inventory-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
+  gap:12px;
+}
+
+.inventory-item{
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.inventory-image{
+  flex:1;
+  margin-bottom:10px;
+  border-radius:5px;
+  background:linear-gradient(135deg,#17334b,#10171e);
+}
+
+.inventory-item strong{
+  font-size:10px;
+}
+
+.inventory-item span{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+/* ================= MARKET ================= */
+
+.market-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.balance{
+  min-width:120px;
+  padding:10px 12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:6px;
+}
+
+.balance span,
+.balance strong{
+  display:block;
+}
+
+.balance span{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.balance strong{
+  margin-top:3px;
+  font-size:13px;
+}
+
+.market-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
+  gap:13px;
+}
+
+.market-card{
+  overflow:hidden;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.market-image{
+  aspect-ratio:1/.78;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#1c4566,#101a22);
+  color:rgba(255,255,255,.15);
+  font-size:27px;
+  font-weight:900;
+}
+
+.market-info{
+  padding:11px;
+}
+
+.market-type{
+  display:block;
+  margin-top:4px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.market-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:10px;
+}
+
+.price{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:900;
+}
+
+.buy{
+  height:28px;
+  padding:0 10px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #337ab5;
+  border-radius:4px;
+  font-size:9px;
+  font-weight:800;
+}
+
+.buy:hover{
+  background:var(--blue);
+}
+
+/* ================= MESSAGES ================= */
+
+.messages{
+  min-height:470px;
+  display:grid;
+  grid-template-columns:280px 1fr;
+  overflow:hidden;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.conversations{
+  overflow:auto;
+  border-right:1px solid var(--border);
+}
+
+.conversation{
+  width:100%;
+  min-height:63px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 11px;
+  color:var(--muted);
+  background:transparent;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
+.conversation:hover,
+.conversation.active{
+  color:white;
+  background:#17202a;
+}
+
+.chat{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.chat-header{
+  padding:13px;
+  border-bottom:1px solid var(--border);
+  font-size:10px;
+  font-weight:800;
+}
+
+.chat-history{
+  flex:1;
+  padding:15px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.chat-compose{
+  display:flex;
+  gap:6px;
+  padding:8px;
+  border-top:1px solid var(--border);
+}
+
+.chat-compose input{
+  flex:1;
+  min-width:0;
+  height:33px;
+  padding:0 9px;
+  color:white;
+  background:#090d12;
+  border:1px solid var(--border);
+  border-radius:4px;
+  outline:none;
+  font-size:9px;
+}
+
+/* ================= SETTINGS ================= */
+
+.settings{
+  max-width:760px;
+  display:grid;
+  gap:13px;
+}
+
+.settings-row{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-top:1px solid var(--border);
+  color:var(--muted);
+  font-size:10px;
+}
+
+.settings-row strong,
+.settings-row small{
+  display:block;
+}
+
+.settings-row strong{
+  color:white;
+  font-size:10px;
+}
+
+.settings-row small{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.danger{
+  border-color:rgba(226,101,101,.35);
+}
+
+.danger-btn{
+  height:32px;
+  padding:0 12px;
+  color:#ffb3b3;
+  background:rgba(226,101,101,.1);
+  border:1px solid rgba(226,101,101,.28);
+  border-radius:5px;
+  font-size:9px;
+  font-weight:800;
+}
+
+/* ================= TOKENS ================= */
+
+.token-hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:150px;
+  padding:24px;
+  margin-bottom:18px;
+  background:linear-gradient(135deg,rgba(85,67,19,.24),rgba(18,23,29,.92));
+  border:1px solid rgba(255,216,77,.18);
+  border-radius:9px;
+}
+
+.token-total{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.token-big{
+  width:64px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:20px;
+  font-weight:900;
+}
+
+.token-total strong{
+  display:block;
+  font-size:25px;
+}
+
+.token-total span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+.token-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:12px;
+}
+
+.token-card{
+  padding:16px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.token-card h3{
+  margin:0;
+  font-size:12px;
+}
+
+.token-value{
+  margin-top:7px;
+  color:var(--gold);
+  font-size:18px;
+  font-weight:900;
+}
+
+.token-card p{
+  min-height:34px;
+  margin:8px 0 13px;
+  color:var(--muted2);
+  font-size:8px;
+  line-height:1.5;
+}
+
+.token-note{
+  margin-top:13px;
+  padding:11px;
+  color:var(--muted2);
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-size:8px;
+  line-height:1.5;
+}
+
+/* ================= FOOTER ================= */
+
+.footer{
+  max-width:1450px;
+  margin:58px auto 0;
+  padding-top:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-top:1px solid var(--border);
+}
+
+.footer-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:white;
+  background:transparent;
+  text-align:left;
+}
+
+.footer-logo{
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  color:white;
+  background:linear-gradient(135deg,#66b7ff,#23679f);
+  font-size:11px;
+  font-weight:900;
+}
+
+.footer-brand strong,
+.footer-brand small{
+  display:block;
+}
+
+.footer-brand strong{
+  font-size:10px;
+}
+
+.footer-brand small{
+  margin-top:2px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.footer-links{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+}
+
+.footer-links button{
+  color:var(--muted2);
+  background:transparent;
+  font-size:8px;
+}
+
+.footer-links button:hover{
+  color:white;
+}
+
+.footer-copy{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+/* ================= POPUPS ================= */
+
+.popup{
+  position:fixed;
+  z-index:2000;
+  display:none;
+  background:#151a21;
+  border:1px solid var(--border2);
+  border-radius:7px;
+  box-shadow:0 20px 50px rgba(0,0,0,.44);
+}
+
+.popup.open{
+  display:block;
+}
+
+#profilePopup{
+  top:61px;
+  right:10px;
+  width:210px;
+  padding:6px;
+}
+
+#createPopup{
+  top:61px;
+  left:430px;
+  width:235px;
+  padding:7px;
+}
+
+#notificationPopup{
+  top:61px;
+  right:87px;
+  width:300px;
+}
+
+#messagePopup{
+  top:61px;
+  right:125px;
+  width:300px;
+}
+
+#tokenPopup{
+  top:61px;
+  right:45px;
+  width:220px;
+  padding:14px;
+}
+
+.popup-header{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px;
+  margin-bottom:4px;
+  border-bottom:1px solid var(--border);
+}
+
+.popup-avatar{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:white;
+  background:#394754;
+  font-size:11px;
+  font-weight:900;
+}
+
+.popup-user strong,
+.popup-user span{
+  display:block;
+}
+
+.popup-user strong{
+  font-size:10px;
+}
+
+.popup-user span{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.popup button{
+  width:100%;
+  min-height:34px;
+  padding:0 9px;
+  color:var(--muted);
+  background:transparent;
+  border-radius:4px;
+  text-align:left;
+  font-size:9px;
+  font-weight:700;
+}
+
+.popup button:hover{
+  color:white;
+  background:#202832;
+}
+
+.popup-divider{
+  height:1px;
+  margin:5px 3px;
+  background:var(--border);
+}
+
+.create-label{
+  padding:7px 9px 9px;
+  color:var(--muted2);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+
+.create-item{
+  min-height:54px!important;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.create-icon{
+  width:29px;
+  height:29px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:5px;
+  color:var(--blue);
+  background:#172536;
+  font-size:8px;
+  font-weight:900;
+}
+
+.popup-title{
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  border-bottom:1px solid var(--border);
+  font-size:9px;
+  font-weight:800;
+}
+
+.popup-list{
+  max-height:240px;
+  overflow:auto;
+}
+
+.popup-item{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.popup-item strong,
+.popup-item span{
+  display:block;
+}
+
+.popup-item strong{
+  margin-bottom:3px;
+  font-size:9px;
+}
+
+.popup-item span{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.token-popup-symbol{
+  width:39px;
+  height:39px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:15px;
+  font-weight:900;
+}
+
+.token-popup strong{
+  display:block;
+  margin-top:9px;
+  font-size:11px;
+}
+
+.token-popup-balance{
+  margin:4px 0 11px;
+  color:var(--gold);
+  font-size:18px;
+  font-weight:900;
+}
+
+/* ================= MODALS ================= */
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(5px);
+}
+
+.modal{
+  width:min(470px,100%);
+  position:relative;
+  padding:20px;
+  background:#14191f;
+  border:1px solid var(--border2);
+  border-radius:8px;
+  box-shadow:0 25px 70px rgba(0,0,0,.5);
+}
+
+.modal-close{
+  position:absolute;
+  top:9px;
+  right:9px;
+  width:28px;
+  height:28px;
+  color:var(--muted);
+  background:transparent;
+  border-radius:4px;
+}
+
+.modal-close:hover{
+  color:white;
+  background:#20272f;
+}
+
+.modal h2{
+  margin:6px 0 7px;
+  font-size:17px;
+}
+
+.modal p{
+  margin:0;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.55;
+}
+
+.modal input{
+  width:100%;
+  height:36px;
+  margin-top:14px;
+  padding:0 10px;
+  color:white;
+  background:#0a0f14;
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:9px;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  margin-top:15px;
+}
+
+/* ================= TOAST ================= */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  z-index:4000;
+  min-width:180px;
+  max-width:calc(100% - 30px);
+  padding:10px 14px;
+  transform:translate(-50%,15px);
+  color:white;
+  background:#171d24;
+  border:1px solid var(--border2);
+  border-radius:6px;
+  opacity:0;
+  pointer-events:none;
+  transition:.18s ease;
+  text-align:center;
+  font-size:9px;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1050px){
+  :root{
+    --side:205px;
+  }
+
+  .search{
+    width:170px;
+  }
+
+  .main{
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
+
+@media(max-width:850px){
+  :root{
+    --side:70px;
+  }
+
+  .brand{
+    width:70px;
+    justify-content:center;
+    padding:0;
+  }
+
+  .brand-name,
+  .side-btn .label,
+  .side-count{
+    display:none;
+  }
+
+  .side-btn{
+    justify-content:center;
+    padding:0;
+  }
+
+  .top-nav{
+    display:none;
+  }
+
+  .avatar-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:620px){
+  .search,
+  .icon-btn{
+    display:none;
+  }
+
+  .main{
+    padding:20px 14px 34px;
+  }
+
+  .hero{
+    min-height:215px;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .hero h1,
+  .page-header h1{
+    font-size:25px;
+  }
+
+  .messages{
+    grid-template-columns:1fr;
+  }
+
+  .conversations{
+    max-height:180px;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+
+  .market-head,
+  .token-hero,
+  .footer{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+  /* =========================================================
+   RISEUP LIGHT THEME
+   Matches the current home.html design
+   ========================================================= */
+
+:root {
+  --bg: #f5f6f8;
+  --bg2: #eef1f5;
+  --panel: #ffffff;
+  --panel2: #ffffff;
+  --panel3: #f7f8fa;
+  --border: #dfe3e8;
+  --border2: #cfd5dc;
+  --text: #17191c;
+  --muted: #66707a;
+  --muted2: #89919a;
+  --blue: #55a7ff;
+  --blue2: #2f82d1;
+  --green: #29a36a;
+  --red: #d95353;
+  --gold: #e7ad00;
+}
+
+/* PAGE */
+body {
+  background: #f5f6f8 !important;
+  color: #17191c !important;
+}
+
+/* TOP BAR */
+.topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #dfe3e8 !important;
+}
+
+.brand {
+  color: #17191c !important;
+}
+
+.brand-text {
+  color: #17191c !important;
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #dfe3e8 !important;
+}
+
+/* NAVIGATION */
+.top-nav-item,
+.sidebar button,
+.sidebar a {
+  color: #4d5660 !important;
+}
+
+.top-nav-item:hover,
+.sidebar button:hover,
+.sidebar a:hover {
+  background: #f1f4f7 !important;
+  color: #17191c !important;
+}
+
+.top-nav-item.active,
+.sidebar button.active,
+.sidebar a.active {
+  background: #eaf4ff !important;
+  color: #1775c5 !important;
+}
+
+/* MAIN CONTENT */
+main {
+  background: #f5f6f8 !important;
+  color: #17191c !important;
+}
+
+/* CARDS / PANELS */
+.card,
+.panel,
+.page,
+.settings-card,
+.token-card,
+.messages-shell,
+.message-panel,
+.conversation-list,
+.market-card,
+.friend-card,
+.profile-card,
+.toolbar,
+.token-hero {
+  background: #ffffff !important;
+  border-color: #dfe3e8 !important;
+  color: #17191c !important;
+}
+
+/* HEADINGS */
+h1,
+h2,
+h3,
+h4,
+strong {
+  color: #17191c !important;
+}
+
+p,
+small,
+.muted,
+.page-header p {
+  color: #66707a !important;
+}
+
+/* INPUTS */
+input,
+textarea,
+select {
+  background: #ffffff !important;
+  color: #17191c !important;
+  border: 1px solid #cfd5dc !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8b949d !important;
+}
+
+/* BUTTONS */
+button {
+  color: #17191c;
+}
+
+.secondary {
+  background: #ffffff !important;
+  color: #2f3740 !important;
+  border: 1px solid #cfd5dc !important;
+}
+
+.secondary:hover {
+  background: #f1f4f7 !important;
+}
+
+.primary {
+  background: #55a7ff !important;
+  color: #ffffff !important;
+}
+
+.primary:hover {
+  background: #3f95ed !important;
+}
+
+/* TOKEN UI */
+.token-popover,
+.token-popover-balance {
+  color: #17191c !important;
+}
+
+.token-popover {
+  background: #ffffff !important;
+  border-color: #dfe3e8 !important;
+}
+
+/* MENUS */
+.menu,
+.popover {
+  background: #ffffff !important;
+  color: #17191c !important;
+  border-color: #dfe3e8 !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.menu button,
+.popover button {
+  color: #17191c !important;
+}
+
+.menu button:hover,
+.popover button:hover {
+  background: #f1f4f7 !important;
+}
+
+/* MODALS */
+.modal {
+  background: #ffffff !important;
+  color: #17191c !important;
+  border: 1px solid #dfe3e8 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18) !important;
+}
+
+.backdrop {
+  background: rgba(20, 24, 28, 0.35) !important;
+}
+
+/* FOOTER */
+.footer {
+  background: #ffffff !important;
+  border-top: 1px solid #dfe3e8 !important;
+  color: #66707a !important;
+}
+
+.footer-links button {
+  color: #66707a !important;
+}
+
+.footer-links button:hover {
+  color: #17191c !important;
+}
+
+/* SCROLLBAR */
+* {
+  scrollbar-color: #c7cdd4 transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #c7cdd4 !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+</style>
 </head>
 
 <body>
-  <header class="topbar">
-    <button class="brand" id="brandButton" type="button">RiseUp</button>
 
-    <nav class="top-nav" aria-label="Main navigation">
-      <button class="top-nav-item active" data-page="home" type="button">
-        Home
+<header class="topbar">
+
+  <button class="brand" data-page="home" type="button">
+    <span class="logo">R</span>
+    <span class="brand-name">RiseUp</span>
+  </button>
+
+  <nav class="top-nav">
+    <button data-page="home" class="active" type="button">Home</button>
+    <button data-page="discover" type="button">Discover</button>
+    <button data-page="marketplace" type="button">Marketplace</button>
+    <button id="createButton" class="create-top" type="button">Create</button>
+  </nav>
+
+  <div class="top-actions">
+
+    <label class="search">
+      <input id="searchInput" type="search" placeholder="Search RiseUp" autocomplete="off">
+    </label>
+
+    <button class="icon-btn" id="messagesButton" type="button">M</button>
+    <button class="icon-btn" id="notificationsButton" type="button">N</button>
+
+    <button class="token-btn" id="tokenButton" type="button">
+      <span class="token-circle">T</span>
+      <span id="tokenBalance">0</span>
+    </button>
+
+    <button class="profile-btn" id="profileButton" type="button">R</button>
+
+  </div>
+</header>
+
+<aside class="sidebar">
+
+  <div class="sidebar-scroll">
+
+    <div class="side-group">
+
+      <button class="side-btn active" data-page="home" type="button">
+        <span class="label">Home</span>
       </button>
 
-      <button class="top-nav-item" data-page="discover" type="button">
-        Discover
+      <button class="side-btn" data-page="discover" type="button">
+        <span class="label">Discover</span>
       </button>
 
-      <button class="top-nav-item" data-page="marketplace" type="button">
-        Marketplace
+      <button class="side-btn" data-page="avatar" type="button">
+        <span class="label">Avatar</span>
       </button>
 
-      <a class="top-nav-item create-nav-button" href="studio.html">
-        Create
-      </a>
-    </nav>
-
-    <div class="top-actions">
-      <label class="search">
-        <span class="search-icon" aria-hidden="true"></span>
-        <input
-          id="searchInput"
-          type="search"
-          autocomplete="off"
-          placeholder="Search"
-        >
-      </label>
-
-      <button
-        class="icon-btn"
-        id="messagesButton"
-        type="button"
-        aria-label="Messages"
-      >
-        <span class="message-icon" aria-hidden="true"></span>
+      <button class="side-btn" data-page="inventory" type="button">
+        <span class="label">Inventory</span>
       </button>
 
-      <button
-        class="icon-btn"
-        id="notificationsButton"
-        type="button"
-        aria-label="Notifications"
-      >
-        <span class="bell-icon" aria-hidden="true"></span>
-      </button>
-
-      <button
-        class="rux"
-        id="ruxButton"
-        type="button"
-        aria-label="RUX balance"
-      >
-        <span class="rux-mark">R</span>
-        <span id="ruxAmount">0</span>
-      </button>
-
-      <button
-        class="avatar"
-        id="avatarButton"
-        type="button"
-        aria-label="Account"
-      >
-        <span id="avatarLetter">R</span>
-      </button>
     </div>
-  </header>
 
-  <div class="app">
-    <aside class="sidebar">
-      <div class="side-group">
-        <button
-          class="side-item active"
-          data-section="home"
-          type="button"
-        >
-          <span class="side-icon home-icon" aria-hidden="true"></span>
-          <span>Home</span>
-        </button>
+    <div class="side-divider"></div>
 
-        <button
-          class="side-item"
-          data-section="discover"
-          type="button"
-        >
-          <span class="side-icon compass-icon" aria-hidden="true"></span>
-          <span>Discover</span>
-        </button>
+    <div class="side-group">
 
-        <button
-          class="side-item"
-          data-section="avatar"
-          type="button"
-        >
-          <span class="side-icon user-icon" aria-hidden="true"></span>
-          <span>Avatar</span>
-        </button>
+      <button class="side-btn" data-page="friends" type="button">
+        <span class="label">Friends</span>
+        <span class="side-count" id="friendsCount">0</span>
+      </button>
 
-        <button
-          class="side-item"
-          data-section="inventory"
-          type="button"
-        >
-          <span class="side-icon inventory-icon" aria-hidden="true"></span>
-          <span>Inventory</span>
-        </button>
-      </div>
+      <button class="side-btn" data-page="messages" type="button">
+        <span class="label">Messages</span>
+      </button>
 
-      <div class="divider"></div>
+      <button class="side-btn" data-page="marketplace" type="button">
+        <span class="label">Marketplace</span>
+      </button>
 
-      <div class="side-group">
-        <button
-          class="side-item"
-          data-section="friends"
-          type="button"
-        >
-          <span class="side-icon friends-icon" aria-hidden="true"></span>
-          <span>Friends</span>
-          <span class="count" id="friendsCount">0</span>
-        </button>
+      <button class="side-btn" data-page="tokens" type="button">
+        <span class="label">Tokens</span>
+      </button>
 
-        <button
-          class="side-item"
-          data-section="messages"
-          type="button"
-        >
-          <span class="side-icon message-icon" aria-hidden="true"></span>
-          <span>Messages</span>
-        </button>
+    </div>
 
-        <button
-          class="side-item"
-          data-section="marketplace"
-          type="button"
-        >
-          <span class="side-icon shop-icon" aria-hidden="true"></span>
-          <span>Marketplace</span>
-        </button>
-      </div>
+    <div class="side-divider"></div>
 
-      <div class="divider"></div>
+    <div class="side-group">
 
-      <div class="side-group">
-        <a class="side-item" id="studioButton" href="studio.html">
-          <span class="side-icon cube-icon" aria-hidden="true"></span>
-          <span>Studio</span>
-        </a>
+      <button class="side-btn" id="studioButton" type="button">
+        <span class="label">Studio</span>
+      </button>
 
-        <a class="side-item" id="riseCodeButton" href="code.html">
-          <span class="side-icon code-icon" aria-hidden="true"></span>
-          <span>RiseCode</span>
-        </a>
+      <button class="side-btn" id="riseCodeButton" type="button">
+        <span class="label">RiseCode</span>
+      </button>
 
-        <button
-          class="side-item"
-          id="settingsButton"
-          type="button"
-        >
-          <span class="side-icon settings-icon" aria-hidden="true"></span>
-          <span>Settings</span>
-        </button>
-      </div>
+      <button class="side-btn" data-page="settings" type="button">
+        <span class="label">Settings</span>
+      </button>
 
-      <div class="sidebar-bottom">
-        <a class="create-button" href="studio.html">
-          <span>+</span>
-          <strong>Create</strong>
-        </a>
-      </div>
-    </aside>
+    </div>
 
-    <main class="content">
-      <section class="welcome">
-        <div>
-          <span class="eyebrow">RISEUP</span>
-
-          <h1>
-            Welcome back,
-            <span id="welcomeName">Creator</span>
-          </h1>
-
-          <p>
-            Jump back into your experiences or discover something new.
-          </p>
-        </div>
-
-        <a class="welcome-create-button" href="studio.html">
-          Create
-        </a>
-      </section>
-
-      <section class="feed-section" id="friendsSection">
-        <div class="section-header">
-          <h2>Friends</h2>
-
-          <button
-            class="view-button"
-            id="viewFriends"
-            type="button"
-          >
-            View All
-          </button>
-        </div>
-
-        <div
-          class="friends-row"
-          id="friendsRow"
-        ></div>
-      </section>
-
-      <section class="feed-section">
-        <div class="section-header">
-          <h2>Continue Playing</h2>
-
-          <button
-            class="view-button"
-            id="continueAll"
-            type="button"
-          >
-            View All
-          </button>
-        </div>
-
-        <div
-          class="games-grid"
-          id="continueGrid"
-        ></div>
-
-        <div
-          class="section-empty"
-          id="continueEmpty"
-        >
-          <div
-            class="empty-art"
-            aria-hidden="true"
-          >
-            <span></span>
-          </div>
-
-          <h3>No games to continue</h3>
-
-          <p>
-            Play an experience and it will appear here.
-          </p>
-        </div>
-      </section>
-
-      <section class="feed-section">
-        <div class="section-header">
-          <h2>Recommended For You</h2>
-
-          <button
-            class="view-button"
-            id="recommendedAll"
-            type="button"
-          >
-            View All
-          </button>
-        </div>
-
-        <div
-          class="games-grid"
-          id="recommendedGrid"
-        ></div>
-
-        <div
-          class="section-empty"
-          id="recommendedEmpty"
-        >
-          <div
-            class="empty-art"
-            aria-hidden="true"
-          >
-            <span></span>
-          </div>
-
-          <h3>No experiences yet</h3>
-
-          <p>
-            Be the first creator to make a game.
-          </p>
-
-          <a
-            class="primary-button"
-            id="emptyCreate"
-            href="studio.html"
-          >
-            Create a Game
-          </a>
-        </div>
-      </section>
-
-      <section
-        class="feed-section"
-        id="allGamesSection"
-      >
-        <div class="section-header">
-          <h2>All Experiences</h2>
-        </div>
-
-        <div
-          class="games-grid"
-          id="allGamesGrid"
-        ></div>
-
-        <div
-          class="section-empty"
-          id="allEmpty"
-        >
-          <div
-            class="empty-art"
-            aria-hidden="true"
-          >
-            <span></span>
-          </div>
-
-          <h3>No games yet</h3>
-
-          <p>
-            Be the first creator to make a game.
-          </p>
-
-          <a
-            class="primary-button"
-            id="allCreate"
-            href="studio.html"
-          >
-            Create a Game
-          </a>
-        </div>
-      </section>
-    </main>
   </div>
 
-  <div
-    class="profile-menu"
-    id="profileMenu"
-  >
-    <div
-      class="profile-menu-name"
-      id="menuName"
-    >
-      Creator
-    </div>
-
-    <a
-      id="profileStudio"
-      href="studio.html"
-    >
-      Studio
-    </a>
-
-    <a
-      id="profileCode"
-      href="code.html"
-    >
-      RiseCode
-    </a>
-
-    <button
-      id="logoutButton"
-      class="danger"
-      type="button"
-    >
-      Log Out
+  <div class="side-bottom">
+    <button class="side-create" id="sidebarCreate" type="button">
+      + Create
     </button>
   </div>
 
-  <div
-    class="toast"
-    id="toast"
-    role="status"
-    aria-live="polite"
-  ></div>
+</aside>
 
-  <script src="home.js"></script>
+<main class="main">
+
+<!-- ================= HOME ================= -->
+
+<section class="page active" data-page-content="home">
+
+  <div class="hero">
+
+    <div>
+      <span class="eyebrow">RISEUP</span>
+
+      <h1>
+        Welcome back,
+        <span id="welcomeName">Creator</span>
+      </h1>
+
+      <p>
+        Play experiences, build worlds, and create something of your own.
+      </p>
+    </div>
+
+    <button class="primary" data-open-studio type="button">
+      Create a Game
+    </button>
+
+  </div>
+
+  <section class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Friends</h2>
+        <p>People in your RiseUp community.</p>
+      </div>
+
+      <button class="link" data-page="friends" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="friend-grid" id="homeFriends"></div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Continue Playing</h2>
+        <p>Your recent experiences.</p>
+      </div>
+
+      <button class="link" data-page="discover" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="grid" id="continueGames"></div>
+
+    <div class="empty" id="continueEmpty">
+      <div class="empty-art"></div>
+      <h3>No games to continue</h3>
+      <p>Play an experience and it will appear here.</p>
+    </div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Recommended For You</h2>
+        <p>Experiences from the RiseUp community.</p>
+      </div>
+
+      <button class="link" data-page="discover" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="grid" id="recommendedGames"></div>
+
+    <div class="empty" id="recommendedEmpty">
+      <div class="empty-art"></div>
+      <h3>No games yet</h3>
+      <p>Be the first creator to make a game.</p>
+
+      <button class="primary" data-open-studio type="button">
+        Create a Game
+      </button>
+    </div>
+
+  </section>
+
+</section>
+
+<!-- ================= DISCOVER ================= -->
+
+<section class="page" data-page-content="discover">
+
+  <div class="page-header">
+    <span class="eyebrow">EXPLORE</span>
+    <h1>Discover</h1>
+    <p class="subtitle">
+      Find games made by the RiseUp community.
+    </p>
+  </div>
+
+  <div class="tabs">
+
+    <button class="tab active" data-discover="all" type="button">
+      All
+    </button>
+
+    <button class="tab" data-discover="recent" type="button">
+      Recent
+    </button>
+
+    <button class="tab" data-discover="mine" type="button">
+      My Games
+    </button>
+
+  </div>
+
+  <div class="grid" id="discoverGrid"></div>
+
+  <div class="empty" id="discoverEmpty">
+    <div class="empty-art"></div>
+    <h3>No games yet</h3>
+    <p>Be the first creator to make a game.</p>
+
+    <button class="primary" data-open-studio type="button">
+      Create a Game
+    </button>
+  </div>
+
+</section>
+
+<!-- ================= AVATAR ================= -->
+
+<section class="page" data-page-content="avatar">
+
+  <div class="page-header">
+    <span class="eyebrow">CHARACTER</span>
+    <h1>Avatar</h1>
+    <p class="subtitle">
+      Customize your RiseUp character.
+    </p>
+  </div>
+
+  <div class="avatar-layout">
+
+    <section class="card avatar-preview-card">
+
+      <div class="avatar-preview">
+
+        <div class="avatar-head">
+          <span class="eye left"></span>
+          <span class="eye right"></span>
+          <span class="smile"></span>
+        </div>
+
+        <div class="avatar-body"></div>
+
+        <div class="avatar-arms">
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="avatar-legs">
+          <span></span>
+          <span></span>
+        </div>
+
+      </div>
+
+      <div class="avatar-name" id="avatarName">
+        Creator
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <h2 style="font-size:15px;margin:0 0 10px;">
+        Appearance
+      </h2>
+
+      <div class="setting-row">
+        <span>Head</span>
+        <button class="choice active"
+          data-color-part="head"
+          data-color="#FFE047"
+          type="button">
+          Yellow
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <span>Body</span>
+        <button class="choice active"
+          data-color-part="body"
+          data-color="#249BFF"
+          type="button">
+          Blue
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <span>Legs</span>
+        <button class="choice active"
+          data-color-part="legs"
+          data-color="#00A82D"
+          type="button">
+          Green
+        </button>
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+<!-- ================= INVENTORY ================= -->
+
+<section class="page" data-page-content="inventory">
+
+  <div class="page-header">
+    <span class="eyebrow">COLLECTION</span>
+    <h1>Inventory</h1>
+    <p class="subtitle">
+      Your items and creator assets.
+    </p>
+  </div>
+
+  <div class="tabs">
+
+    <button class="tab active"
+      data-inventory="items"
+      type="button">
+      Items
+    </button>
+
+    <button class="tab"
+      data-inventory="models"
+      type="button">
+      Models
+    </button>
+
+    <button class="tab"
+      data-inventory="passes"
+      type="button">
+      Game Passes
+    </button>
+
+  </div>
+
+  <div class="inventory-grid" id="inventoryGrid"></div>
+
+</section>
+
+<!-- ================= FRIENDS ================= -->
+
+<section class="page" data-page-content="friends">
+
+  <div class="page-header">
+    <span class="eyebrow">SOCIAL</span>
+    <h1>Friends</h1>
+    <p class="subtitle">
+      Connect with people on RiseUp.
+    </p>
+  </div>
+
+  <div class="toolbar">
+
+    <input
+      id="friendSearch"
+      type="search"
+      placeholder="Search users..."
+      autocomplete="off"
+    >
+
+    <button class="primary"
+      id="addFriendButton"
+      type="button">
+      Add Friend
+    </button>
+
+  </div>
+
+  <div class="friend-grid" id="friendsGrid"></div>
+
+</section>
+
+<!-- ================= MESSAGES ================= -->
+
+<section class="page" data-page-content="messages">
+
+  <div class="page-header">
+    <span class="eyebrow">SOCIAL</span>
+    <h1>Messages</h1>
+    <p class="subtitle">
+      Your RiseUp conversations.
+    </p>
+  </div>
+
+  <div class="messages">
+
+    <div class="conversations" id="conversationList"></div>
+
+    <div class="chat" id="chatPanel">
+
+      <div class="empty"
+        style="height:100%;min-height:470px;border:0;border-radius:0;">
+        <h3>No conversation selected</h3>
+        <p>Select a conversation to begin.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ================= MARKETPLACE ================= -->
+
+<section class="page" data-page-content="marketplace">
+
+  <div class="page-header market-head">
+
+    <div>
+      <span class="eyebrow">RISEUP MARKETPLACE</span>
+      <h1>Marketplace</h1>
+      <p class="subtitle">
+        Discover items, assets, and creator content.
+      </p>
+    </div>
+
+    <div class="balance">
+      <span>Tokens</span>
+      <strong id="marketTokens">0</strong>
+    </div>
+
+  </div>
+
+  <div class="tabs">
+
+    <button class="tab active"
+      data-market="featured"
+      type="button">
+      Featured
+    </button>
+
+    <button class="tab"
+      data-market="avatar"
+      type="button">
+      Avatar
+    </button>
+
+    <button class="tab"
+      data-market="models"
+      type="button">
+      Models
+    </button>
+
+    <button class="tab"
+      data-market="effects"
+      type="button">
+      Effects
+    </button>
+
+  </div>
+
+  <div class="market-grid" id="marketGrid"></div>
+
+</section>
+
+<!-- ================= TOKENS ================= -->
+
+<section class="page" data-page-content="tokens">
+
+  <div class="page-header">
+    <span class="eyebrow">RISEUP TOKENS</span>
+    <h1>Token Center</h1>
+    <p class="subtitle">
+      Earn free Tokens while using RiseUp.
+    </p>
+  </div>
+
+  <div class="token-hero">
+
+    <div class="token-total">
+
+      <div class="token-big">T</div>
+
+      <div>
+        <strong id="centerTokens">0</strong>
+        <span>Your current Token balance</span>
+      </div>
+
+    </div>
+
+    <button class="primary"
+      id="monthlyClaim"
+      type="button">
+      Claim Monthly 10
+    </button>
+
+  </div>
+
+  <div class="token-grid">
+
+    <article class="token-card">
+
+      <h3>Monthly Reward</h3>
+
+      <div class="token-value">
+        +10 Tokens
+      </div>
+
+      <p>
+        Receive 10 free Tokens once every month.
+      </p>
+
+      <button class="secondary"
+        id="monthlyCardButton"
+        type="button">
+        Claim Monthly
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Daily Reward</h3>
+
+      <div class="token-value">
+        +1 Token
+      </div>
+
+      <p>
+        Daily free rewards can be added later.
+      </p>
+
+      <button class="secondary"
+        id="dailyButton"
+        type="button">
+        Coming Soon
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Weekly Reward</h3>
+
+      <div class="token-value">
+        +5 Tokens
+      </div>
+
+      <p>
+        Weekly free rewards can be added later.
+      </p>
+
+      <button class="secondary"
+        id="weeklyButton"
+        type="button">
+        Coming Soon
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Creator Rewards</h3>
+
+      <div class="token-value">
+        Earn Tokens
+      </div>
+
+      <p>
+        Future creator systems can reward successful experiences.
+      </p>
+
+      <button class="secondary"
+        id="creatorRewardButton"
+        type="button">
+        Learn More
+      </button>
+
+    </article>
+
+  </div>
+
+  <div class="token-note">
+    Tokens are currently free prototype currency. No real-money purchases are enabled.
+  </div>
+
+</section>
+
+<!-- ================= SETTINGS ================= -->
+
+<section class="page" data-page-content="settings">
+
+  <div class="page-header">
+    <span class="eyebrow">PREFERENCES</span>
+    <h1>Settings</h1>
+    <p class="subtitle">
+      Manage your RiseUp experience.
+    </p>
+  </div>
+
+  <div class="settings">
+
+    <section class="card">
+
+      <h2 style="font-size:13px;margin:0 0 8px;">
+        Account
+      </h2>
+
+      <div class="settings-row">
+        <div>
+          <strong>Username</strong>
+          <small id="settingsUsername">
+            Creator
+          </small>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <strong>Tokens</strong>
+          <small id="settingsTokenValue">
+            0
+          </small>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <h2 style="font-size:13px;margin:0 0 8px;">
+        Preferences
+      </h2>
+
+      <label class="settings-row">
+
+        <div>
+          <strong>Reduced motion</strong>
+          <small>Reduce interface animation.</small>
+        </div>
+
+        <input id="reducedMotion" type="checkbox">
+
+      </label>
+
+    </section>
+
+    <section class="card danger">
+
+      <h2 style="font-size:13px;margin:0 0 10px;">
+        Account Actions
+      </h2>
+
+      <button
+        class="danger-btn"
+        id="logoutButton"
+        type="button">
+        Log Out
+      </button>
+
+    </section>
+
+  </div>
+
+</section>
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+  <button class="footer-brand"
+    data-page="home"
+    type="button">
+
+    <span class="footer-logo">R</span>
+
+    <span>
+      <strong>RiseUp</strong>
+      <small>Create. Play. Rise.</small>
+    </span>
+
+  </button>
+
+  <nav class="footer-links">
+
+    <button data-info="about" type="button">About</button>
+    <button data-info="careers" type="button">Careers</button>
+    <button data-info="help" type="button">Help</button>
+    <button data-info="terms" type="button">Terms</button>
+    <button data-info="privacy" type="button">Privacy</button>
+
+  </nav>
+
+  <span class="footer-copy">
+    © 2026 RiseUp
+  </span>
+
+</footer>
+
+</main>
+
+<!-- ================= PROFILE POPUP ================= -->
+
+<div class="popup" id="profilePopup">
+
+  <div class="popup-header">
+
+    <div class="popup-avatar" id="popupAvatar">R</div>
+
+    <div class="popup-user">
+      <strong id="popupName">Creator</strong>
+      <span id="popupUsername">@Creator</span>
+    </div>
+
+  </div>
+
+  <button data-page="avatar" type="button">Avatar</button>
+  <button data-page="inventory" type="button">Inventory</button>
+  <button data-page="friends" type="button">Friends</button>
+  <button data-page="settings" type="button">Settings</button>
+
+  <div class="popup-divider"></div>
+
+  <button id="profileStudio" type="button">Studio</button>
+  <button id="profileCode" type="button">RiseCode</button>
+
+  <div class="popup-divider"></div>
+
+  <button id="profileLogout"
+    type="button"
+    style="color:#ef9999;">
+    Log Out
+  </button>
+
+</div>
+
+<!-- ================= CREATE POPUP ================= -->
+
+<div class="popup" id="createPopup">
+
+  <div class="create-label">
+    CREATE
+  </div>
+
+  <button class="create-item"
+    id="createStudio"
+    type="button">
+
+    <span class="create-icon">3D</span>
+
+    <span>
+      <strong>RiseUp Studio</strong><br>
+      <span style="color:var(--muted2);font-size:7px;">
+        Build your game
+      </span>
+    </span>
+
+  </button>
+
+  <button class="create-item"
+    id="createCode"
+    type="button">
+
+    <span class="create-icon">&lt;&gt;</span>
+
+    <span>
+      <strong>RiseCode</strong><br>
+      <span style="color:var(--muted2);font-size:7px;">
+        Code your game
+      </span>
+    </span>
+
+  </button>
+
+</div>
+
+<!-- ================= NOTIFICATION POPUP ================= -->
+
+<div class="popup" id="notificationPopup">
+
+  <div class="popup-title">
+    Notifications
+  </div>
+
+  <div class="popup-list" id="notificationList"></div>
+
+</div>
+
+<!-- ================= MESSAGE POPUP ================= -->
+
+<div class="popup" id="messagePopup">
+
+  <div class="popup-title">
+    Messages
+  </div>
+
+  <div class="popup-list" id="quickMessages"></div>
+
+  <button
+    id="openMessagesPage"
+    type="button"
+    style="padding:10px;">
+    Open Messages
+  </button>
+
+</div>
+
+<!-- ================= TOKEN POPUP ================= -->
+
+<div class="popup" id="tokenPopup">
+
+  <div class="token-popup-symbol">T</div>
+
+  <div class="token-popup">
+
+    <strong>Your Tokens</strong>
+
+    <div class="token-popup-balance">
+      <span id="popupTokens">0</span> Tokens
+    </div>
+
+    <button
+      class="primary"
+      id="openTokensPage"
+      type="button"
+      style="width:100%;">
+      Open Token Center
+    </button>
+
+  </div>
+
+</div>
+
+<!-- ================= FRIEND MODAL ================= -->
+
+<div class="modal-backdrop hidden" id="friendModal">
+
+  <div class="modal">
+
+    <button
+      class="modal-close"
+      data-close="friendModal"
+      type="button">
+      X
+    </button>
+
+    <span class="eyebrow">SOCIAL</span>
+
+    <h2>Add Friend</h2>
+
+    <p>
+      Enter a RiseUp username.
+    </p>
+
+    <input
+      id="friendInput"
+      type="text"
+      placeholder="Username"
+      autocomplete="off">
+
+    <div class="modal-actions">
+
+      <button
+        class="secondary"
+        data-close="friendModal"
+        type="button">
+        Cancel
+      </button>
+
+      <button
+        class="primary"
+        id="confirmFriend"
+        type="button">
+        Add Friend
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ================= INFO MODAL ================= -->
+
+<div class="modal-backdrop hidden" id="infoModal">
+
+  <div class="modal">
+
+    <button
+      class="modal-close"
+      data-close="infoModal"
+      type="button">
+      X
+    </button>
+
+    <span class="eyebrow" id="infoEyebrow">
+      RISEUP
+    </span>
+
+    <h2 id="infoTitle">
+      RiseUp
+    </h2>
+
+    <p id="infoText">
+      Welcome to RiseUp.
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="primary"
+        data-close="infoModal"
+        type="button">
+        Close
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+
+"use strict";
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const KEYS = {
+  user:"riseup_currentUser",
+  games:"riseup_games",
+  friends:"riseup_friends",
+  inventory:"riseup_inventory",
+  messages:"riseup_messages",
+  notifications:"riseup_notifications",
+  avatar:"riseup_avatar",
+  settings:"riseup_settings",
+  tokens:"riseup_tokens",
+  monthly:"riseup_monthly_token"
+};
+
+const state = {
+  page:"home",
+  discover:"all",
+  inventory:"items",
+  market:"featured",
+  search:"",
+  selectedMessage:null
+};
+
+const MARKET = [
+  {
+    name:"Classic Block Pack",
+    type:"Models",
+    category:"models",
+    price:25
+  },
+  {
+    name:"Modern Avatar Bundle",
+    type:"Avatar",
+    category:"avatar",
+    price:75
+  },
+  {
+    name:"City Environment",
+    type:"Models",
+    category:"models",
+    price:120
+  },
+  {
+    name:"Energy Effect Pack",
+    type:"Effects",
+    category:"effects",
+    price:50
+  },
+  {
+    name:"Creator Starter Pack",
+    type:"Featured",
+    category:"featured",
+    price:100
+  }
+];
+
+const INFO = {
+  about:{
+    eyebrow:"ABOUT",
+    title:"About RiseUp",
+    text:"RiseUp is a creator-focused platform for making, sharing, discovering, and playing interactive experiences."
+  },
+
+  careers:{
+    eyebrow:"CAREERS",
+    title:"Careers",
+    text:"RiseUp careers will be added as the platform grows."
+  },
+
+  help:{
+    eyebrow:"HELP",
+    title:"Help",
+    text:"Use RiseUp Studio to build games and RiseCode to script them. More creator tools will be added over time."
+  },
+
+  terms:{
+    eyebrow:"TERMS",
+    title:"Terms",
+    text:"RiseUp terms cover use of the platform, publishing experiences, and participation in the community."
+  },
+
+  privacy:{
+    eyebrow:"PRIVACY",
+    title:"Privacy",
+    text:"RiseUp is designed to keep account information, settings, and public experience information separated."
+  }
+};
+
+let toastTimer = null;
+
+/* =========================================================
+   START
+========================================================= */
+
+document.addEventListener("DOMContentLoaded",function(){
+
+  setupEvents();
+  renderAll();
+  navigate("home");
+
+});
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function setupEvents(){
+
+  document.addEventListener("click",handleClick);
+
+  document.addEventListener("keydown",function(event){
+
+    if(event.key === "Escape"){
+
+      closePopups();
+
+      document
+        .querySelectorAll(".modal-backdrop")
+        .forEach(modal=>{
+          modal.classList.add("hidden");
+        });
+
+    }
+
+  });
+
+  document
+    .getElementById("searchInput")
+    ?.addEventListener("input",function(event){
+
+      state.search =
+        event.target.value
+          .trim()
+          .toLowerCase();
+
+      navigate(
+        state.search
+          ? "discover"
+          : state.page
+      );
+
+    });
+
+  document
+    .getElementById("friendSearch")
+    ?.addEventListener("input",renderFriends);
+
+  document
+    .getElementById("friendInput")
+    ?.addEventListener("keydown",function(event){
+
+      if(event.key === "Enter"){
+        addFriend();
+      }
+
+    });
+
+  document
+    .getElementById("monthlyClaim")
+    ?.addEventListener("click",claimMonthly);
+
+  document
+    .getElementById("monthlyCardButton")
+    ?.addEventListener("click",claimMonthly);
+
+  document
+    .getElementById("dailyButton")
+    ?.addEventListener("click",function(){
+      toast("Daily rewards are coming soon.");
+    });
+
+  document
+    .getElementById("weeklyButton")
+    ?.addEventListener("click",function(){
+      toast("Weekly rewards are coming soon.");
+    });
+
+  document
+    .getElementById("creatorRewardButton")
+    ?.addEventListener("click",function(){
+
+      showInfo(
+        "CREATOR REWARDS",
+        "Creator Token rewards can be added later when RiseUp's creator economy is ready."
+      );
+
+    });
+
+  document
+    .getElementById("reducedMotion")
+    ?.addEventListener("change",function(event){
+
+      const settings = getSettings();
+
+      settings.reducedMotion =
+        event.target.checked;
+
+      saveSettings(settings);
+
+    });
+
+}
+
+/* =========================================================
+   ONE BUTTON SYSTEM
+========================================================= */
+
+function handleClick(event){
+
+  const button =
+    event.target.closest("button");
+
+  if(!button){
+    return;
+  }
+
+  /* PAGE BUTTONS */
+
+  if(button.dataset.page){
+
+    closePopups();
+
+    navigate(
+      button.dataset.page
+    );
+
+    return;
+  }
+
+  /* PAGE ACTION */
+
+  if(button.dataset.openStudio !== undefined){
+
+    openStudio();
+
+    return;
+  }
+
+  /* FOOTER INFO */
+
+  if(button.dataset.info){
+
+    showInfoModal(
+      button.dataset.info
+    );
+
+    return;
+  }
+
+  /* CLOSE MODAL */
+
+  if(button.dataset.close){
+
+    closeModal(
+      button.dataset.close
+    );
+
+    return;
+  }
+
+  /* DISCOVER FILTER */
+
+  if(button.dataset.discover){
+
+    state.discover =
+      button.dataset.discover;
+
+    updateTabs(
+      "[data-discover]",
+      "discover",
+      state.discover
+    );
+
+    renderDiscover();
+
+    return;
+  }
+
+  /* INVENTORY FILTER */
+
+  if(button.dataset.inventory){
+
+    state.inventory =
+      button.dataset.inventory;
+
+    updateTabs(
+      "[data-inventory]",
+      "inventory",
+      state.inventory
+    );
+
+    renderInventory();
+
+    return;
+  }
+
+  /* MARKET FILTER */
+
+  if(button.dataset.market){
+
+    state.market =
+      button.dataset.market;
+
+    updateTabs(
+      "[data-market]",
+      "market",
+      state.market
+    );
+
+    renderMarketplace();
+
+    return;
+  }
+
+  /* AVATAR */
+
+  if(button.dataset.colorPart){
+
+    setAvatarColor(
+      button.dataset.colorPart,
+      button.dataset.color
+    );
+
+    return;
+  }
+
+  /* MARKET BUY */
+
+  if(button.dataset.buyIndex !== undefined){
+
+    buyItem(
+      Number(
+        button.dataset.buyIndex
+      )
+    );
+
+    return;
+  }
+
+  /* PROFILE */
+
+  if(button.id === "profileButton"){
+
+    togglePopup(
+      "profilePopup"
+    );
+
+    return;
+  }
+
+  /* CREATE */
+
+  if(
+    button.id === "createButton" ||
+    button.id === "sidebarCreate"
+  ){
+
+    togglePopup(
+      "createPopup"
+    );
+
+    return;
+  }
+
+  /* MESSAGES */
+
+  if(button.id === "messagesButton"){
+
+    togglePopup(
+      "messagePopup"
+    );
+
+    renderQuickMessages();
+
+    return;
+  }
+
+  if(button.id === "openMessagesPage"){
+
+    closePopups();
+
+    navigate(
+      "messages"
+    );
+
+    return;
+  }
+
+  /* NOTIFICATIONS */
+
+  if(button.id === "notificationsButton"){
+
+    togglePopup(
+      "notificationPopup"
+    );
+
+    renderNotifications();
+
+    return;
+  }
+
+  /* TOKENS */
+
+  if(button.id === "tokenButton"){
+
+    togglePopup(
+      "tokenPopup"
+    );
+
+    updateTokenUI();
+
+    return;
+  }
+
+  if(button.id === "openTokensPage"){
+
+    closePopups();
+
+    navigate(
+      "tokens"
+    );
+
+    return;
+  }
+
+  /* STUDIO */
+
+  if(
+    button.id === "studioButton" ||
+    button.id === "profileStudio" ||
+    button.id === "createStudio"
+  ){
+
+    openStudio();
+
+    return;
+  }
+
+  /* RISECODE */
+
+  if(
+    button.id === "riseCodeButton" ||
+    button.id === "profileCode" ||
+    button.id === "createCode"
+  ){
+
+    openRiseCode();
+
+    return;
+  }
+
+  /* LOGOUT */
+
+  if(
+    button.id === "profileLogout" ||
+    button.id === "logoutButton"
+  ){
+
+    logout();
+
+    return;
+  }
+
+  /* ADD FRIEND */
+
+  if(button.id === "addFriendButton"){
+
+    openModal(
+      "friendModal"
+    );
+
+    return;
+  }
+
+  if(button.id === "confirmFriend"){
+
+    addFriend();
+
+    return;
+  }
+
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function navigate(page){
+
+  const valid = [
+    "home",
+    "discover",
+    "avatar",
+    "inventory",
+    "friends",
+    "messages",
+    "marketplace",
+    "tokens",
+    "settings"
+  ];
+
+  if(!valid.includes(page)){
+    page = "home";
+  }
+
+  state.page = page;
+
+  document
+    .querySelectorAll("[data-page-content]")
+    .forEach(section=>{
+
+      section.classList.toggle(
+        "active",
+        section.dataset.pageContent === page
+      );
+
+    });
+
+  document
+    .querySelectorAll(".top-nav button[data-page]")
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === page
+      );
+
+    });
+
+  document
+    .querySelectorAll(".side-btn[data-page]")
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === page
+      );
+
+    });
+
+  closePopups();
+
+  renderPage(page);
+
+  window.scrollTo({
+    top:0,
+    left:0,
+    behavior:
+      getSettings().reducedMotion
+        ? "auto"
+        : "smooth"
+  });
+
+}
+
+function renderPage(page){
+
+  switch(page){
+
+    case "home":
+      renderHome();
+      break;
+
+    case "discover":
+      renderDiscover();
+      break;
+
+    case "avatar":
+      renderAvatar();
+      break;
+
+    case "inventory":
+      renderInventory();
+      break;
+
+    case "friends":
+      renderFriends();
+      break;
+
+    case "messages":
+      renderMessages();
+      break;
+
+    case "marketplace":
+      renderMarketplace();
+      break;
+
+    case "tokens":
+      renderTokens();
+      break;
+
+    case "settings":
+      renderSettings();
+      break;
+
+  }
+
+}
+
+/* =========================================================
+   APP NAVIGATION
+========================================================= */
+
+function openStudio(){
+
+  closePopups();
+
+  window.location.href =
+    "./studio.html";
+
+}
+
+function openRiseCode(){
+
+  closePopups();
+
+  window.location.href =
+    "./code.html";
+
+}
+
+/* =========================================================
+   USER
+========================================================= */
+
+function getStoredUser(){
+
+  try{
+
+    const raw =
+      localStorage.getItem(
+        KEYS.user
+      );
+
+    if(!raw){
+      return "Creator";
+    }
+
+    try{
+      return JSON.parse(raw);
+    }catch{
+      return raw;
+    }
+
+  }catch{
+    return "Creator";
+  }
+
+}
+
+function getUsername(){
+
+  const user =
+    getStoredUser();
+
+  if(!user){
+    return "Creator";
+  }
+
+  if(typeof user === "string"){
+    return user;
+  }
+
+  return (
+    user.username ||
+    user.name ||
+    user.user ||
+    user.displayName ||
+    "Creator"
+  );
+
+}
+
+function getDisplayName(){
+
+  const user =
+    getStoredUser();
+
+  if(!user){
+    return "Creator";
+  }
+
+  if(typeof user === "string"){
+    return user;
+  }
+
+  return (
+    user.displayName ||
+    user.username ||
+    user.name ||
+    user.user ||
+    "Creator"
+  );
+
+}
+
+function renderUser(){
+
+  const name =
+    getDisplayName();
+
+  const username =
+    getUsername();
+
+  const letter =
+    name.charAt(0).toUpperCase() ||
+    "R";
+
+  setText(
+    "welcomeName",
+    name
+  );
+
+  setText(
+    "avatarName",
+    name
+  );
+
+  setText(
+    "profileButton",
+    letter
+  );
+
+  setText(
+    "popupAvatar",
+    letter
+  );
+
+  setText(
+    "popupName",
+    name
+  );
+
+  setText(
+    "popupUsername",
+    "@" + username
+  );
+
+  setText(
+    "settingsUsername",
+    username
+  );
+
+}
+
+/* =========================================================
+   TOKENS
+========================================================= */
+
+function tokenKey(){
+
+  return (
+    KEYS.tokens +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getTokens(){
+
+  const value =
+    Number(
+      localStorage.getItem(
+        tokenKey()
+      )
+    );
+
+  if(
+    !Number.isFinite(value) ||
+    value < 0
+  ){
+    return 0;
+  }
+
+  return Math.floor(
+    value
+  );
+
+}
+
+function setTokens(value){
+
+  const amount =
+    Math.max(
+      0,
+      Math.floor(
+        Number(value) || 0
+      )
+    );
+
+  localStorage.setItem(
+    tokenKey(),
+    String(amount)
+  );
+
+  updateTokenUI();
+
+}
+
+function monthKey(){
+
+  return (
+    KEYS.monthly +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function currentMonth(){
+
+  const date =
+    new Date();
+
+  return (
+    date.getFullYear() +
+    "-" +
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0")
+  );
+
+}
+
+function claimMonthly(){
+
+  const month =
+    currentMonth();
+
+  if(
+    localStorage.getItem(
+      monthKey()
+    ) === month
+  ){
+
+    toast(
+      "Your 10 Tokens were already claimed this month."
+    );
+
+    return;
+
+  }
+
+  setTokens(
+    getTokens() + 10
+  );
+
+  localStorage.setItem(
+    monthKey(),
+    month
+  );
+
+  updateMonthlyButton();
+
+  toast(
+    "+10 Tokens added."
+  );
+
+}
+
+function updateMonthlyButton(){
+
+  const button =
+    document.getElementById(
+      "monthlyClaim"
+    );
+
+  if(!button){
+    return;
+  }
+
+  const claimed =
+    localStorage.getItem(
+      monthKey()
+    ) === currentMonth();
+
+  button.disabled =
+    claimed;
+
+  button.textContent =
+    claimed
+      ? "Claimed This Month"
+      : "Claim Monthly 10";
+
+  button.style.opacity =
+    claimed
+      ? ".55"
+      : "1";
+
+}
+
+function updateTokenUI(){
+
+  const tokens =
+    getTokens();
+
+  setText(
+    "tokenBalance",
+    tokens
+  );
+
+  setText(
+    "marketTokens",
+    tokens
+  );
+
+  setText(
+    "centerTokens",
+    tokens
+  );
+
+  setText(
+    "popupTokens",
+    tokens
+  );
+
+  setText(
+    "settingsTokenValue",
+    tokens
+  );
+
+  updateMonthlyButton();
+
+}
+
+function renderTokens(){
+
+  updateTokenUI();
+
+}
+
+/* =========================================================
+   GAMES
+========================================================= */
+
+function getGames(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          KEYS.games
+        ) || "[]"
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  }catch{
+    return [];
+  }
+
+}
+
+function matchesSearch(game){
+
+  if(!state.search){
+    return true;
+  }
+
+  const text = [
+    game.name,
+    game.title,
+    game.creator,
+    game.owner,
+    game.description
+  ]
+  .join(" ")
+  .toLowerCase();
+
+  return text.includes(
+    state.search
+  );
+
+}
+
+function renderHome(){
+
+  const games =
+    getGames()
+      .filter(matchesSearch);
+
+  const current =
+    getUsername()
+      .toLowerCase();
+
+  const mine =
+    games.filter(game=>
+      String(
+        game.owner ||
+        game.creator ||
+        ""
+      ).toLowerCase() === current
+    );
+
+  renderGameGrid(
+    document.getElementById("continueGames"),
+    mine.slice(0,4)
+  );
+
+  renderGameGrid(
+    document.getElementById("recommendedGames"),
+    games.slice(0,8)
+  );
+
+  show(
+    "continueEmpty",
+    mine.length === 0
+  );
+
+  show(
+    "recommendedEmpty",
+    games.length === 0
+  );
+
+  renderHomeFriends();
+
+}
+
+function renderDiscover(){
+
+  let games =
+    getGames()
+      .filter(matchesSearch);
+
+  if(
+    state.discover === "recent"
+  ){
+
+    games.sort(
+      (a,b)=>
+        new Date(
+          b.updatedAt ||
+          b.createdAt ||
+          0
+        ) -
+        new Date(
+          a.updatedAt ||
+          a.createdAt ||
+          0
+        )
+    );
+
+  }
+
+  if(
+    state.discover === "mine"
+  ){
+
+    const current =
+      getUsername()
+        .toLowerCase();
+
+    games =
+      games.filter(game=>
+        String(
+          game.owner ||
+          game.creator ||
+          ""
+        ).toLowerCase() === current
+      );
+
+  }
+
+  renderGameGrid(
+    document.getElementById("discoverGrid"),
+    games
+  );
+
+  show(
+    "discoverEmpty",
+    games.length === 0
+  );
+
+}
+
+function renderGameGrid(container,games){
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML =
+    "";
+
+  games.forEach(game=>{
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.type =
+      "button";
+
+    button.className =
+      "game";
+
+    const image =
+      document.createElement(
+        "div"
+      );
+
+    image.className =
+      "game-image";
+
+    image.textContent =
+      "R";
+
+    if(game.thumbnail){
+
+      image.style.backgroundImage =
+        'url("' +
+        safeUrl(
+          game.thumbnail
+        ) +
+        '")';
+
+      image.style.backgroundSize =
+        "cover";
+
+      image.style.backgroundPosition =
+        "center";
+
+    }
+
+    const infoBox =
+      document.createElement(
+        "div"
+      );
+
+    infoBox.className =
+      "game-info";
+
+    const title =
+      document.createElement(
+        "div"
+      );
+
+    title.className =
+      "game-title";
+
+    title.textContent =
+      game.name ||
+      game.title ||
+      "Untitled Experience";
+
+    const creator =
+      document.createElement(
+        "div"
+      );
+
+    creator.className =
+      "game-creator";
+
+    creator.textContent =
+      "By " +
+      (
+        game.creator ||
+        game.owner ||
+        "Unknown Creator"
+      );
+
+    infoBox.appendChild(
+      title
+    );
+
+    infoBox.appendChild(
+      creator
+    );
+
+    button.appendChild(
+      image
+    );
+
+    button.appendChild(
+      infoBox
+    );
+
+    button.addEventListener(
+      "click",
+      function(){
+
+        localStorage.setItem(
+          "riseup_play_game_id",
+          game.id
+        );
+
+        openStudio();
+
+      }
+    );
+
+    container.appendChild(
+      button
+    );
+
+  });
+
+}
+
+/* =========================================================
+   FRIENDS
+========================================================= */
+
+function friendsKey(){
+
+  return (
+    KEYS.friends +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getFriends(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          friendsKey()
+        ) || "[]"
+      );
+
+    if(
+      !Array.isArray(data)
+    ){
+      return [];
+    }
+
+    return data.map(item=>{
+
+      if(typeof item === "string"){
+        return {
+          name:item
+        };
+      }
+
+      return {
+        name:
+          item.name ||
+          item.username ||
+          item.displayName ||
+          "Friend"
+      };
+
+    });
+
+  }catch{
+    return [];
+  }
+
+}
+
+function saveFriends(list){
+
+  localStorage.setItem(
+    friendsKey(),
+    JSON.stringify(list)
+  );
+
+}
+
+function renderHomeFriends(){
+
+  const container =
+    document.getElementById(
+      "homeFriends"
+    );
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML =
+    "";
+
+  const friends =
+    getFriends();
+
+  if(!friends.length){
+
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;min-height:110px;">
+        <h3>No friends yet</h3>
+        <p>Add friends to see them here.</p>
+      </div>
+      `;
+
+    return;
+
+  }
+
+  friends
+    .slice(0,8)
+    .forEach(friend=>{
+      container.appendChild(
+        makeFriendCard(
+          friend
+        )
+      );
+    });
+
+}
+
+function renderFriends(){
+
+  const container =
+    document.getElementById(
+      "friendsGrid"
+    );
+
+  if(!container){
+    return;
+  }
+
+  const search =
+    document
+      .getElementById(
+        "friendSearch"
+      )
+      ?.value
+      .trim()
+      .toLowerCase() ||
+    "";
+
+  const friends =
+    getFriends()
+      .filter(friend=>
+        !search ||
+        friend.name
+          .toLowerCase()
+          .includes(search)
+      );
+
+  container.innerHTML =
+    "";
+
+  if(!friends.length){
+
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;">
+        <div class="empty-art"></div>
+        <h3>
+          ${
+            search
+              ? "No matching friends"
+              : "No friends yet"
+          }
+        </h3>
+        <p>
+          ${
+            search
+              ? "Try another username."
+              : "Add friends to start building your community."
+          }
+        </p>
+      </div>
+      `;
+
+    return;
+
+  }
+
+  friends.forEach(friend=>{
+    container.appendChild(
+      makeFriendCard(friend)
+    );
+  });
+
+}
+
+function makeFriendCard(friend){
+
+  const card =
+    document.createElement(
+      "div"
+    );
+
+  card.className =
+    "friend";
+
+  const avatar =
+    document.createElement(
+      "div"
+    );
+
+  avatar.className =
+    "friend-avatar";
+
+  avatar.textContent =
+    friend.name
+      .charAt(0)
+      .toUpperCase();
+
+  const name =
+    document.createElement(
+      "span"
+    );
+
+  name.className =
+    "friend-name";
+
+  name.textContent =
+    friend.name;
+
+  card.appendChild(
+    avatar
+  );
+
+  card.appendChild(
+    name
+  );
+
+  return card;
+
+}
+
+function addFriend(){
+
+  const input =
+    document.getElementById(
+      "friendInput"
+    );
+
+  if(!input){
+    return;
+  }
+
+  const name =
+    input.value.trim();
+
+  if(!name){
+
+    toast(
+      "Enter a username."
+    );
+
+    return;
+  }
+
+  const friends =
+    getFriends();
+
+  const exists =
+    friends.some(friend=>
+      friend.name
+        .toLowerCase() ===
+      name.toLowerCase()
+    );
+
+  if(exists){
+
+    toast(
+      "That friend is already added."
+    );
+
+    return;
+  }
+
+  friends.push({
+    name:name
+  });
+
+  saveFriends(
+    friends
+  );
+
+  input.value =
+    "";
+
+  closeModal(
+    "friendModal"
+  );
+
+  renderFriends();
+  renderHomeFriends();
+  updateFriendCount();
+
+  toast(
+    name +
+    " added to friends."
+  );
+
+}
+
+function updateFriendCount(){
+
+  setText(
+    "friendsCount",
+    getFriends().length
+  );
+
+}
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+function avatarKey(){
+
+  return (
+    KEYS.avatar +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getAvatar(){
+
+  const fallback = {
+    head:"#FFE047",
+    body:"#249BFF",
+    legs:"#00A82D"
+  };
+
+  try{
+
+    return {
+      ...fallback,
+      ...(JSON.parse(
+        localStorage.getItem(
+          avatarKey()
+        ) || "null"
+      ) || {})
+    };
+
+  }catch{
+
+    return fallback;
+
+  }
+
+}
+
+function setAvatarColor(
+  part,
+  color
+){
+
+  const avatar =
+    getAvatar();
+
+  avatar[part] =
+    color;
+
+  localStorage.setItem(
+    avatarKey(),
+    JSON.stringify(
+      avatar
+    )
+  );
+
+  renderAvatar();
+
+  toast(
+    "Avatar updated."
+  );
+
+}
+
+function renderAvatar(){
+
+  const avatar =
+    getAvatar();
+
+  const head =
+    document.querySelector(
+      ".avatar-head"
+    );
+
+  const body =
+    document.querySelector(
+      ".avatar-body"
+    );
+
+  if(head){
+    head.style.background =
+      avatar.head;
+  }
+
+  if(body){
+    body.style.background =
+      avatar.body;
+  }
+
+  document
+    .querySelectorAll(
+      ".avatar-arms span"
+    )
+    .forEach(arm=>{
+      arm.style.background =
+        avatar.head;
+    });
+
+  document
+    .querySelectorAll(
+      ".avatar-legs span"
+    )
+    .forEach(leg=>{
+      leg.style.background =
+        avatar.legs;
+    });
+
+  setText(
+    "avatarName",
+    getDisplayName()
+  );
+
+  updateColorState(
+    "head",
+    avatar.head
+  );
+
+  updateColorState(
+    "body",
+    avatar.body
+  );
+
+  updateColorState(
+    "legs",
+    avatar.legs
+  );
+
+}
+
+function updateColorState(
+  part,
+  value
+){
+
+  document
+    .querySelectorAll(
+      '[data-color-part="' +
+      part +
+      '"]'
+    )
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        String(
+          button.dataset.color
+        ).toUpperCase() ===
+        String(
+          value
+        ).toUpperCase()
+      );
+
+    });
+
+}
+
+/* =========================================================
+   INVENTORY
+========================================================= */
+
+function inventoryKey(){
+
+  return (
+    KEYS.inventory +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getInventory(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          inventoryKey()
+        ) || "[]"
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  }catch{
+    return [];
+  }
+
+}
+
+function saveInventory(list){
+
+  localStorage.setItem(
+    inventoryKey(),
+    JSON.stringify(list)
+  );
+
+}
+
+function renderInventory(){
+
+  const container =
+    document.getElementById(
+      "inventoryGrid"
+    );
+
+  if(!container){
+    return;
+  }
+
+  const items =
+    getInventory()
+      .filter(item=>
+        !item.category ||
+        item.category ===
+        state.inventory
+      );
+
+  container.innerHTML =
+    "";
+
+  if(!items.length){
+
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;">
+        <div class="empty-art"></div>
+        <h3>
+          No ${
+            escapeHtml(
+              state.inventory
+            )
+          } yet
+        </h3>
+        <p>
+          Your ${
+            escapeHtml(
+              state.inventory
+            )
+          } will appear here.
+        </p>
+      </div>
+      `;
+
+    return;
+
+  }
+
+  items.forEach(item=>{
+
+    const card =
+      document.createElement(
+        "article"
+      );
+
+    card.className =
+      "inventory-item";
+
+    card.innerHTML =
+      `
+      <div class="inventory-image"></div>
+      <strong>
+        ${escapeHtml(
+          item.name ||
+          "Item"
+        )}
+      </strong>
+      <span>
+        ${escapeHtml(
+          item.type ||
+          "RiseUp Item"
+        )}
+      </span>
+      `;
+
+    container.appendChild(
+      card
+    );
+
+  });
+
+}
+
+/* =========================================================
+   MARKETPLACE
+========================================================= */
+
+function getMarketItems(){
+
+  if(
+    state.market ===
+    "featured"
+  ){
+
+    return MARKET.slice(
+      0,
+      3
+    );
+
+  }
+
+  return MARKET.filter(
+    item =>
+      item.category ===
+      state.market
+  );
+
+}
+
+function renderMarketplace(){
+
+  const container =
+    document.getElementById(
+      "marketGrid"
+    );
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML =
+    "";
+
+  getMarketItems()
+    .forEach(item=>{
+
+      const index =
+        MARKET.indexOf(item);
+
+      const card =
+        document.createElement(
+          "article"
+        );
+
+      card.className =
+        "market-card";
+
+      card.innerHTML =
+        `
+        <div class="market-image">
+          R
+        </div>
+
+        <div class="market-info">
+
+          <strong>
+            ${escapeHtml(
+              item.name
+            )}
+          </strong>
+
+          <span class="market-type">
+            ${escapeHtml(
+              item.type
+            )}
+          </span>
+
+          <div class="market-bottom">
+
+            <span class="price">
+              ${item.price} Tokens
+            </span>
+
+            <button
+              class="buy"
+              data-buy-index="${index}"
+              type="button">
+              Buy
+            </button>
+
+          </div>
+
+        </div>
+        `;
+
+      container.appendChild(
+        card
+      );
+
+    });
+
+  updateTokenUI();
+
+}
+
+function buyItem(index){
+
+  const item =
+    MARKET[index];
+
+  if(!item){
+    return;
+  }
+
+  const tokens =
+    getTokens();
+
+  if(
+    tokens <
+    item.price
+  ){
+
+    toast(
+      "You do not have enough Tokens."
+    );
+
+    return;
+  }
+
+  setTokens(
+    tokens -
+    item.price
+  );
+
+  const inventory =
+    getInventory();
+
+  inventory.push({
+    name:item.name,
+    type:item.type,
+    category:item.category
+  });
+
+  saveInventory(
+    inventory
+  );
+
+  renderInventory();
+
+  toast(
+    "Purchased " +
+    item.name +
+    "."
+  );
+
+}
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+function messagesKey(){
+
+  return (
+    KEYS.messages +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getMessages(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          messagesKey()
+        ) || "[]"
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  }catch{
+    return [];
+  }
+
+}
+
+function saveMessages(list){
+
+  localStorage.setItem(
+    messagesKey(),
+    JSON.stringify(
+      list
+    )
+  );
+
+}
+
+function renderMessages(){
+
+  const list =
+    document.getElementById(
+      "conversationList"
+    );
+
+  const panel =
+    document.getElementById(
+      "chatPanel"
+    );
+
+  if(!list || !panel){
+    return;
+  }
+
+  const messages =
+    getMessages();
+
+  list.innerHTML =
+    "";
+
+  if(!messages.length){
+
+    list.innerHTML =
+      `
+      <div style="
+        padding:20px;
+        color:var(--muted2);
+        text-align:center;
+        font-size:9px;">
+        No conversations yet.
+      </div>
+      `;
+
+    panel.innerHTML =
+      `
+      <div class="empty"
+        style="height:100%;min-height:470px;border:0;border-radius:0;">
+        <h3>No conversation selected</h3>
+        <p>Your conversations will appear here.</p>
+      </div>
+      `;
+
+    return;
+  }
+
+  messages.forEach(
+    function(message,index){
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.className =
+        "conversation" +
+        (
+          state.selectedMessage ===
+          index
+            ? " active"
+            : ""
+        );
+
+      button.type =
+        "button";
+
+      button.innerHTML =
+        `
+        <div class="friend-avatar">
+          ${
+            escapeHtml(
+              (
+                message.name ||
+                "U"
+              )
+              .charAt(0)
+              .toUpperCase()
+            )
+          }
+        </div>
+
+        <div>
+
+          <strong style="font-size:9px;">
+            ${escapeHtml(
+              message.name ||
+              "User"
+            )}
+          </strong>
+
+          <div style="
+            margin-top:3px;
+            color:var(--muted2);
+            font-size:8px;">
+            ${escapeHtml(
+              message.preview ||
+              "No messages"
+            )}
+          </div>
+
+        </div>
+        `;
+
+      button.addEventListener(
+        "click",
+        function(){
+
+          state.selectedMessage =
+            index;
+
+          renderMessages();
+
+        }
+      );
+
+      list.appendChild(
+        button
+      );
+
+    }
+  );
+
+  if(
+    state.selectedMessage !==
+      null &&
+    messages[
+      state.selectedMessage
+    ]
+  ){
+
+    renderChat(
+      messages[
+        state.selectedMessage
+      ]
+    );
+
+  }
+
+}
+
+function renderChat(message){
+
+  const panel =
+    document.getElementById(
+      "chatPanel"
+    );
+
+  if(!panel){
+    return;
+  }
+
+  panel.innerHTML =
+    `
+    <div class="chat-header">
+      ${escapeHtml(
+        message.name ||
+        "Conversation"
+      )}
+    </div>
+
+    <div class="chat-history">
+      ${escapeHtml(
+        message.preview ||
+        "No messages yet."
+      )}
+    </div>
+
+    <div class="chat-compose">
+
+      <input
+        id="chatInput"
+        type="text"
+        placeholder="Write a message..."
+        autocomplete="off">
+
+      <button
+        class="primary"
+        id="sendChat"
+        type="button">
+        Send
+      </button>
+
+    </div>
+    `;
+
+  const input =
+    document.getElementById(
+      "chatInput"
+    );
+
+  document
+    .getElementById(
+      "sendChat"
+    )
+    ?.addEventListener(
+      "click",
+      function(){
+
+        const text =
+          input?.value.trim();
+
+        if(!text){
+          return;
+        }
+
+        message.preview =
+          text;
+
+        saveMessages(
+          getMessages()
+        );
+
+        renderMessages();
+
+        toast(
+          "Message sent."
+        );
+
+      }
+    );
+
+  input?.addEventListener(
+    "keydown",
+    function(event){
+
+      if(
+        event.key ===
+        "Enter"
+      ){
+
+        document
+          .getElementById(
+            "sendChat"
+          )
+          ?.click();
+
+      }
+
+    }
+  );
+
+}
+
+function renderQuickMessages(){
+
+  const list =
+    document.getElementById(
+      "quickMessages"
+    );
+
+  if(!list){
+    return;
+  }
+
+  const messages =
+    getMessages();
+
+  list.innerHTML =
+    "";
+
+  if(!messages.length){
+
+    list.innerHTML =
+      `
+      <div class="popup-item">
+        <strong>No messages</strong>
+        <span>Your conversations will appear here.</span>
+      </div>
+      `;
+
+    return;
+  }
+
+  messages
+    .slice(0,5)
+    .forEach(message=>{
+
+      list.innerHTML +=
+        `
+        <div class="popup-item">
+
+          <strong>
+            ${escapeHtml(
+              message.name ||
+              "User"
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              message.preview ||
+              "No message"
+            )}
+          </span>
+
+        </div>
+        `;
+
+    });
+
+}
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+function notificationsKey(){
+
+  return (
+    KEYS.notifications +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getNotifications(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          notificationsKey()
+        ) || "[]"
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  }catch{
+    return [];
+  }
+
+}
+
+function renderNotifications(){
+
+  const list =
+    document.getElementById(
+      "notificationList"
+    );
+
+  if(!list){
+    return;
+  }
+
+  const notifications =
+    getNotifications();
+
+  list.innerHTML =
+    "";
+
+  if(!notifications.length){
+
+    list.innerHTML =
+      `
+      <div class="popup-item">
+        <strong>You're all caught up</strong>
+        <span>No new notifications.</span>
+      </div>
+      `;
+
+    return;
+  }
+
+  notifications.forEach(item=>{
+
+    list.innerHTML +=
+      `
+      <div class="popup-item">
+
+        <strong>
+          ${escapeHtml(
+            item.title ||
+            "Notification"
+          )}
+        </strong>
+
+        <span>
+          ${escapeHtml(
+            item.text ||
+            ""
+          )}
+        </span>
+
+      </div>
+      `;
+
+  });
+
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function settingsKey(){
+
+  return (
+    KEYS.settings +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getSettings(){
+
+  try{
+
+    return {
+      reducedMotion:false,
+      ...(JSON.parse(
+        localStorage.getItem(
+          settingsKey()
+        ) || "null"
+      ) || {})
+    };
+
+  }catch{
+
+    return {
+      reducedMotion:false
+    };
+
+  }
+
+}
+
+function saveSettings(settings){
+
+  localStorage.setItem(
+    settingsKey(),
+    JSON.stringify(
+      settings
+    )
+  );
+
+}
+
+function renderSettings(){
+
+  const reduced =
+    document.getElementById(
+      "reducedMotion"
+    );
+
+  if(reduced){
+
+    reduced.checked =
+      Boolean(
+        getSettings()
+          .reducedMotion
+      );
+
+  }
+
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function showInfoModal(type){
+
+  const item =
+    INFO[type];
+
+  if(!item){
+    return;
+  }
+
+  setText(
+    "infoEyebrow",
+    item.eyebrow
+  );
+
+  setText(
+    "infoTitle",
+    item.title
+  );
+
+  setText(
+    "infoText",
+    item.text
+  );
+
+  openModal(
+    "infoModal"
+  );
+
+}
+
+function showInfo(
+  title,
+  text
+){
+
+  setText(
+    "infoEyebrow",
+    "RISEUP"
+  );
+
+  setText(
+    "infoTitle",
+    title
+  );
+
+  setText(
+    "infoText",
+    text
+  );
+
+  openModal(
+    "infoModal"
+  );
+
+}
+
+/* =========================================================
+   POPUPS
+========================================================= */
+
+function togglePopup(id){
+
+  const popup =
+    document.getElementById(
+      id
+    );
+
+  if(!popup){
+    return;
+  }
+
+  const currentlyOpen =
+    popup.classList.contains(
+      "open"
+    );
+
+  closePopups();
+
+  if(!currentlyOpen){
+
+    popup.classList.add(
+      "open"
+    );
+
+  }
+
+}
+
+function closePopups(){
+
+  document
+    .querySelectorAll(
+      ".popup.open"
+    )
+    .forEach(item=>{
+      item.classList.remove(
+        "open"
+      );
+    });
+
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function openModal(id){
+
+  const modal =
+    document.getElementById(
+      id
+    );
+
+  if(modal){
+    modal.classList.remove(
+      "hidden"
+    );
+  }
+
+}
+
+function closeModal(id){
+
+  const modal =
+    document.getElementById(
+      id
+    );
+
+  if(modal){
+    modal.classList.add(
+      "hidden"
+    );
+  }
+
+}
+
+document.addEventListener(
+  "click",
+  function(event){
+
+    if(
+      event.target.classList.contains(
+        "modal-backdrop"
+      )
+    ){
+
+      event.target.classList.add(
+        "hidden"
+      );
+
+    }
+
+  }
+);
+
+/* =========================================================
+   TABS
+========================================================= */
+
+function updateTabs(
+  selector,
+  type,
+  value
+){
+
+  document
+    .querySelectorAll(
+      selector
+    )
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset[type] ===
+        value
+      );
+
+    });
+
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+  localStorage.removeItem(
+    KEYS.user
+  );
+
+  window.location.href =
+    "./index.html";
+
+}
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+  renderUser();
+  updateFriendCount();
+  updateTokenUI();
+
+  renderHome();
+  renderDiscover();
+  renderAvatar();
+  renderInventory();
+  renderFriends();
+  renderMessages();
+  renderMarketplace();
+  renderTokens();
+  renderNotifications();
+  renderQuickMessages();
+  renderSettings();
+
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function setText(
+  id,
+  value
+){
+
+  const element =
+    document.getElementById(
+      id
+    );
+
+  if(element){
+    element.textContent =
+      String(value);
+  }
+
+}
+
+function show(
+  id,
+  visible
+){
+
+  const element =
+    document.getElementById(
+      id
+    );
+
+  if(element){
+
+    element.style.display =
+      visible
+        ? ""
+        : "none";
+
+  }
+
+}
+
+function safeUrl(value){
+
+  return String(value || "")
+    .replaceAll("\\","\\\\")
+    .replaceAll('"','\\"')
+    .replace(/[\r\n]/g,"");
+
+}
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+function toast(message){
+
+  const element =
+    document.getElementById(
+      "toast"
+    );
+
+  if(!element){
+    return;
+  }
+
+  element.textContent =
+    message;
+
+  element.classList.add(
+    "show"
+  );
+
+  clearTimeout(
+    toastTimer
+  );
+
+  toastTimer =
+    setTimeout(
+      function(){
+
+        element.classList.remove(
+          "show"
+        );
+
+      },
+      2300
+    );
+
+}
+
+window.RiseUpEverything = {
+  navigate,
+  openStudio,
+  openRiseCode,
+  getTokens,
+  setTokens,
+  claimMonthly
+};
+
+})();
+</script>
+
 </body>
 </html>
