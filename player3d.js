@@ -1,915 +1,1948 @@
-import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+(() => {
+  "use strict";
 
-let scene;
-let camera;
-let renderer;
-let player = null;
-let clock;
+  /*
+   * =========================================================
+   * RISEUP PLAYER 3D
+   * Combined character + gameplay engine
+   *
+   * player3d.js
+   * =========================================================
+   *
+   * Includes:
+   * - RiseUp character model
+   * - Face
+   * - Idle animation
+   * - Walk animation
+   * - Run animation
+   * - Jump animation
+   * - Falling animation
+   * - Gravity
+   * - Character movement
+   * - Third-person camera
+   * - Mouse look
+   * - World
+   * - Ground
+   * - Sky
+   * - Sun
+   * - Trees
+   * - Platforms
+   * - FPS counter
+   * =========================================================
+   */
 
-const keys = {};
+  const RiseUpPlayer3D = {
+    scene: null,
+    camera: null,
+    renderer: null,
 
-let velocityY = 0;
-let grounded = true;
+    character: null,
 
-let yaw = 0;
-let pitch = 0.18;
-let cameraDistance = 6;
+    ground: null,
+    grid: null,
 
-let mouseDown = false;
-let lastMouseX = 0;
-let lastMouseY = 0;
+    keys: {
+      w: false,
+      a: false,
+      s: false,
+      d: false,
+      shift: false
+    },
 
-const WALK_SPEED = 4;
-const RUN_SPEED = 7;
-const JUMP_POWER = 8;
-const GRAVITY = 22;
+    mouse: {
+      locked: false,
+      yaw: 0,
+      pitch: -0.18,
+      sensitivity: 0.0025
+    },
 
-const loading = document.getElementById("loading");
-const loadingTitle = document.getElementById("loadingTitle");
-const loadingText = document.getElementById("loadingText");
+    cameraDistance: 7,
+    cameraHeight: 3.0,
 
-const errorScreen = document.getElementById("error");
-const errorText = document.getElementById("errorText");
+    lastTime: 0,
+    frames: 0,
+    fpsTime: 0,
+    fps: 60,
 
-const chooseModel = document.getElementById("chooseModel");
-const modelFile = document.getElementById("modelFile");
-const errorFile = document.getElementById("errorFile");
+    elements: {}
+  };
 
-const retryButton = document.getElementById("retryButton");
-const errorRetry = document.getElementById("errorRetry");
+  /* =========================================================
+     CHARACTER
+     ========================================================= */
 
-const statusText = document.getElementById("statusText");
+  class RiseUpCharacter {
+    constructor(
+      scene,
+      options = {}
+    ) {
+      this.scene =
+        scene;
 
-const loader = new GLTFLoader();
+      this.group =
+        new THREE.Group();
 
-init();
-startLoading();
+      this.group.name =
+        "RiseUpCharacter";
 
-function init() {
-    scene = new THREE.Scene();
+      this.walkSpeed =
+        Number(
+          options.walkSpeed
+        ) || 7;
 
-    scene.background = new THREE.Color(0x75cfff);
+      this.runSpeed =
+        Number(
+          options.runSpeed
+        ) || 12;
 
-    scene.fog = new THREE.Fog(
-        0x75cfff,
-        30,
-        120
-    );
+      this.jumpPower =
+        Number(
+          options.jumpPower
+        ) || 10;
 
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        500
-    );
+      this.gravity =
+        Number(
+          options.gravity
+        ) || 25;
 
-    camera.position.set(0, 3, 6);
+      this.velocityY =
+        0;
 
-    renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        powerPreference: "high-performance"
-    });
+      this.grounded =
+        true;
 
-    renderer.setPixelRatio(
-        Math.min(window.devicePixelRatio || 1, 2)
-    );
+      this.state =
+        "idle";
 
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+      this.time =
+        0;
 
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type =
-        THREE.PCFSoftShadowMap;
+      this.keys = {
+        w: false,
+        a: false,
+        s: false,
+        d: false,
+        shift: false
+      };
 
-    renderer.outputColorSpace =
-        THREE.SRGBColorSpace;
+      this.createMaterials();
 
-    renderer.toneMapping =
-        THREE.ACESFilmicToneMapping;
+      this.createCharacter();
 
-    renderer.toneMappingExposure = 1.15;
+      this.group.position.set(
+        Number(
+          options.x
+        ) || 0,
 
-    document
-        .getElementById("game")
-        .appendChild(renderer.domElement);
+        Number(
+          options.y
+        ) || 0,
 
-    clock = new THREE.Clock();
+        Number(
+          options.z
+        ) || 6
+      );
 
-    createWorld();
-    setupControls();
+      scene.add(
+        this.group
+      );
+    }
 
-    window.addEventListener(
-        "resize",
-        resize
-    );
+    /* =======================================================
+       CHARACTER MATERIALS
+       ======================================================= */
 
-    animate();
-}
+    createMaterials() {
+      this.yellowMaterial =
+        new THREE.MeshStandardMaterial({
+          color: 0xffe047,
+          roughness: 0.42,
+          metalness: 0
+        });
 
-function createWorld() {
+      this.blueMaterial =
+        new THREE.MeshStandardMaterial({
+          color: 0x249bff,
+          roughness: 0.4,
+          metalness: 0
+        });
 
-    const hemisphere =
-        new THREE.HemisphereLight(
-            0xffffff,
-            0x5b8c58,
-            2.4
-        );
+      this.greenMaterial =
+        new THREE.MeshStandardMaterial({
+          color: 0x00a82d,
+          roughness: 0.45,
+          metalness: 0
+        });
 
-    scene.add(hemisphere);
+      this.blackMaterial =
+        new THREE.MeshStandardMaterial({
+          color: 0x101010,
+          roughness: 0.3,
+          metalness: 0
+        });
+    }
 
-    const sun =
-        new THREE.DirectionalLight(
-            0xffffff,
-            3
-        );
+    /* =======================================================
+       CHARACTER BUILD
+       ======================================================= */
 
-    sun.position.set(
-        -20,
-        35,
-        20
-    );
+    createCharacter() {
+      this.body =
+        new THREE.Group();
 
-    sun.castShadow = true;
+      this.body.name =
+        "CharacterBody";
 
-    sun.shadow.mapSize.width = 2048;
-    sun.shadow.mapSize.height = 2048;
+      this.createHead();
 
-    sun.shadow.camera.left = -50;
-    sun.shadow.camera.right = 50;
-    sun.shadow.camera.top = 50;
-    sun.shadow.camera.bottom = -50;
+      this.createTorso();
 
-    scene.add(sun);
+      this.createArms();
 
-    const ground =
+      this.createLegs();
+
+      this.group.add(
+        this.body
+      );
+    }
+
+    /* =======================================================
+       HEAD
+       ======================================================= */
+
+    createHead() {
+      this.head =
+        new THREE.Group();
+
+      this.head.name =
+        "Head";
+
+      const head =
         new THREE.Mesh(
-            new THREE.PlaneGeometry(300, 300),
-            new THREE.MeshStandardMaterial({
-                color: 0x66a85e,
-                roughness: 1
-            })
+          new THREE.SphereGeometry(
+            0.5,
+            40,
+            32
+          ),
+
+          this.yellowMaterial
         );
 
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
+      head.name =
+        "HeadMesh";
 
-    scene.add(ground);
+      head.castShadow =
+        true;
 
-    const pad =
+      head.receiveShadow =
+        true;
+
+      this.head.add(
+        head
+      );
+
+      /*
+       * Eyes
+       */
+
+      const eyeGeometry =
+        new THREE.SphereGeometry(
+          0.056,
+          16,
+          12
+        );
+
+      const leftEye =
         new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                2.3,
-                2.3,
-                0.16,
-                64
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0xe8edf2,
-                roughness: 0.8
-            })
+          eyeGeometry,
+          this.blackMaterial
         );
 
-    pad.position.y = 0.08;
-    pad.receiveShadow = true;
-
-    scene.add(pad);
-}
-
-async function startLoading() {
-
-    setLoading(
-        "Loading player...",
-        "Checking for your 3D player model..."
-    );
-
-    /*
-     * IMPORTANT:
-     *
-     * When player3d.html is opened directly from the
-     * Chromebook, Chrome can block:
-     *
-     * models/player.glb
-     *
-     * Instead of waiting forever, we try it briefly.
-     */
-
-    const timeout = new Promise((_, reject) => {
-        setTimeout(() => {
-            reject(
-                new Error(
-                    "Automatic local loading timed out."
-                )
-            );
-        }, 5000);
-    });
-
-    try {
-
-        const gltf =
-            await Promise.race([
-                loadGLB("models/player.glb"),
-                timeout
-            ]);
-
-        addPlayer(gltf.scene);
-
-    } catch (error) {
-
-        console.warn(
-            "Automatic GLB loading unavailable:",
-            error
+      const rightEye =
+        new THREE.Mesh(
+          eyeGeometry,
+          this.blackMaterial
         );
 
-        showLocalFileOption();
-    }
-}
+      leftEye.position.set(
+        -0.16,
+        0.05,
+        0.456
+      );
 
-function loadGLB(path) {
+      rightEye.position.set(
+        0.16,
+        0.05,
+        0.456
+      );
 
-    return new Promise(
-        (resolve, reject) => {
+      this.head.add(
+        leftEye
+      );
 
-            loader.load(
-                path,
+      this.head.add(
+        rightEye
+      );
 
-                resolve,
+      /*
+       * Smile
+       */
 
-                (progress) => {
+      const smileCurve =
+        new THREE.QuadraticBezierCurve3(
+          new THREE.Vector3(
+            -0.12,
+            -0.08,
+            0.467
+          ),
 
-                    if (
-                        progress &&
-                        progress.total > 0
-                    ) {
+          new THREE.Vector3(
+            0,
+            -0.16,
+            0.482
+          ),
 
-                        const percent =
-                            Math.round(
-                                (
-                                    progress.loaded /
-                                    progress.total
-                                ) * 100
-                            );
-
-                        setLoading(
-                            "Loading player...",
-                            `${percent}% loaded`
-                        );
-                    }
-                },
-
-                reject
-            );
-        }
-    );
-}
-
-function showLocalFileOption() {
-
-    setLoading(
-        "Player file ready",
-        "Choose your real player.glb to load it directly."
-    );
-
-    chooseModel.style.display =
-        "inline-flex";
-
-    retryButton.style.display =
-        "inline-flex";
-
-    statusText.textContent =
-        "Waiting for player.glb";
-}
-
-function handleFile(file) {
-
-    if (!file) return;
-
-    const name =
-        file.name.toLowerCase();
-
-    if (!name.endsWith(".glb")) {
-
-        showError(
-            "Please choose the actual player.glb file."
+          new THREE.Vector3(
+            0.12,
+            -0.08,
+            0.467
+          )
         );
 
-        return;
+      const smile =
+        new THREE.Mesh(
+          new THREE.TubeGeometry(
+            smileCurve,
+            16,
+            0.014,
+            8,
+            false
+          ),
+
+          this.blackMaterial
+        );
+
+      this.head.add(
+        smile
+      );
+
+      this.head.position.y =
+        1.77;
+
+      this.body.add(
+        this.head
+      );
     }
 
-    setLoading(
-        "Loading your 3D player...",
-        "Reading " + file.name
-    );
+    /* =======================================================
+       TORSO
+       ======================================================= */
 
-    chooseModel.style.display =
-        "none";
+    createTorso() {
+      let geometry;
 
-    retryButton.style.display =
-        "none";
+      if (
+        typeof THREE.CapsuleGeometry ===
+        "function"
+      ) {
+        geometry =
+          new THREE.CapsuleGeometry(
+            0.4,
+            0.72,
+            8,
+            20
+          );
+      } else {
+        geometry =
+          new THREE.CylinderGeometry(
+            0.4,
+            0.4,
+            1,
+            32
+          );
+      }
 
-    statusText.textContent =
-        "Loading 3D model";
+      this.torso =
+        new THREE.Mesh(
+          geometry,
+          this.blueMaterial
+        );
 
-    /*
-     * This is the important part.
-     *
-     * URL.createObjectURL lets Chrome read
-     * the 59 MB GLB directly without needing
-     * Live Server.
-     */
-    const objectURL =
-        URL.createObjectURL(file);
+      this.torso.name =
+        "Torso";
 
-    loader.load(
-        objectURL,
+      this.torso.position.y =
+        1;
 
-        (gltf) => {
+      this.torso.castShadow =
+        true;
 
-            URL.revokeObjectURL(
-                objectURL
-            );
+      this.torso.receiveShadow =
+        true;
 
-            addPlayer(
-                gltf.scene
-            );
-        },
-
-        (progress) => {
-
-            if (
-                progress &&
-                progress.total > 0
-            ) {
-
-                const percent =
-                    Math.round(
-                        (
-                            progress.loaded /
-                            progress.total
-                        ) * 100
-                    );
-
-                setLoading(
-                    "Loading your 3D player...",
-                    `${percent}%`
-                );
-            } else {
-
-                setLoading(
-                    "Loading your 3D player...",
-                    "Processing 59 MB model..."
-                );
-            }
-        },
-
-        (error) => {
-
-            URL.revokeObjectURL(
-                objectURL
-            );
-
-            console.error(
-                "GLB loading error:",
-                error
-            );
-
-            showError(
-                "Chrome couldn't read this GLB. Make sure you selected your actual player.glb."
-            );
-        }
-    );
-}
-
-function addPlayer(model) {
-
-    if (player) {
-        scene.remove(player);
+      this.body.add(
+        this.torso
+      );
     }
 
-    player = model;
+    /* =======================================================
+       ARMS
+       ======================================================= */
 
-    let meshCount = 0;
+    createArms() {
+      this.leftArm =
+        this.createLimb(
+          "LeftArm",
+          0.15,
+          0.75,
+          this.yellowMaterial
+        );
 
-    player.traverse((object) => {
+      this.rightArm =
+        this.createLimb(
+          "RightArm",
+          0.15,
+          0.75,
+          this.yellowMaterial
+        );
 
-        if (object.isMesh) {
+      this.leftArm.position.set(
+        -0.58,
+        1,
+        0
+      );
 
-            meshCount++;
+      this.rightArm.position.set(
+        0.58,
+        1,
+        0
+      );
 
-            object.castShadow = true;
-            object.receiveShadow = true;
+      this.body.add(
+        this.leftArm
+      );
 
-            /*
-             * Keep the original materials and textures.
-             * We do NOT replace them or make the model fake.
-             */
-            if (object.material) {
+      this.body.add(
+        this.rightArm
+      );
+    }
 
-                object.material.side =
-                    THREE.FrontSide;
-            }
-        }
-    });
+    /* =======================================================
+       LEGS
+       ======================================================= */
 
-    /*
-     * Find the model's original dimensions.
-     */
-    const box =
-        new THREE.Box3()
-            .setFromObject(player);
+    createLegs() {
+      this.leftLeg =
+        this.createLimb(
+          "LeftLeg",
+          0.18,
+          0.64,
+          this.greenMaterial
+        );
 
-    const size =
+      this.rightLeg =
+        this.createLimb(
+          "RightLeg",
+          0.18,
+          0.64,
+          this.greenMaterial
+        );
+
+      this.leftLeg.position.set(
+        -0.24,
+        0.25,
+        0
+      );
+
+      this.rightLeg.position.set(
+        0.24,
+        0.25,
+        0
+      );
+
+      this.body.add(
+        this.leftLeg
+      );
+
+      this.body.add(
+        this.rightLeg
+      );
+    }
+
+    /* =======================================================
+       LIMBS
+       ======================================================= */
+
+    createLimb(
+      name,
+      radius,
+      height,
+      material
+    ) {
+      let geometry;
+
+      if (
+        typeof THREE.CapsuleGeometry ===
+        "function"
+      ) {
+        geometry =
+          new THREE.CapsuleGeometry(
+            radius,
+            height,
+            8,
+            14
+          );
+      } else {
+        geometry =
+          new THREE.CylinderGeometry(
+            radius,
+            radius,
+            height +
+              radius * 2,
+            20
+          );
+      }
+
+      const limb =
+        new THREE.Mesh(
+          geometry,
+          material
+        );
+
+      limb.name =
+        name;
+
+      limb.castShadow =
+        true;
+
+      limb.receiveShadow =
+        true;
+
+      return limb;
+    }
+
+    /* =======================================================
+       KEY INPUT
+       ======================================================= */
+
+    setKey(
+      key,
+      pressed
+    ) {
+      const value =
+        String(
+          key
+        ).toLowerCase();
+
+      if (
+        Object.prototype.hasOwnProperty.call(
+          this.keys,
+          value
+        )
+      ) {
+        this.keys[value] =
+          pressed;
+      }
+    }
+
+    /* =======================================================
+       PLAYER UPDATE
+       ======================================================= */
+
+    update(
+      delta,
+      cameraYaw
+    ) {
+      this.time +=
+        delta;
+
+      const direction =
         new THREE.Vector3();
 
-    box.getSize(size);
+      if (
+        this.keys.w
+      ) {
+        direction.z -= 1;
+      }
 
-    /*
-     * Normalize the player to approximately
-     * 2.5 world units tall.
-     */
-    if (size.y > 0) {
+      if (
+        this.keys.s
+      ) {
+        direction.z += 1;
+      }
 
-        const scale =
-            2.5 / size.y;
+      if (
+        this.keys.a
+      ) {
+        direction.x -= 1;
+      }
 
-        player.scale.setScalar(
-            scale
-        );
-    }
+      if (
+        this.keys.d
+      ) {
+        direction.x += 1;
+      }
 
-    /*
-     * Recalculate after scaling.
-     */
-    const finalBox =
-        new THREE.Box3()
-            .setFromObject(player);
+      /*
+       * Movement
+       */
 
-    const center =
-        new THREE.Vector3();
+      if (
+        direction.lengthSq() >
+        0
+      ) {
+        direction.normalize();
 
-    finalBox.getCenter(center);
-
-    player.position.x =
-        -center.x;
-
-    player.position.z =
-        -center.z;
-
-    player.position.y =
-        -finalBox.min.y;
-
-    scene.add(player);
-
-    velocityY = 0;
-    grounded = true;
-
-    loading.style.display =
-        "none";
-
-    errorScreen.style.display =
-        "none";
-
-    statusText.textContent =
-        "Player ready";
-
-    console.log(
-        "RiseUp 3D player loaded."
-    );
-
-    console.log(
-        "Meshes:",
-        meshCount
-    );
-
-    console.log(
-        "Original size:",
-        size
-    );
-}
-
-function setupControls() {
-
-    window.addEventListener(
-        "keydown",
-        (event) => {
-
-            keys[event.code] = true;
-
-            if (
-                event.code === "Space" &&
-                grounded
-            ) {
-
-                velocityY =
-                    JUMP_POWER;
-
-                grounded = false;
-
-                event.preventDefault();
-            }
-        }
-    );
-
-    window.addEventListener(
-        "keyup",
-        (event) => {
-
-            keys[event.code] = false;
-        }
-    );
-
-    window.addEventListener(
-        "mousedown",
-        (event) => {
-
-            if (event.button !== 0)
-                return;
-
-            mouseDown = true;
-
-            lastMouseX =
-                event.clientX;
-
-            lastMouseY =
-                event.clientY;
-        }
-    );
-
-    window.addEventListener(
-        "mouseup",
-        () => {
-
-            mouseDown = false;
-        }
-    );
-
-    window.addEventListener(
-        "mousemove",
-        (event) => {
-
-            if (!mouseDown)
-                return;
-
-            const dx =
-                event.clientX -
-                lastMouseX;
-
-            const dy =
-                event.clientY -
-                lastMouseY;
-
-            lastMouseX =
-                event.clientX;
-
-            lastMouseY =
-                event.clientY;
-
-            yaw -= dx * 0.006;
-
-            pitch -= dy * 0.004;
-
-            pitch =
-                THREE.MathUtils.clamp(
-                    pitch,
-                    -0.4,
-                    1.1
-                );
-        }
-    );
-
-    window.addEventListener(
-        "wheel",
-        (event) => {
-
-            cameraDistance +=
-                event.deltaY * 0.004;
-
-            cameraDistance =
-                THREE.MathUtils.clamp(
-                    cameraDistance,
-                    3,
-                    12
-                );
-        },
-        {
-            passive: true
-        }
-    );
-
-    document
-        .getElementById("exitButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                window.location.href =
-                    "home.html";
-            }
+        direction.applyAxisAngle(
+          new THREE.Vector3(
+            0,
+            1,
+            0
+          ),
+          cameraYaw
         );
 
-    modelFile?.addEventListener(
-        "change",
-        (event) => {
-
-            handleFile(
-                event.target.files?.[0]
-            );
-        }
-    );
-
-    errorFile?.addEventListener(
-        "change",
-        (event) => {
-
-            handleFile(
-                event.target.files?.[0]
-            );
-        }
-    );
-
-    retryButton?.addEventListener(
-        "click",
-        () => {
-
-            chooseModel.style.display =
-                "inline-flex";
-
-            retryButton.style.display =
-                "none";
-
-            setLoading(
-                "Choose your player",
-                "Select the real player.glb file."
-            );
-        }
-    );
-
-    errorRetry?.addEventListener(
-        "click",
-        () => {
-
-            errorScreen.style.display =
-                "none";
-
-            startLoading();
-        }
-    );
-}
-
-function updatePlayer(delta) {
-
-    if (!player)
-        return;
-
-    let x = 0;
-    let z = 0;
-
-    if (
-        keys["KeyW"] ||
-        keys["ArrowUp"]
-    ) {
-        z -= 1;
-    }
-
-    if (
-        keys["KeyS"] ||
-        keys["ArrowDown"]
-    ) {
-        z += 1;
-    }
-
-    if (
-        keys["KeyA"] ||
-        keys["ArrowLeft"]
-    ) {
-        x -= 1;
-    }
-
-    if (
-        keys["KeyD"] ||
-        keys["ArrowRight"]
-    ) {
-        x += 1;
-    }
-
-    if (x !== 0 || z !== 0) {
-
-        const input =
-            new THREE.Vector3(
-                x,
-                0,
-                z
-            ).normalize();
-
-        const forward =
-            new THREE.Vector3(
-                Math.sin(yaw),
-                0,
-                Math.cos(yaw)
-            );
-
-        const right =
-            new THREE.Vector3(
-                forward.z,
-                0,
-                -forward.x
-            );
-
-        const movement =
-            new THREE.Vector3();
-
-        movement.addScaledVector(
-            forward,
-            -input.z
-        );
-
-        movement.addScaledVector(
-            right,
-            input.x
-        );
-
-        movement.normalize();
+        const running =
+          this.keys.shift;
 
         const speed =
-            keys["ShiftLeft"] ||
-            keys["ShiftRight"]
-                ? RUN_SPEED
-                : WALK_SPEED;
+          running
+            ? this.runSpeed
+            : this.walkSpeed;
 
-        player.position.addScaledVector(
-            movement,
-            speed * delta
-        );
+        this.group.position.x +=
+          direction.x *
+          speed *
+          delta;
+
+        this.group.position.z +=
+          direction.z *
+          speed *
+          delta;
 
         const targetRotation =
-            Math.atan2(
-                movement.x,
-                movement.z
-            );
+          Math.atan2(
+            direction.x,
+            direction.z
+          );
 
-        player.rotation.y =
-            smoothRotation(
-                player.rotation.y,
-                targetRotation,
-                delta * 10
-            );
+        this.group.rotation.y =
+          smoothAngle(
+            this.group.rotation.y,
+            targetRotation,
+            Math.min(
+              1,
+              delta * 12
+            )
+          );
+
+        this.state =
+          running
+            ? "running"
+            : "walking";
+      } else if (
+        this.grounded
+      ) {
+        this.state =
+          "idle";
+      }
+
+      /*
+       * Gravity
+       */
+
+      this.updatePhysics(
+        delta
+      );
+
+      /*
+       * Animation
+       */
+
+      this.updateAnimation();
     }
 
-    if (!grounded) {
+    /* =======================================================
+       PHYSICS
+       ======================================================= */
 
-        velocityY -=
-            GRAVITY * delta;
+    updatePhysics(
+      delta
+    ) {
+      if (
+        !this.grounded
+      ) {
+        this.velocityY -=
+          this.gravity *
+          delta;
 
-        player.position.y +=
-            velocityY * delta;
+        this.group.position.y +=
+          this.velocityY *
+          delta;
 
         if (
-            player.position.y <= 0
+          this.velocityY < 0
         ) {
-
-            player.position.y = 0;
-
-            velocityY = 0;
-
-            grounded = true;
+          this.state =
+            "falling";
         }
+      }
+
+      if (
+        this.group.position.y <=
+        0
+      ) {
+        this.group.position.y =
+          0;
+
+        this.velocityY =
+          0;
+
+        this.grounded =
+          true;
+
+        if (
+          this.state ===
+            "falling" ||
+          this.state ===
+            "jumping"
+        ) {
+          this.state =
+            "idle";
+        }
+      }
     }
-}
 
-function smoothRotation(
-    current,
-    target,
-    amount
-) {
+    /* =======================================================
+       JUMP
+       ======================================================= */
 
-    let difference =
-        target - current;
+    jump() {
+      if (
+        !this.grounded
+      ) {
+        return;
+      }
 
-    difference =
-        Math.atan2(
-            Math.sin(difference),
-            Math.cos(difference)
+      this.velocityY =
+        this.jumpPower;
+
+      this.grounded =
+        false;
+
+      this.state =
+        "jumping";
+    }
+
+    /* =======================================================
+       ANIMATION STATE
+       ======================================================= */
+
+    updateAnimation() {
+      if (
+        this.state ===
+        "running"
+      ) {
+        this.animateRun(
+          this.time
         );
+
+        return;
+      }
+
+      if (
+        this.state ===
+        "walking"
+      ) {
+        this.animateWalk(
+          this.time
+        );
+
+        return;
+      }
+
+      if (
+        this.state ===
+          "jumping" ||
+        this.state ===
+          "falling"
+      ) {
+        this.animateJump(
+          this.time
+        );
+
+        return;
+      }
+
+      this.animateIdle(
+        this.time
+      );
+    }
+
+    /* =======================================================
+       IDLE
+       ======================================================= */
+
+    animateIdle(
+      time
+    ) {
+      const breathing =
+        Math.sin(
+          time * 1.8
+        );
+
+      const sway =
+        Math.sin(
+          time * 0.7
+        );
+
+      /*
+       * Gentle breathing.
+       */
+
+      this.body.position.y =
+        breathing *
+        0.018;
+
+      this.torso.scale.y =
+        1 +
+        breathing *
+        0.01;
+
+      /*
+       * Head.
+       */
+
+      this.head.rotation.x =
+        Math.sin(
+          time * 0.8
+        ) *
+        0.012;
+
+      this.head.rotation.z =
+        Math.sin(
+          time * 0.6
+        ) *
+        0.012;
+
+      /*
+       * Arms.
+       */
+
+      this.leftArm.rotation.x =
+        Math.sin(
+          time * 1.1
+        ) *
+        0.012;
+
+      this.rightArm.rotation.x =
+        Math.sin(
+          time * 1.1 +
+            Math.PI
+        ) *
+        0.012;
+
+      this.leftArm.rotation.z =
+        -0.07 +
+        sway *
+        0.01;
+
+      this.rightArm.rotation.z =
+        0.07 +
+        sway *
+        0.01;
+
+      /*
+       * Legs.
+       */
+
+      this.leftLeg.rotation.x =
+        0;
+
+      this.rightLeg.rotation.x =
+        0;
+    }
+
+    /* =======================================================
+       WALK
+       ======================================================= */
+
+    animateWalk(
+      time
+    ) {
+      const cycle =
+        Math.sin(
+          time * 8
+        );
+
+      const opposite =
+        Math.sin(
+          time * 8 +
+            Math.PI
+        );
+
+      this.body.position.y =
+        Math.abs(
+          cycle
+        ) *
+        0.035;
+
+      this.leftLeg.rotation.x =
+        cycle *
+        0.45;
+
+      this.rightLeg.rotation.x =
+        opposite *
+        0.45;
+
+      this.leftArm.rotation.x =
+        opposite *
+        0.3;
+
+      this.rightArm.rotation.x =
+        cycle *
+        0.3;
+
+      this.head.rotation.x =
+        Math.sin(
+          time * 8
+        ) *
+        0.015;
+
+      this.torso.scale.y =
+        1.01;
+    }
+
+    /* =======================================================
+       RUN
+       ======================================================= */
+
+    animateRun(
+      time
+    ) {
+      const cycle =
+        Math.sin(
+          time * 12
+        );
+
+      const opposite =
+        Math.sin(
+          time * 12 +
+            Math.PI
+        );
+
+      this.body.position.y =
+        Math.abs(
+          cycle
+        ) *
+        0.06;
+
+      this.leftLeg.rotation.x =
+        cycle *
+        0.78;
+
+      this.rightLeg.rotation.x =
+        opposite *
+        0.78;
+
+      this.leftArm.rotation.x =
+        opposite *
+        0.55;
+
+      this.rightArm.rotation.x =
+        cycle *
+        0.55;
+
+      this.head.rotation.x =
+        -0.035;
+    }
+
+    /* =======================================================
+       JUMP
+       ======================================================= */
+
+    animateJump(
+      time
+    ) {
+      this.body.position.y =
+        Math.sin(
+          time * 5
+        ) *
+        0.02;
+
+      this.leftArm.rotation.x =
+        -0.4;
+
+      this.rightArm.rotation.x =
+        -0.4;
+
+      this.leftLeg.rotation.x =
+        0.18;
+
+      this.rightLeg.rotation.x =
+        -0.18;
+
+      this.head.rotation.x =
+        -0.025;
+    }
+
+    /* =======================================================
+       PUBLIC CHARACTER CONTROLS
+       ======================================================= */
+
+    setPosition(
+      x,
+      y,
+      z
+    ) {
+      this.group.position.set(
+        x,
+        y,
+        z
+      );
+    }
+
+    getPosition() {
+      return {
+        x:
+          this.group.position.x,
+
+        y:
+          this.group.position.y,
+
+        z:
+          this.group.position.z
+      };
+    }
+  }
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+
+  function init() {
+    cacheElements();
 
     if (
-        Math.abs(difference) <= amount
+      !window.THREE
     ) {
-        return target;
+      showError(
+        "Three.js could not load."
+      );
+
+      return;
     }
 
-    return current +
-        Math.sign(difference) *
-        amount;
-}
+    setupScene();
 
-function updateCamera() {
+    setupWorld();
 
-    if (!player)
-        return;
+    setupCharacter();
+
+    setupControls();
+
+    resize();
+
+    window.addEventListener(
+      "resize",
+      resize
+    );
+
+    hideLoading();
+
+    requestAnimationFrame(
+      gameLoop
+    );
+  }
+
+  /* =========================================================
+     ELEMENTS
+     ========================================================= */
+
+  function cacheElements() {
+    RiseUpPlayer3D.elements.viewport =
+      document.getElementById(
+        "viewport"
+      );
+
+    RiseUpPlayer3D.elements.fps =
+      document.getElementById(
+        "fpsCounter"
+      );
+
+    RiseUpPlayer3D.elements.state =
+      document.getElementById(
+        "stateCounter"
+      );
+
+    RiseUpPlayer3D.elements.loading =
+      document.getElementById(
+        "loading"
+      );
+  }
+
+  /* =========================================================
+     SCENE
+     ========================================================= */
+
+  function setupScene() {
+    const viewport =
+      RiseUpPlayer3D
+        .elements
+        .viewport;
+
+    if (!viewport) {
+      throw new Error(
+        "Viewport element not found."
+      );
+    }
+
+    RiseUpPlayer3D.scene =
+      new THREE.Scene();
+
+    RiseUpPlayer3D.scene.background =
+      new THREE.Color(
+        0x91bddd
+      );
+
+    RiseUpPlayer3D.scene.fog =
+      new THREE.Fog(
+        0x91bddd,
+        55,
+        280
+      );
+
+    RiseUpPlayer3D.camera =
+      new THREE.PerspectiveCamera(
+        65,
+        1,
+        0.1,
+        2000
+      );
+
+    RiseUpPlayer3D.camera.position.set(
+      0,
+      4,
+      12
+    );
+
+    RiseUpPlayer3D.renderer =
+      new THREE.WebGLRenderer({
+        antialias: true
+      });
+
+    RiseUpPlayer3D.renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio ||
+          1,
+        2
+      )
+    );
+
+    RiseUpPlayer3D.renderer.outputColorSpace =
+      THREE.SRGBColorSpace;
+
+    RiseUpPlayer3D.renderer.shadowMap.enabled =
+      true;
+
+    RiseUpPlayer3D.renderer.shadowMap.type =
+      THREE.PCFSoftShadowMap;
+
+    viewport.innerHTML =
+      "";
+
+    viewport.appendChild(
+      RiseUpPlayer3D
+        .renderer
+        .domElement
+    );
+  }
+
+  /* =========================================================
+     WORLD
+     ========================================================= */
+
+  function setupWorld() {
+    const scene =
+      RiseUpPlayer3D.scene;
+
+    /*
+     * Sky.
+     */
+
+    const sky =
+      new THREE.Mesh(
+        new THREE.SphereGeometry(
+          900,
+          32,
+          20
+        ),
+        new THREE.MeshBasicMaterial({
+          color: 0x91bddd,
+          side:
+            THREE.BackSide
+        })
+      );
+
+    scene.add(
+      sky
+    );
+
+    /*
+     * Atmosphere.
+     */
+
+    const hemisphere =
+      new THREE.HemisphereLight(
+        0xe3f2ff,
+        0x34402f,
+        2.4
+      );
+
+    scene.add(
+      hemisphere
+    );
+
+    /*
+     * Sun.
+     */
+
+    const sun =
+      new THREE.DirectionalLight(
+        0xfff0cf,
+        3.5
+      );
+
+    sun.position.set(
+      60,
+      110,
+      40
+    );
+
+    sun.castShadow =
+      true;
+
+    sun.shadow.mapSize.width =
+      2048;
+
+    sun.shadow.mapSize.height =
+      2048;
+
+    sun.shadow.camera.left =
+      -110;
+
+    sun.shadow.camera.right =
+      110;
+
+    sun.shadow.camera.top =
+      110;
+
+    sun.shadow.camera.bottom =
+      -110;
+
+    scene.add(
+      sun
+    );
+
+    /*
+     * Ground.
+     */
+
+    const ground =
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          500,
+          2,
+          500
+        ),
+
+        new THREE.MeshStandardMaterial({
+          color: 0x526550,
+          roughness: 1
+        })
+      );
+
+    ground.position.y =
+      -1;
+
+    ground.receiveShadow =
+      true;
+
+    RiseUpPlayer3D.ground =
+      ground;
+
+    scene.add(
+      ground
+    );
+
+    /*
+     * Grid.
+     */
+
+    const grid =
+      new THREE.GridHelper(
+        300,
+        60,
+        0x8ea18e,
+        0x617063
+      );
+
+    grid.position.y =
+      0.01;
+
+    RiseUpPlayer3D.grid =
+      grid;
+
+    scene.add(
+      grid
+    );
+
+    createEnvironment();
+  }
+
+  function createEnvironment() {
+    createPlatform(
+      0,
+      0,
+      0,
+      5,
+      0.5,
+      5,
+      0x4e7594
+    );
+
+    createPlatform(
+      0,
+      0,
+      -22,
+      4,
+      0.5,
+      4,
+      0x607968
+    );
+
+    createPlatform(
+      23,
+      0,
+      0,
+      4,
+      0.5,
+      4,
+      0x776f54
+    );
+
+    createTree(
+      -13,
+      0,
+      -8
+    );
+
+    createTree(
+      15,
+      0,
+      -16
+    );
+
+    createTree(
+      -18,
+      0,
+      17
+    );
+
+    createTree(
+      24,
+      0,
+      18
+    );
+  }
+
+  function createPlatform(
+    x,
+    y,
+    z,
+    width,
+    height,
+    depth,
+    color
+  ) {
+    const platform =
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          width * 2,
+          height * 2,
+          depth * 2
+        ),
+
+        new THREE.MeshStandardMaterial({
+          color,
+          roughness: 0.85
+        })
+      );
+
+    platform.position.set(
+      x,
+      y,
+      z
+    );
+
+    platform.castShadow =
+      true;
+
+    platform.receiveShadow =
+      true;
+
+    RiseUpPlayer3D.scene.add(
+      platform
+    );
+  }
+
+  function createTree(
+    x,
+    y,
+    z
+  ) {
+    const trunk =
+      new THREE.Mesh(
+        new THREE.CylinderGeometry(
+          0.35,
+          0.48,
+          3,
+          12
+        ),
+
+        new THREE.MeshStandardMaterial({
+          color: 0x765038,
+          roughness: 1
+        })
+      );
+
+    trunk.position.set(
+      x,
+      y + 1.5,
+      z
+    );
+
+    trunk.castShadow =
+      true;
+
+    RiseUpPlayer3D.scene.add(
+      trunk
+    );
+
+    const leaves =
+      new THREE.Mesh(
+        new THREE.SphereGeometry(
+          1.8,
+          20,
+          15
+        ),
+
+        new THREE.MeshStandardMaterial({
+          color: 0x438149,
+          roughness: 0.95
+        })
+      );
+
+    leaves.position.set(
+      x,
+      y + 4,
+      z
+    );
+
+    leaves.castShadow =
+      true;
+
+    RiseUpPlayer3D.scene.add(
+      leaves
+    );
+  }
+
+  /* =========================================================
+     CHARACTER SETUP
+     ========================================================= */
+
+  function setupCharacter() {
+    RiseUpPlayer3D.character =
+      new RiseUpCharacter(
+        RiseUpPlayer3D.scene,
+        {
+          x: 0,
+          y: 0,
+          z: 6,
+
+          walkSpeed: 7,
+          runSpeed: 12,
+          jumpPower: 10,
+          gravity: 25
+        }
+      );
+  }
+
+  /* =========================================================
+     CONTROLS
+     ========================================================= */
+
+  function setupControls() {
+    const renderer =
+      RiseUpPlayer3D
+        .renderer;
+
+    document.addEventListener(
+      "keydown",
+      onKeyDown
+    );
+
+    document.addEventListener(
+      "keyup",
+      onKeyUp
+    );
+
+    renderer.domElement.addEventListener(
+      "click",
+      () => {
+        if (
+          renderer.domElement
+            .requestPointerLock
+        ) {
+          renderer.domElement.requestPointerLock();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "mousemove",
+      onMouseMove
+    );
+
+    document.addEventListener(
+      "pointerlockchange",
+      () => {
+        RiseUpPlayer3D.mouse =
+          RiseUpPlayer3D.mouse || {
+            locked: false
+          };
+
+        RiseUpPlayer3D.mouse.locked =
+          document.pointerLockElement ===
+          renderer.domElement;
+      }
+    );
+  }
+
+  function onKeyDown(
+    event
+  ) {
+    const key =
+      event.key.toLowerCase();
+
+    const character =
+      RiseUpPlayer3D.character;
+
+    if (
+      key === "w" ||
+      key === "a" ||
+      key === "s" ||
+      key === "d"
+    ) {
+      RiseUpPlayer3D.keys[key] =
+        true;
+
+      character?.setKey(
+        key,
+        true
+      );
+    }
+
+    if (
+      key === "shift"
+    ) {
+      RiseUpPlayer3D.keys.shift =
+        true;
+
+      character?.setKey(
+        "shift",
+        true
+      );
+    }
+
+    if (
+      event.code === "Space"
+    ) {
+      event.preventDefault();
+
+      character?.jump();
+    }
+  }
+
+  function onKeyUp(
+    event
+  ) {
+    const key =
+      event.key.toLowerCase();
+
+    const character =
+      RiseUpPlayer3D.character;
+
+    if (
+      key === "w" ||
+      key === "a" ||
+      key === "s" ||
+      key === "d"
+    ) {
+      RiseUpPlayer3D.keys[key] =
+        false;
+
+      character?.setKey(
+        key,
+        false
+      );
+    }
+
+    if (
+      key === "shift"
+    ) {
+      RiseUpPlayer3D.keys.shift =
+        false;
+
+      character?.setKey(
+        "shift",
+        false
+      );
+    }
+  }
+
+  function onMouseMove(
+    event
+  ) {
+    if (
+      !RiseUpPlayer3D.mouse ||
+      !RiseUpPlayer3D.mouse.locked
+    ) {
+      return;
+    }
+
+    RiseUpPlayer3D.mouse.yaw -=
+      event.movementX *
+      RiseUpPlayer3D.mouse.sensitivity;
+
+    RiseUpPlayer3D.mouse.pitch -=
+      event.movementY *
+      RiseUpPlayer3D.mouse.sensitivity;
+
+    RiseUpPlayer3D.mouse.pitch =
+      Math.max(
+        -0.9,
+        Math.min(
+          0.55,
+          RiseUpPlayer3D.mouse.pitch
+        )
+      );
+  }
+
+  /* =========================================================
+     CAMERA
+     ========================================================= */
+
+  function updateCamera(
+    delta
+  ) {
+    const character =
+      RiseUpPlayer3D.character;
+
+    const camera =
+      RiseUpPlayer3D.camera;
+
+    if (
+      !character ||
+      !camera
+    ) {
+      return;
+    }
+
+    const player =
+      character.group.position;
+
+    const mouse =
+      RiseUpPlayer3D.mouse;
+
+    const yaw =
+      mouse?.yaw || 0;
+
+    const pitch =
+      mouse?.pitch || -0.18;
+
+    const distance =
+      RiseUpPlayer3D.cameraDistance;
+
+    const horizontalDistance =
+      distance *
+      Math.cos(
+        pitch
+      );
 
     const target =
-        player.position.clone();
+      new THREE.Vector3(
+        player.x,
+        player.y + 1.25,
+        player.z
+      );
 
-    target.y += 1.25;
+    const desired =
+      new THREE.Vector3(
+        player.x -
+          Math.sin(yaw) *
+          horizontalDistance,
 
-    const horizontal =
-        Math.cos(pitch) *
-        cameraDistance;
+        player.y +
+          1.25 -
+          Math.sin(pitch) *
+          distance,
 
-    const vertical =
-        Math.sin(pitch) *
-        cameraDistance;
-
-    const position =
-        new THREE.Vector3(
-            target.x +
-                Math.sin(yaw) *
-                horizontal,
-
-            target.y +
-                vertical,
-
-            target.z +
-                Math.cos(yaw) *
-                horizontal
-        );
+        player.z -
+          Math.cos(yaw) *
+          horizontalDistance
+      );
 
     camera.position.lerp(
-        position,
-        0.12
+      desired,
+      Math.min(
+        1,
+        delta * 8
+      )
     );
 
     camera.lookAt(
-        target
+      target
     );
-}
+  }
 
-function setLoading(
-    title,
-    text
-) {
+  /* =========================================================
+     GAME LOOP
+     ========================================================= */
 
-    loading.style.display =
-        "flex";
+  function gameLoop(
+    timestamp
+  ) {
+    const delta =
+      RiseUpPlayer3D.lastTime
+        ? Math.min(
+            0.05,
+            (
+              timestamp -
+              RiseUpPlayer3D.lastTime
+            ) /
+            1000
+          )
+        : 0.016;
 
-    loadingTitle.textContent =
-        title;
+    RiseUpPlayer3D.lastTime =
+      timestamp;
 
-    loadingText.textContent =
-        text;
+    updateFPS(
+      delta
+    );
 
-    errorScreen.style.display =
-        "none";
-}
+    if (
+      RiseUpPlayer3D.character
+    ) {
+      RiseUpPlayer3D.character.update(
+        delta,
+        RiseUpPlayer3D.mouse?.yaw ||
+          0
+      );
+    }
 
-function showError(message) {
+    updateCamera(
+      delta
+    );
 
-    loading.style.display =
-        "none";
+    updateHUD();
 
-    errorScreen.style.display =
-        "flex";
-
-    errorText.textContent =
-        message;
-
-    statusText.textContent =
-        "Player error";
-}
-
-function animate() {
+    if (
+      RiseUpPlayer3D.renderer
+    ) {
+      RiseUpPlayer3D.renderer.render(
+        RiseUpPlayer3D.scene,
+        RiseUpPlayer3D.camera
+      );
+    }
 
     requestAnimationFrame(
-        animate
+      gameLoop
     );
+  }
 
-    const delta =
-        Math.min(
-            clock.getDelta(),
-            0.05
+  /* =========================================================
+     FPS
+     ========================================================= */
+
+  function updateFPS(
+    delta
+  ) {
+    RiseUpPlayer3D.frames++;
+
+    RiseUpPlayer3D.fpsTime +=
+      delta;
+
+    if (
+      RiseUpPlayer3D.fpsTime >=
+      0.5
+    ) {
+      RiseUpPlayer3D.fps =
+        Math.round(
+          RiseUpPlayer3D.frames /
+            RiseUpPlayer3D.fpsTime
         );
 
-    updatePlayer(delta);
-    updateCamera();
+      RiseUpPlayer3D.frames =
+        0;
 
-    renderer.render(
-        scene,
-        camera
-    );
-}
+      RiseUpPlayer3D.fpsTime =
+        0;
+    }
+  }
 
-function resize() {
+  function updateHUD() {
+    const fps =
+      RiseUpPlayer3D
+        .elements
+        .fps;
 
-    camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
+    const state =
+      RiseUpPlayer3D
+        .elements
+        .state;
 
-    camera.updateProjectionMatrix();
+    const character =
+      RiseUpPlayer3D.character;
+
+    if (fps) {
+      fps.textContent =
+        `${RiseUpPlayer3D.fps} FPS`;
+    }
+
+    if (
+      state &&
+      character
+    ) {
+      state.textContent =
+        character.state
+          .charAt(0)
+          .toUpperCase() +
+        character.state.slice(1);
+    }
+  }
+
+  /* =========================================================
+     RESIZE
+     ========================================================= */
+
+  function resize() {
+    const viewport =
+      RiseUpPlayer3D
+        .elements
+        .viewport;
+
+    const camera =
+      RiseUpPlayer3D.camera;
+
+    const renderer =
+      RiseUpPlayer3D.renderer;
+
+    if (
+      !viewport ||
+      !camera ||
+      !renderer
+    ) {
+      return;
+    }
+
+    const width =
+      Math.max(
+        1,
+        viewport.clientWidth
+      );
+
+    const height =
+      Math.max(
+        1,
+        viewport.clientHeight
+      );
 
     renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
+      width,
+      height,
+      false
     );
-}
+
+    camera.aspect =
+      width /
+      height;
+
+    camera.updateProjectionMatrix();
+  }
+
+  /* =========================================================
+     LOADING
+     ========================================================= */
+
+  function hideLoading() {
+    const loading =
+      RiseUpPlayer3D
+        .elements
+        .loading;
+
+    if (!loading) {
+      return;
+    }
+
+    setTimeout(
+      () => {
+        loading.classList.add(
+          "hidden"
+        );
+      },
+      300
+    );
+  }
+
+  function showError(
+    message
+  ) {
+    const loading =
+      RiseUpPlayer3D
+        .elements
+        .loading;
+
+    if (!loading) {
+      alert(message);
+      return;
+    }
+
+    loading.innerHTML =
+      `
+        <div class="loading-box">
+          <strong>RiseUp</strong>
+          <span>${escapeHtml(
+            message
+          )}</span>
+        </div>
+      `;
+  }
+
+  /* =========================================================
+     PUBLIC API
+     ========================================================= */
+
+  window.RiseUpPlayer3D =
+    RiseUpPlayer3D;
+
+  window.RiseUpCharacter =
+    RiseUpCharacter;
+
+  /* =========================================================
+     START
+     ========================================================= */
+
+  init();
+})();
