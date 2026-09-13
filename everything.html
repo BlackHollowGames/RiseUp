@@ -1,4314 +1,3932 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiseUp</title>
-
-  <style>
-    :root{
-      --bg:#080b0f;
-      --bg2:#0d1117;
-      --panel:#11161d;
-      --panel2:#171d25;
-      --panel3:#1d2530;
-      --border:#27303a;
-      --border2:#384552;
-      --text:#f4f7fa;
-      --muted:#a3adb8;
-      --muted2:#6f7b87;
-      --blue:#4da3ff;
-      --blue2:#245f94;
-      --green:#3dcc7b;
-      --red:#e26565;
-      --gold:#ffd84d;
-      --top:54px;
-      --side:240px;
-      --radius:8px;
-    }
-
-    *{
-      box-sizing:border-box;
-      scrollbar-width:thin;
-      scrollbar-color:#303a45 transparent;
-    }
-
-    *::-webkit-scrollbar{
-      width:7px;
-      height:7px;
-    }
-
-    *::-webkit-scrollbar-track{
-      background:transparent;
-    }
-
-    *::-webkit-scrollbar-thumb{
-      background:#303a45;
-      border-radius:99px;
-    }
-
-    html{
-      min-height:100%;
-      scroll-behavior:smooth;
-    }
-
-    body{
-      margin:0;
-      min-width:320px;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--text);
-      font-family:Inter,"Segoe UI",Arial,sans-serif;
-    }
-
-    button,
-    input,
-    textarea{
-      font:inherit;
-    }
-
-    button{
-      border:0;
-    }
-
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible{
-      outline:2px solid var(--blue);
-      outline-offset:2px;
-    }
-
-    .hidden{
-      display:none !important;
-    }
-
-    /* TOPBAR */
-
-    .topbar{
-      position:fixed;
-      inset:0 0 auto 0;
-      height:var(--top);
-      z-index:1000;
-      display:flex;
-      align-items:center;
-      background:#0c1015;
-      border-bottom:1px solid var(--border);
-    }
-
-    .brand{
-      width:var(--side);
-      height:100%;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:0 16px;
-      color:white;
-      background:transparent;
-      cursor:pointer;
-    }
-
-    .brand-mark,
-    .footer-mark{
-      width:31px;
-      height:31px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:7px;
-      color:white;
-      background:linear-gradient(135deg,#66b7ff,#23679f);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 18px rgba(0,0,0,.22);
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .brand-text{
-      font-size:16px;
-      font-weight:850;
-    }
-
-    .top-nav{
-      display:flex;
-      align-items:center;
-      gap:3px;
-      flex:1;
-    }
-
-    .top-nav button,
-    .create-button{
-      height:34px;
-      padding:0 12px;
-      border-radius:5px;
-      color:var(--muted);
-      background:transparent;
-      cursor:pointer;
-      font-size:11px;
-      font-weight:700;
-    }
-
-    .top-nav button:hover,
-    .top-nav button.active{
-      color:white;
-      background:#182029;
-    }
-
-    .create-button{
-      color:white;
-      background:var(--blue2);
-      border:1px solid #3279b4;
-    }
-
-    .create-button:hover{
-      background:var(--blue);
-    }
-
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding-right:9px;
-    }
-
-    .search{
-      width:225px;
-      height:33px;
-      position:relative;
-    }
-
-    .search input{
-      width:100%;
-      height:100%;
-      padding:0 12px 0 32px;
-      color:white;
-      background:#090d12;
-      border:1px solid var(--border);
-      border-radius:5px;
-      outline:none;
-      font-size:10px;
-    }
-
-    .search input:focus{
-      border-color:var(--blue);
-    }
-
-    .search-icon{
-      position:absolute;
-      left:10px;
-      top:9px;
-      width:12px;
-      height:12px;
-      border:1.5px solid #81909d;
-      border-radius:50%;
-      pointer-events:none;
-    }
-
-    .search-icon::after{
-      content:"";
-      position:absolute;
-      width:5px;
-      height:1.5px;
-      right:-4px;
-      bottom:-2px;
-      background:#81909d;
-      transform:rotate(45deg);
-    }
-
-    .top-icon,
-    .token-button,
-    .profile-button{
-      height:33px;
-      border-radius:5px;
-      color:var(--muted);
-      background:transparent;
-      cursor:pointer;
-    }
-
-    .top-icon{
-      width:33px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .top-icon:hover,
-    .token-button:hover,
-    .profile-button:hover{
-      color:white;
-      background:#182029;
-    }
-
-    .mail-icon{
-      width:15px;
-      height:11px;
-      border:1.5px solid currentColor;
-      border-radius:3px;
-      position:relative;
-    }
-
-    .mail-icon::after{
-      content:"";
-      position:absolute;
-      left:2px;
-      right:2px;
-      top:2px;
-      height:6px;
-      border-bottom:1px solid currentColor;
-      transform:skewY(-28deg);
-    }
-
-    .bell-icon{
-      width:12px;
-      height:13px;
-      border:1.5px solid currentColor;
-      border-radius:8px 8px 4px 4px;
-      position:relative;
-      border-bottom-color:transparent;
-    }
-
-    .bell-icon::after{
-      content:"";
-      position:absolute;
-      left:3px;
-      bottom:-4px;
-      width:5px;
-      height:3px;
-      border-bottom:1.5px solid currentColor;
-      border-radius:50%;
-    }
-
-    .token-button{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding:0 8px;
-      font-size:10px;
-      font-weight:800;
-    }
-
-    .token-mark{
-      width:20px;
-      height:20px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      color:#181818;
-      background:var(--gold);
-      font-size:9px;
-      font-weight:900;
-    }
-
-    .profile-button{
-      width:33px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      background:#394654;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    /* APP */
-
-    .app{
-      min-height:100vh;
-      padding-top:var(--top);
-    }
-
-    .sidebar{
-      position:fixed;
-      left:0;
-      top:var(--top);
-      bottom:0;
-      width:var(--side);
-      z-index:900;
-      display:flex;
-      flex-direction:column;
-      background:#0c1015;
-      border-right:1px solid var(--border);
-    }
-
-    .sidebar-scroll{
-      padding:10px 9px;
-      overflow:auto;
-    }
-
-    .side-group{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-
-    .side-divider{
-      height:1px;
-      margin:10px 7px;
-      background:var(--border);
-    }
-
-    .side-button{
-      width:100%;
-      height:38px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:0 11px;
-      color:var(--muted);
-      background:transparent;
-      border-radius:5px;
-      cursor:pointer;
-      text-align:left;
-      font-size:10px;
-      font-weight:700;
-    }
-
-    .side-button:hover{
-      color:white;
-      background:#182029;
-    }
-
-    .side-button.active{
-      color:white;
-      background:#173a5a;
-    }
-
-    .side-count{
-      margin-left:auto;
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    .side-icon{
-      width:17px;
-      height:17px;
-      position:relative;
-      flex:0 0 17px;
-      color:currentColor;
-    }
-
-    .ico-home::before{
-      content:"";
-      position:absolute;
-      left:3px;
-      top:6px;
-      width:11px;
-      height:9px;
-      border:1.5px solid currentColor;
-      border-top:0;
-    }
-
-    .ico-home::after{
-      content:"";
-      position:absolute;
-      left:4px;
-      top:2px;
-      width:9px;
-      height:9px;
-      border-left:1.5px solid currentColor;
-      border-top:1.5px solid currentColor;
-      transform:rotate(45deg);
-    }
-
-    .ico-circle{
-      border:1.5px solid currentColor;
-      border-radius:50%;
-    }
-
-    .ico-user{
-      border:1.5px solid currentColor;
-      border-radius:50%;
-    }
-
-    .ico-user::before{
-      content:"";
-      position:absolute;
-      width:5px;
-      height:5px;
-      left:5px;
-      top:3px;
-      border:1px solid currentColor;
-      border-radius:50%;
-    }
-
-    .ico-user::after{
-      content:"";
-      position:absolute;
-      width:9px;
-      height:4px;
-      left:3px;
-      bottom:3px;
-      border:1px solid currentColor;
-      border-radius:7px 7px 3px 3px;
-    }
-
-    .ico-box{
-      border:1.5px solid currentColor;
-      border-radius:3px;
-    }
-
-    .ico-box::after{
-      content:"";
-      position:absolute;
-      left:4px;
-      right:4px;
-      top:4px;
-      height:1px;
-      background:currentColor;
-      box-shadow:0 3px 0 currentColor,0 6px 0 currentColor;
-    }
-
-    .ico-friends::before,
-    .ico-friends::after{
-      content:"";
-      position:absolute;
-      width:6px;
-      height:6px;
-      top:2px;
-      border:1px solid currentColor;
-      border-radius:50%;
-    }
-
-    .ico-friends::before{left:1px}
-    .ico-friends::after{right:1px}
-
-    .ico-chat{
-      border:1.5px solid currentColor;
-      border-radius:4px;
-    }
-
-    .ico-shop::before{
-      content:"";
-      position:absolute;
-      left:2px;
-      top:5px;
-      width:13px;
-      height:8px;
-      border:1.5px solid currentColor;
-    }
-
-    .ico-shop::after{
-      content:"";
-      position:absolute;
-      left:5px;
-      top:2px;
-      width:7px;
-      height:5px;
-      border:1.5px solid currentColor;
-      border-bottom:0;
-      border-radius:5px 5px 0 0;
-    }
-
-    .ico-studio{
-      border:1.5px solid currentColor;
-      border-radius:4px;
-      transform:rotate(45deg) scale(.75);
-    }
-
-    .ico-code::before{
-      content:"<>"; 
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      font-weight:900;
-    }
-
-    .ico-settings{
-      border:1.5px solid currentColor;
-      border-radius:50%;
-    }
-
-    .ico-settings::after{
-      content:"";
-      position:absolute;
-      left:5px;
-      top:5px;
-      width:4px;
-      height:4px;
-      border:1px solid currentColor;
-      border-radius:50%;
-    }
-
-    .sidebar-bottom{
-      margin-top:auto;
-      padding:10px;
-      border-top:1px solid var(--border);
-    }
-
-    .sidebar-create{
-      width:100%;
-      height:40px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      border-radius:5px;
-      color:white;
-      background:var(--blue2);
-      border:1px solid #327ab5;
-      cursor:pointer;
-      font-size:10px;
-      font-weight:800;
-    }
-
-    .sidebar-create:hover{
-      background:var(--blue);
-    }
-
-    .plus{
-      font-size:18px;
-      line-height:1;
-    }
-
-    /* MAIN */
-
-    .main{
-      width:calc(100% - var(--side));
-      min-height:calc(100vh - var(--top));
-      margin-left:var(--side);
-      padding:28px 38px 42px;
-      background:
-        radial-gradient(circle at 85% 0%,rgba(42,83,115,.12),transparent 34%),
-        var(--bg);
-    }
-
-    .page{
-      display:none;
-      max-width:1450px;
-      margin:0 auto;
-    }
-
-    .page.active{
-      display:block;
-    }
-
-    .hero{
-      min-height:195px;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:20px;
-      padding:28px;
-      margin-bottom:29px;
-      background:linear-gradient(135deg,rgba(39,78,108,.42),rgba(18,24,31,.8));
-      border:1px solid var(--border);
-      border-radius:10px;
-    }
-
-    .eyebrow{
-      color:var(--blue);
-      font-size:9px;
-      font-weight:900;
-      letter-spacing:1.2px;
-    }
-
-    h1,h2,h3,p{
-      margin-top:0;
-    }
-
-    .hero h1,
-    .page-header h1{
-      margin:7px 0;
-      font-size:31px;
-      line-height:1.05;
-      letter-spacing:-.8px;
-    }
-
-    .hero p,
-    .page-header p{
-      margin:0;
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.55;
-    }
-
-    .primary{
-      min-height:35px;
-      padding:0 14px;
-      color:white;
-      background:var(--blue2);
-      border:1px solid #327ab5;
-      border-radius:5px;
-      cursor:pointer;
-      font-size:10px;
-      font-weight:800;
-    }
-
-    .primary:hover{
-      background:var(--blue);
-    }
-
-    .secondary{
-      min-height:35px;
-      padding:0 14px;
-      color:var(--muted);
-      background:var(--panel2);
-      border:1px solid var(--border);
-      border-radius:5px;
-      cursor:pointer;
-      font-size:10px;
-      font-weight:700;
-    }
-
-    .secondary:hover{
-      color:white;
-      border-color:var(--border2);
-      background:var(--panel3);
-    }
-
-    .section{
-      margin-bottom:34px;
-    }
-
-    .section-title{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      margin-bottom:13px;
-    }
-
-    .section-title h2{
-      margin-bottom:3px;
-      font-size:17px;
-    }
-
-    .section-title p{
-      margin:0;
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    .link-button{
-      color:var(--blue);
-      background:transparent;
-      cursor:pointer;
-      font-size:9px;
-      font-weight:800;
-    }
-
-    .link-button:hover{
-      color:white;
-    }
-
-    /* CARDS */
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
-      gap:13px;
-    }
-
-    .game-card{
-      overflow:hidden;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:7px;
-      cursor:pointer;
-      transition:.15s ease;
-    }
-
-    .game-card:hover{
-      transform:translateY(-2px);
-      background:var(--panel2);
-      border-color:var(--border2);
-    }
-
-    .game-thumb{
-      aspect-ratio:16/9;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,#204d6c,#12202b);
-      color:rgba(255,255,255,.16);
-      font-size:29px;
-      font-weight:900;
-    }
-
-    .game-info{
-      padding:10px;
-    }
-
-    .game-title{
-      margin-bottom:4px;
-      overflow:hidden;
-      color:white;
-      font-size:11px;
-      font-weight:800;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-    }
-
-    .game-creator{
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    /* EMPTY */
-
-    .empty{
-      min-height:160px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-      text-align:center;
-      background:var(--panel);
-      border:1px dashed var(--border2);
-      border-radius:8px;
-    }
-
-    .empty-art{
-      width:40px;
-      height:40px;
-      margin-bottom:9px;
-      border-radius:9px;
-      background:linear-gradient(135deg,#1e4f76,#14222f);
-    }
-
-    .empty h3{
-      margin-bottom:5px;
-      font-size:12px;
-    }
-
-    .empty p{
-      margin-bottom:13px;
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    /* PAGE HEADER */
-
-    .page-header{
-      margin-bottom:22px;
-    }
-
-    /* AVATAR */
-
-    .avatar-layout{
-      display:grid;
-      grid-template-columns:minmax(280px,1fr) minmax(280px,1fr);
-      gap:17px;
-    }
-
-    .card-panel{
-      padding:20px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:8px;
-    }
-
-    .avatar-preview-panel{
-      min-height:430px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .avatar-preview{
-      width:190px;
-      height:265px;
-      position:relative;
-    }
-
-    .avatar-head{
-      position:absolute;
-      width:98px;
-      height:98px;
-      left:46px;
-      top:8px;
-      border-radius:50%;
-      background:#ffe047;
-    }
-
-    .avatar-eye{
-      position:absolute;
-      top:38px;
-      width:9px;
-      height:9px;
-      background:#111;
-      border-radius:50%;
-    }
-
-    .avatar-eye.left{left:29px}
-    .avatar-eye.right{right:29px}
-
-    .avatar-smile{
-      position:absolute;
-      left:31px;
-      right:31px;
-      bottom:25px;
-      height:13px;
-      border-bottom:3px solid #111;
-      border-radius:50%;
-    }
-
-    .avatar-body{
-      position:absolute;
-      left:51px;
-      top:105px;
-      width:88px;
-      height:89px;
-      border-radius:31px;
-      background:#249bff;
-    }
-
-    .avatar-arms span{
-      position:absolute;
-      top:112px;
-      width:25px;
-      height:72px;
-      border-radius:16px;
-      background:#ffe047;
-    }
-
-    .avatar-arms span:first-child{left:27px}
-    .avatar-arms span:last-child{right:27px}
-
-    .avatar-legs span{
-      position:absolute;
-      top:187px;
-      width:31px;
-      height:70px;
-      border-radius:15px;
-      background:#00a82d;
-    }
-
-    .avatar-legs span:first-child{left:52px}
-    .avatar-legs span:last-child{right:52px}
-
-    .avatar-preview-panel h2{
-      margin:7px 0 0;
-      font-size:15px;
-    }
-
-    .setting-row{
-      min-height:52px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      border-top:1px solid var(--border);
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    .setting-row:first-child{
-      border-top:0;
-    }
-
-    .choice{
-      height:28px;
-      padding:0 10px;
-      color:var(--muted);
-      background:var(--panel3);
-      border:1px solid var(--border);
-      border-radius:4px;
-      cursor:pointer;
-      font-size:9px;
-    }
-
-    .choice:hover,
-    .choice.active{
-      color:white;
-      border-color:var(--blue);
-      background:#183b59;
-    }
-
-    /* TABS */
-
-    .tabs{
-      display:flex;
-      flex-wrap:wrap;
-      gap:5px;
-      margin-bottom:17px;
-    }
-
-    .tab{
-      height:31px;
-      padding:0 11px;
-      color:var(--muted);
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:5px;
-      cursor:pointer;
-      font-size:9px;
-      font-weight:700;
-    }
-
-    .tab:hover,
-    .tab.active{
-      color:white;
-      background:#1a2530;
-      border-color:#365065;
-    }
-
-    /* FRIENDS */
-
-    .toolbar{
-      display:flex;
-      gap:7px;
-      margin-bottom:17px;
-    }
-
-    .toolbar input{
-      width:310px;
-      height:35px;
-      padding:0 10px;
-      color:white;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:5px;
-      outline:none;
-      font-size:10px;
-    }
-
-    .toolbar input:focus{
-      border-color:var(--blue);
-    }
-
-    .friend-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-      gap:10px;
-    }
-
-    .friend{
-      min-height:74px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:7px;
-    }
-
-    .friend-avatar{
-      width:40px;
-      height:40px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 40px;
-      color:white;
-      background:#394754;
-      border-radius:50%;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    .friend-name{
-      font-size:10px;
-      font-weight:750;
-    }
-
-    /* INVENTORY */
-
-    .inventory-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
-      gap:12px;
-    }
-
-    .inventory-item{
-      min-height:150px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:12px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:7px;
-    }
-
-    .inventory-image{
-      flex:1;
-      margin-bottom:10px;
-      border-radius:5px;
-      background:linear-gradient(135deg,#17334b,#10171e);
-    }
-
-    .inventory-item strong{
-      font-size:10px;
-    }
-
-    .inventory-item span{
-      margin-top:3px;
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    /* MARKETPLACE */
-
-    .market-head{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:20px;
-    }
-
-    .balance{
-      min-width:120px;
-      display:flex;
-      align-items:center;
-      gap:7px;
-      padding:10px 12px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:6px;
-    }
-
-    .balance span{
-      color:var(--muted2);
-      font-size:8px;
-      font-weight:800;
-    }
-
-    .balance strong{
-      font-size:12px;
-    }
-
-    .market-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
-      gap:13px;
-    }
-
-    .market-card{
-      overflow:hidden;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:7px;
-    }
-
-    .market-image{
-      aspect-ratio:1/.78;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,#1c4566,#101a22);
-      color:rgba(255,255,255,.15);
-      font-size:27px;
-      font-weight:900;
-    }
-
-    .market-info{
-      padding:11px;
-    }
-
-    .market-info strong{
-      display:block;
-      margin-bottom:4px;
-      font-size:10px;
-    }
-
-    .market-info span{
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    .market-bottom{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      margin-top:10px;
-    }
-
-    .price{
-      color:var(--gold);
-      font-size:10px;
-      font-weight:900;
-    }
-
-    .buy{
-      height:28px;
-      padding:0 10px;
-      color:white;
-      background:var(--blue2);
-      border:1px solid #327ab5;
-      border-radius:4px;
-      cursor:pointer;
-      font-size:9px;
-      font-weight:800;
-    }
-
-    .buy:hover{
-      background:var(--blue);
-    }
-
-    /* MESSAGES */
-
-    .messages-shell{
-      min-height:470px;
-      display:grid;
-      grid-template-columns:280px minmax(0,1fr);
-      overflow:hidden;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:8px;
-    }
-
-    .conversation-list{
-      overflow:auto;
-      border-right:1px solid var(--border);
-    }
-
-    .conversation{
-      min-height:63px;
-      display:flex;
-      align-items:center;
-      gap:9px;
-      padding:9px 11px;
-      border-bottom:1px solid var(--border);
-      color:var(--muted);
-      cursor:pointer;
-    }
-
-    .conversation:hover,
-    .conversation.active{
-      color:white;
-      background:#17202a;
-    }
-
-    .conversation small{
-      display:block;
-      margin-top:3px;
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    .message-panel{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .message-empty{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:25px;
-      text-align:center;
-    }
-
-    .message-empty h3{
-      margin-bottom:6px;
-      font-size:13px;
-    }
-
-    .message-empty p{
-      margin:0;
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    .message-header{
-      padding:13px;
-      border-bottom:1px solid var(--border);
-      font-size:10px;
-      font-weight:800;
-    }
-
-    .message-history{
-      flex:1;
-      padding:15px;
-      color:var(--muted);
-      font-size:10px;
-      overflow:auto;
-    }
-
-    .message-compose{
-      display:flex;
-      gap:6px;
-      padding:8px;
-      border-top:1px solid var(--border);
-    }
-
-    .message-compose input{
-      flex:1;
-      min-width:0;
-      height:33px;
-      padding:0 9px;
-      color:white;
-      background:#090d12;
-      border:1px solid var(--border);
-      border-radius:4px;
-      outline:none;
-      font-size:9px;
-    }
-
-    /* SETTINGS */
-
-    .settings{
-      max-width:760px;
-      display:grid;
-      gap:13px;
-    }
-
-    .settings-card{
-      padding:19px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:8px;
-    }
-
-    .settings-card h2{
-      margin-bottom:9px;
-      font-size:13px;
-    }
-
-    .settings-row{
-      min-height:50px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:15px;
-      border-top:1px solid var(--border);
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    .settings-row div{
-      display:flex;
-      flex-direction:column;
-      gap:3px;
-    }
-
-    .settings-row strong{
-      color:white;
-      font-size:10px;
-    }
-
-    .settings-row small{
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    .danger{
-      border-color:rgba(226,101,101,.35);
-    }
-
-    .danger-button{
-      height:32px;
-      padding:0 12px;
-      color:#ffb3b3;
-      background:rgba(226,101,101,.1);
-      border:1px solid rgba(226,101,101,.28);
-      border-radius:5px;
-      cursor:pointer;
-      font-size:9px;
-      font-weight:800;
-    }
-
-    /* TOKEN CENTER */
-
-    .token-hero{
-      min-height:145px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-      padding:24px;
-      background:linear-gradient(135deg,rgba(85,67,19,.23),rgba(18,23,29,.9));
-      border:1px solid rgba(255,216,77,.18);
-      border-radius:9px;
-      margin-bottom:18px;
-    }
-
-    .token-total{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-
-    .token-big{
-      width:64px;
-      height:64px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      color:#181818;
-      background:var(--gold);
-      font-size:21px;
-      font-weight:900;
-      box-shadow:0 9px 25px rgba(255,216,77,.13);
-    }
-
-    .token-total strong{
-      display:block;
-      font-size:25px;
-    }
-
-    .token-total span{
-      color:var(--muted2);
-      font-size:9px;
-    }
-
-    .token-pack-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-      gap:12px;
-    }
-
-    .token-card{
-      padding:16px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:8px;
-    }
-
-    .token-card-title{
-      font-size:12px;
-      font-weight:850;
-    }
-
-    .token-card-value{
-      margin-top:7px;
-      color:var(--gold);
-      font-size:19px;
-      font-weight:900;
-    }
-
-    .token-card-description{
-      min-height:32px;
-      margin:8px 0 13px;
-      color:var(--muted2);
-      font-size:8px;
-      line-height:1.45;
-    }
-
-    .reward-badge{
-      display:inline-flex;
-      align-items:center;
-      min-height:22px;
-      padding:0 7px;
-      border-radius:4px;
-      color:#baf0d1;
-      background:rgba(61,204,123,.1);
-      border:1px solid rgba(61,204,123,.2);
-      font-size:8px;
-      font-weight:800;
-    }
-
-    .token-note{
-      margin-top:13px;
-      padding:11px;
-      color:var(--muted2);
-      background:rgba(255,255,255,.025);
-      border:1px solid var(--border);
-      border-radius:6px;
-      font-size:8px;
-      line-height:1.55;
-    }
-
-    /* FOOTER */
-
-    .footer{
-      max-width:1450px;
-      margin:58px auto 0;
-      padding-top:24px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-      border-top:1px solid var(--border);
-    }
-
-    .footer-brand{
-      display:flex;
-      align-items:center;
-      gap:9px;
-      min-width:175px;
-    }
-
-    .footer-mark{
-      width:28px;
-      height:28px;
-      font-size:11px;
-    }
-
-    .footer-brand strong,
-    .footer-brand span{
-      display:block;
-    }
-
-    .footer-brand strong{
-      font-size:10px;
-    }
-
-    .footer-brand span{
-      margin-top:2px;
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    .footer-links{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      justify-content:center;
-    }
-
-    .footer-links button{
-      color:var(--muted2);
-      background:transparent;
-      cursor:pointer;
-      font-size:8px;
-    }
-
-    .footer-links button:hover{
-      color:white;
-    }
-
-    .footer-copy{
-      color:var(--muted2);
-      font-size:8px;
-      min-width:90px;
-      text-align:right;
-    }
-
-    /* MENUS */
-
-    .menu,
-    .popover{
-      position:fixed;
-      z-index:2000;
-      display:none;
-      background:#151a21;
-      border:1px solid var(--border2);
-      border-radius:7px;
-      box-shadow:0 20px 50px rgba(0,0,0,.42);
-    }
-
-    .menu.open,
-    .popover.open{
-      display:block;
-    }
-
-    .profile-menu{
-      top:61px;
-      right:10px;
-      width:210px;
-      padding:6px;
-    }
-
-    .menu-header{
-      display:flex;
-      align-items:center;
-      gap:9px;
-      padding:9px;
-      border-bottom:1px solid var(--border);
-      margin-bottom:4px;
-    }
-
-    .menu-avatar{
-      width:34px;
-      height:34px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      color:white;
-      background:#394754;
-      font-size:11px;
-      font-weight:900;
-    }
-
-    .menu-header strong,
-    .menu-header span{
-      display:block;
-    }
-
-    .menu-header strong{
-      font-size:10px;
-    }
-
-    .menu-header span{
-      margin-top:3px;
-      color:var(--muted2);
-      font-size:8px;
-    }
-
-    .menu button{
-      width:100%;
-      min-height:34px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:0 9px;
-      color:var(--muted);
-      background:transparent;
-      border-radius:4px;
-      cursor:pointer;
-      text-align:left;
-      font-size:9px;
-      font-weight:700;
-    }
-
-    .menu button:hover{
-      color:white;
-      background:#202832;
-    }
-
-    .menu-danger{
-      color:#ef9999 !important;
-    }
-
-    .menu-divider{
-      height:1px;
-      margin:5px 3px;
-      background:var(--border);
-    }
-
-    .create-menu{
-      top:61px;
-      left:430px;
-      width:235px;
-      padding:7px;
-    }
-
-    .create-menu .menu-label{
-      padding:7px 9px 9px;
-      color:var(--muted2);
-      font-size:8px;
-      font-weight:900;
-      letter-spacing:.7px;
-      text-transform:uppercase;
-    }
-
-    .create-item{
-      min-height:54px !important;
-    }
-
-    .menu-box{
-      width:28px;
-      height:28px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 28px;
-      color:var(--blue);
-      background:#172536;
-      border-radius:5px;
-      font-size:8px;
-      font-weight:900;
-    }
-
-    .create-copy strong,
-    .create-copy small{
-      display:block;
-    }
-
-    .create-copy strong{
-      font-size:9px;
-    }
-
-    .create-copy small{
-      margin-top:3px;
-      color:var(--muted2);
-      font-size:7px;
-    }
-
-    .popover{
-      width:300px;
-      padding:8px;
-    }
-
-    #notificationPopover{
-      top:61px;
-      right:87px;
-    }
-
-    #messagePopover{
-      top:61px;
-      right:125px;
-    }
-
-    #tokenPopover{
-      top:61px;
-      right:46px;
-      width:220px;
-      padding:14px;
-    }
-
-    .popover-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      min-height:29px;
-      border-bottom:1px solid var(--border);
-      font-size:9px;
-      font-weight:800;
-    }
-
-    .popover-title button{
-      color:var(--blue);
-      background:transparent;
-      cursor:pointer;
-      font-size:8px;
-    }
-
-    .popover-content{
-      max-height:245px;
-      overflow:auto;
-    }
-
-    .popover-row{
-      padding:9px 6px;
-      border-bottom:1px solid var(--border);
-    }
-
-    .popover-row:last-child{
-      border-bottom:0;
-    }
-
-    .popover-row strong{
-      display:block;
-      margin-bottom:3px;
-      font-size:9px;
-    }
-
-    .popover-row span{
-      color:var(--muted2);
-      font-size:8px;
-      line-height:1.4;
-    }
-
-    .token-popover-icon{
-      width:38px;
-      height:38px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-bottom:9px;
-      color:#181818;
-      background:var(--gold);
-      border-radius:50%;
-      font-size:15px;
-      font-weight:900;
-    }
-
-    .token-popover strong{
-      display:block;
-      font-size:11px;
-    }
-
-    .token-popover-balance{
-      margin-top:4px;
-      margin-bottom:11px;
-      color:var(--gold);
-      font-size:18px;
-      font-weight:900;
-    }
-
-    /* MODAL */
-
-    .backdrop{
-      position:fixed;
-      inset:0;
-      z-index:3000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      background:rgba(0,0,0,.7);
-      backdrop-filter:blur(5px);
-    }
-
-    .modal{
-      width:min(480px,100%);
-      position:relative;
-      padding:20px;
-      background:#14191f;
-      border:1px solid var(--border2);
-      border-radius:8px;
-      box-shadow:0 25px 70px rgba(0,0,0,.48);
-    }
-
-    .modal-close{
-      position:absolute;
-      right:9px;
-      top:9px;
-      width:28px;
-      height:28px;
-      color:var(--muted);
-      background:transparent;
-      border-radius:4px;
-      cursor:pointer;
-    }
-
-    .modal-close:hover{
-      color:white;
-      background:#20272f;
-    }
-
-    .modal h2{
-      margin:5px 0 7px;
-      font-size:17px;
-    }
-
-    .modal p{
-      color:var(--muted);
-      font-size:9px;
-      line-height:1.55;
-    }
-
-    .modal input{
-      width:100%;
-      height:36px;
-      padding:0 10px;
-      color:white;
-      background:#0a0f14;
-      border:1px solid var(--border);
-      border-radius:5px;
-      outline:none;
-      font-size:9px;
-    }
-
-    .modal-actions{
-      display:flex;
-      justify-content:flex-end;
-      gap:6px;
-      margin-top:15px;
-    }
-
-    /* TOAST */
-
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:20px;
-      z-index:4000;
-      transform:translate(-50%,15px);
-      min-width:170px;
-      max-width:calc(100% - 30px);
-      padding:10px 14px;
-      color:white;
-      background:#171d24;
-      border:1px solid var(--border2);
-      border-radius:6px;
-      box-shadow:0 15px 35px rgba(0,0,0,.38);
-      opacity:0;
-      pointer-events:none;
-      transition:.18s ease;
-      text-align:center;
-      font-size:9px;
-    }
-
-    .toast.show{
-      opacity:1;
-      transform:translate(-50%,0);
-    }
-
-    /* RESPONSIVE */
-
-    @media(max-width:1050px){
-      :root{
-        --side:205px;
-      }
-
-      .search{
-        width:180px;
-      }
-
-      .main{
-        padding-left:24px;
-        padding-right:24px;
-      }
-    }
-
-    @media(max-width:850px){
-      :root{
-        --side:70px;
-      }
-
-      .brand{
-        width:70px;
-        justify-content:center;
-        padding:0;
-      }
-
-      .brand-text{
-        display:none;
-      }
-
-      .side-button{
-        justify-content:center;
-        padding:0;
-      }
-
-      .side-button .label,
-      .side-count{
-        display:none;
-      }
-
-      .sidebar-create strong{
-        display:none;
-      }
-
-      .top-nav{
-        display:none;
-      }
-
-      .search{
-        width:145px;
-      }
-
-      .avatar-layout{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media(max-width:620px){
-      .search{
-        display:none;
-      }
-
-      .top-icon{
-        display:none;
-      }
-
-      .main{
-        padding:20px 14px 34px;
-      }
-
-      .hero{
-        min-height:215px;
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .hero h1,
-      .page-header h1{
-        font-size:25px;
-      }
-
-      .messages-shell{
-        grid-template-columns:1fr;
-      }
-
-      .conversation-list{
-        max-height:180px;
-        border-right:0;
-        border-bottom:1px solid var(--border);
-      }
-
-      .footer{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .footer-copy{
-        text-align:left;
-      }
-
-      .market-head{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiseUp</title>
+
+<style>
+:root{
+  --bg:#080b0f;
+  --panel:#11161d;
+  --panel2:#171d25;
+  --panel3:#1d2630;
+  --border:#29333e;
+  --text:#f4f7fa;
+  --muted:#a7b0ba;
+  --muted2:#6e7a86;
+  --blue:#4da3ff;
+  --blue2:#245f94;
+  --gold:#ffd84d;
+  --green:#3dcc7b;
+  --red:#e26565;
+  --top:54px;
+  --side:238px;
+}
+
+*{
+  box-sizing:border-box;
+  scrollbar-width:thin;
+  scrollbar-color:#303a45 transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+button:focus-visible,
+input:focus-visible{
+  outline:2px solid var(--blue);
+  outline-offset:2px;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* TOP */
+
+.topbar{
+  position:fixed;
+  left:0;
+  right:0;
+  top:0;
+  height:var(--top);
+  display:flex;
+  align-items:center;
+  z-index:1000;
+  background:#0c1015;
+  border-bottom:1px solid var(--border);
+}
+
+.brand{
+  width:var(--side);
+  height:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 16px;
+  color:white;
+  background:none;
+  cursor:pointer;
+}
+
+.brand-mark{
+  width:31px;
+  height:31px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:7px;
+  background:linear-gradient(135deg,#66b7ff,#23679f);
+  font-size:14px;
+  font-weight:900;
+}
+
+.brand-text{
+  font-size:16px;
+  font-weight:850;
+}
+
+.top-nav{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+
+.top-nav button{
+  height:34px;
+  padding:0 12px;
+  border-radius:5px;
+  color:var(--muted);
+  background:transparent;
+  font-size:10px;
+  font-weight:700;
+}
+
+.top-nav button:hover,
+.top-nav button.active{
+  color:white;
+  background:#182029;
+}
+
+.top-nav .create{
+  color:white;
+  background:var(--blue2);
+  border:1px solid #3279b4;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding-right:8px;
+}
+
+.search{
+  width:220px;
+  height:33px;
+}
+
+.search input{
+  width:100%;
+  height:100%;
+  padding:0 10px;
+  color:white;
+  background:#090d12;
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:10px;
+}
+
+.icon-btn,
+.token-btn,
+.profile-btn{
+  height:33px;
+  border-radius:5px;
+  color:var(--muted);
+  background:transparent;
+}
+
+.icon-btn{
+  width:33px;
+}
+
+.icon-btn:hover,
+.token-btn:hover,
+.profile-btn:hover{
+  color:white;
+  background:#182029;
+}
+
+.token-btn{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:0 8px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.token-circle{
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:8px;
+  font-weight:900;
+}
+
+.profile-btn{
+  width:33px;
+  color:white;
+  background:#394754;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* SIDE */
+
+.sidebar{
+  position:fixed;
+  top:var(--top);
+  left:0;
+  bottom:0;
+  width:var(--side);
+  display:flex;
+  flex-direction:column;
+  z-index:900;
+  background:#0c1015;
+  border-right:1px solid var(--border);
+}
+
+.side-scroll{
+  overflow:auto;
+  padding:10px 9px;
+}
+
+.side-group{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.side-divider{
+  height:1px;
+  margin:10px 7px;
+  background:var(--border);
+}
+
+.side-btn{
+  width:100%;
+  height:38px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 11px;
+  color:var(--muted);
+  background:transparent;
+  border-radius:5px;
+  text-align:left;
+  font-size:10px;
+  font-weight:700;
+}
+
+.side-btn:hover{
+  color:white;
+  background:#182029;
+}
+
+.side-btn.active{
+  color:white;
+  background:#173a5a;
+}
+
+.side-count{
+  margin-left:auto;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.side-bottom{
+  margin-top:auto;
+  padding:10px;
+  border-top:1px solid var(--border);
+}
+
+.side-create{
+  width:100%;
+  height:40px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #327ab5;
+  border-radius:5px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.side-create:hover{
+  background:var(--blue);
+}
+
+/* MAIN */
+
+.main{
+  min-height:100vh;
+  margin-left:var(--side);
+  padding:calc(var(--top) + 28px) 38px 50px;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(42,83,115,.13),transparent 33%),
+    var(--bg);
+}
+
+.page{
+  display:none;
+  max-width:1450px;
+  margin:auto;
+}
+
+.page.active{
+  display:block;
+}
+
+.hero{
+  min-height:190px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  padding:28px;
+  margin-bottom:30px;
+  background:linear-gradient(135deg,rgba(39,78,108,.42),rgba(18,24,31,.85));
+  border:1px solid var(--border);
+  border-radius:10px;
+}
+
+.eyebrow{
+  color:var(--blue);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:1.2px;
+}
+
+h1{
+  margin:7px 0;
+  font-size:31px;
+  line-height:1.05;
+}
+
+h2{
+  margin:0;
+}
+
+p{
+  margin:0;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.55;
+}
+
+.primary{
+  min-height:35px;
+  padding:0 14px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #327ab5;
+  border-radius:5px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.primary:hover{
+  background:var(--blue);
+}
+
+.secondary{
+  min-height:35px;
+  padding:0 14px;
+  color:var(--muted);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:10px;
+  font-weight:700;
+}
+
+.secondary:hover{
+  color:white;
+  background:var(--panel3);
+}
+
+.section{
+  margin-bottom:34px;
+}
+
+.section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:13px;
+}
+
+.section-head h2{
+  font-size:17px;
+}
+
+.section-head p{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+.link{
+  color:var(--blue);
+  background:none;
+  font-size:9px;
+  font-weight:800;
+}
+
+/* CARDS */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:13px;
+}
+
+.game{
+  padding:0;
+  overflow:hidden;
+  color:white;
+  text-align:left;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+  transition:.15s ease;
+}
+
+.game:hover{
+  transform:translateY(-2px);
+  background:var(--panel2);
+  border-color:#3a4754;
+}
+
+.game-image{
+  aspect-ratio:16/9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#204d6c,#12202b);
+  color:rgba(255,255,255,.16);
+  font-size:30px;
+  font-weight:900;
+}
+
+.game-info{
+  padding:10px;
+}
+
+.game-title{
+  overflow:hidden;
+  margin-bottom:4px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.game-creator{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.empty{
+  min-height:155px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  padding:25px;
+  background:var(--panel);
+  border:1px dashed #394550;
+  border-radius:8px;
+}
+
+.empty-art{
+  width:40px;
+  height:40px;
+  margin-bottom:9px;
+  border-radius:9px;
+  background:linear-gradient(135deg,#1e4f76,#14222f);
+}
+
+.empty h3{
+  margin:0 0 5px;
+  font-size:12px;
+}
+
+.empty p{
+  margin-bottom:13px;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+/* AVATAR */
+
+.avatar-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:17px;
+}
+
+.card{
+  padding:20px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.avatar-preview{
+  min-height:420px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.avatar{
+  position:relative;
+  width:190px;
+  height:265px;
+}
+
+.avatar-head{
+  position:absolute;
+  width:98px;
+  height:98px;
+  left:46px;
+  top:8px;
+  border-radius:50%;
+  background:#ffe047;
+}
+
+.eye{
+  position:absolute;
+  top:38px;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#111;
+}
+
+.eye.left{left:29px}
+.eye.right{right:29px}
+
+.smile{
+  position:absolute;
+  left:31px;
+  right:31px;
+  bottom:25px;
+  height:13px;
+  border-bottom:3px solid #111;
+  border-radius:50%;
+}
+
+.avatar-body{
+  position:absolute;
+  left:51px;
+  top:105px;
+  width:88px;
+  height:89px;
+  border-radius:31px;
+  background:#249bff;
+}
+
+.avatar-arms span{
+  position:absolute;
+  top:112px;
+  width:25px;
+  height:72px;
+  border-radius:16px;
+  background:#ffe047;
+}
+
+.avatar-arms span:first-child{left:27px}
+.avatar-arms span:last-child{right:27px}
+
+.avatar-legs span{
+  position:absolute;
+  top:187px;
+  width:31px;
+  height:70px;
+  border-radius:15px;
+  background:#00a82d;
+}
+
+.avatar-legs span:first-child{left:52px}
+.avatar-legs span:last-child{right:52px}
+
+.avatar-name{
+  margin-top:7px;
+  font-size:15px;
+}
+
+.setting{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-top:1px solid var(--border);
+  color:var(--muted);
+  font-size:10px;
+}
+
+.choice{
+  height:29px;
+  padding:0 10px;
+  color:var(--muted);
+  background:var(--panel3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-size:9px;
+}
+
+.choice.active{
+  color:white;
+  background:#183b59;
+  border-color:var(--blue);
+}
+
+/* TOOLBAR */
+
+.toolbar{
+  display:flex;
+  gap:7px;
+  margin-bottom:17px;
+}
+
+.toolbar input{
+  width:310px;
+  height:35px;
+  padding:0 10px;
+  color:white;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:10px;
+}
+
+/* FRIENDS */
+
+.friend-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:10px;
+}
+
+.friend{
+  min-height:74px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.friend-avatar{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 40px;
+  border-radius:50%;
+  color:white;
+  background:#394754;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* TABS */
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-bottom:17px;
+}
+
+.tab{
+  height:31px;
+  padding:0 11px;
+  color:var(--muted);
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:9px;
+  font-weight:700;
+}
+
+.tab.active,
+.tab:hover{
+  color:white;
+  background:#1a2530;
+  border-color:#365065;
+}
+
+/* INVENTORY */
+
+.inventory{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
+  gap:12px;
+}
+
+.inventory-item{
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.inventory-image{
+  flex:1;
+  margin-bottom:10px;
+  border-radius:5px;
+  background:linear-gradient(135deg,#17334b,#10171e);
+}
+
+/* MARKET */
+
+.market-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.balance{
+  min-width:120px;
+  padding:10px 12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:6px;
+}
+
+.balance span{
+  display:block;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.balance strong{
+  display:block;
+  margin-top:3px;
+  font-size:13px;
+}
+
+.market-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
+  gap:13px;
+}
+
+.market-card{
+  overflow:hidden;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.market-image{
+  aspect-ratio:1/.78;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#1c4566,#101a22);
+  color:rgba(255,255,255,.15);
+  font-size:28px;
+  font-weight:900;
+}
+
+.market-info{
+  padding:11px;
+}
+
+.market-info strong{
+  display:block;
+  font-size:10px;
+}
+
+.market-type{
+  display:block;
+  margin-top:4px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.market-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.price{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:900;
+}
+
+.buy{
+  height:28px;
+  padding:0 10px;
+  color:white;
+  background:var(--blue2);
+  border:1px solid #327ab5;
+  border-radius:4px;
+  font-size:9px;
+  font-weight:800;
+}
+
+/* MESSAGES */
+
+.messages{
+  min-height:470px;
+  display:grid;
+  grid-template-columns:280px 1fr;
+  overflow:hidden;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.conversations{
+  overflow:auto;
+  border-right:1px solid var(--border);
+}
+
+.conversation{
+  width:100%;
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 11px;
+  color:var(--muted);
+  background:none;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
+.conversation:hover,
+.conversation.active{
+  color:white;
+  background:#17202a;
+}
+
+.chat{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+.chat-header{
+  padding:13px;
+  border-bottom:1px solid var(--border);
+  font-size:10px;
+  font-weight:800;
+}
+
+.chat-history{
+  flex:1;
+  padding:15px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.chat-compose{
+  display:flex;
+  gap:6px;
+  padding:8px;
+  border-top:1px solid var(--border);
+}
+
+.chat-compose input{
+  flex:1;
+  min-width:0;
+  height:33px;
+  padding:0 9px;
+  color:white;
+  background:#090d12;
+  border:1px solid var(--border);
+  border-radius:4px;
+  outline:none;
+  font-size:9px;
+}
+
+/* SETTINGS */
+
+.settings{
+  max-width:760px;
+  display:grid;
+  gap:13px;
+}
+
+.settings-row{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-top:1px solid var(--border);
+  color:var(--muted);
+  font-size:10px;
+}
+
+.settings-row strong,
+.settings-row small{
+  display:block;
+}
+
+.settings-row strong{
+  color:white;
+  font-size:10px;
+}
+
+.settings-row small{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.danger{
+  border-color:rgba(226,101,101,.35);
+}
+
+.danger-btn{
+  height:32px;
+  padding:0 12px;
+  color:#ffb3b3;
+  background:rgba(226,101,101,.1);
+  border:1px solid rgba(226,101,101,.28);
+  border-radius:5px;
+  font-size:9px;
+  font-weight:800;
+}
+
+/* TOKENS */
+
+.token-hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:24px;
+  margin-bottom:18px;
+  background:linear-gradient(135deg,rgba(85,67,19,.25),rgba(18,23,29,.9));
+  border:1px solid rgba(255,216,77,.18);
+  border-radius:9px;
+}
+
+.token-total{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.token-big{
+  width:64px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:20px;
+  font-weight:900;
+}
+
+.token-total strong{
+  display:block;
+  font-size:25px;
+}
+
+.token-total span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:9px;
+}
+
+.token-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:12px;
+}
+
+.token-card{
+  padding:16px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+.token-card h3{
+  margin:0;
+  font-size:12px;
+}
+
+.token-value{
+  margin-top:7px;
+  color:var(--gold);
+  font-size:18px;
+  font-weight:900;
+}
+
+.token-card p{
+  min-height:35px;
+  margin:8px 0 13px;
+  color:var(--muted2);
+  font-size:8px;
+  line-height:1.5;
+}
+
+/* FOOTER */
+
+.footer{
+  max-width:1450px;
+  margin:58px auto 0;
+  padding-top:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-top:1px solid var(--border);
+}
+
+.footer-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0;
+  color:white;
+  background:none;
+  text-align:left;
+}
+
+.footer-mark{
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  color:white;
+  background:linear-gradient(135deg,#66b7ff,#23679f);
+  font-size:11px;
+  font-weight:900;
+}
+
+.footer-brand strong,
+.footer-brand small{
+  display:block;
+}
+
+.footer-brand strong{
+  font-size:10px;
+}
+
+.footer-brand small{
+  margin-top:2px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.footer-links{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+}
+
+.footer-links button{
+  color:var(--muted2);
+  background:none;
+  font-size:8px;
+}
+
+.footer-links button:hover{
+  color:white;
+}
+
+.footer-copy{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+/* POPUPS */
+
+.popup{
+  position:fixed;
+  z-index:2000;
+  display:none;
+  background:#151a21;
+  border:1px solid #384552;
+  border-radius:7px;
+  box-shadow:0 20px 50px rgba(0,0,0,.42);
+}
+
+.popup.open{
+  display:block;
+}
+
+#profilePopup{
+  top:61px;
+  right:10px;
+  width:210px;
+  padding:6px;
+}
+
+#createPopup{
+  top:61px;
+  left:430px;
+  width:235px;
+  padding:7px;
+}
+
+#notificationPopup{
+  top:61px;
+  right:87px;
+  width:300px;
+}
+
+#messagePopup{
+  top:61px;
+  right:125px;
+  width:300px;
+}
+
+#tokenPopup{
+  top:61px;
+  right:45px;
+  width:220px;
+  padding:14px;
+}
+
+.popup button{
+  width:100%;
+  min-height:34px;
+  color:var(--muted);
+  background:none;
+  border-radius:4px;
+  text-align:left;
+  font-size:9px;
+  font-weight:700;
+}
+
+.popup button:hover{
+  color:white;
+  background:#202832;
+}
+
+.popup-header{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px;
+  border-bottom:1px solid var(--border);
+}
+
+.popup-avatar{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:white;
+  background:#394754;
+  font-size:11px;
+  font-weight:900;
+}
+
+.popup-user strong,
+.popup-user span{
+  display:block;
+}
+
+.popup-user strong{
+  font-size:10px;
+}
+
+.popup-user span{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.popup-divider{
+  height:1px;
+  margin:5px 3px;
+  background:var(--border);
+}
+
+.popup-title{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  font-size:9px;
+  font-weight:800;
+}
+
+.popup-list{
+  max-height:240px;
+  overflow:auto;
+}
+
+.popup-item{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.popup-item strong,
+.popup-item span{
+  display:block;
+}
+
+.popup-item strong{
+  margin-bottom:3px;
+  font-size:9px;
+}
+
+.popup-item span{
+  color:var(--muted2);
+  font-size:8px;
+}
+
+.create-item{
+  min-height:55px !important;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 9px !important;
+}
+
+.create-icon{
+  width:29px;
+  height:29px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:5px;
+  color:var(--blue);
+  background:#172536;
+  font-size:8px;
+  font-weight:900;
+}
+
+.token-popup-symbol{
+  width:39px;
+  height:39px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#171717;
+  background:var(--gold);
+  font-size:15px;
+  font-weight:900;
+}
+
+.token-popup strong{
+  display:block;
+  margin-top:9px;
+  font-size:11px;
+}
+
+.token-popup-balance{
+  margin:4px 0 11px;
+  color:var(--gold);
+  font-size:18px;
+  font-weight:900;
+}
+
+/* MODAL */
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(5px);
+}
+
+.modal{
+  width:min(470px,100%);
+  position:relative;
+  padding:20px;
+  background:#14191f;
+  border:1px solid #384552;
+  border-radius:8px;
+  box-shadow:0 25px 70px rgba(0,0,0,.48);
+}
+
+.modal-close{
+  position:absolute;
+  top:9px;
+  right:9px;
+  width:28px;
+  height:28px;
+  color:var(--muted);
+  background:none;
+  border-radius:4px;
+}
+
+.modal-close:hover{
+  color:white;
+  background:#20272f;
+}
+
+.modal h2{
+  margin:5px 0 7px;
+  font-size:17px;
+}
+
+.modal p{
+  margin-bottom:15px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.55;
+}
+
+.modal input{
+  width:100%;
+  height:36px;
+  padding:0 10px;
+  color:white;
+  background:#0a0f14;
+  border:1px solid var(--border);
+  border-radius:5px;
+  outline:none;
+  font-size:9px;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  margin-top:15px;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  z-index:4000;
+  transform:translate(-50%,15px);
+  padding:10px 14px;
+  color:white;
+  background:#171d24;
+  border:1px solid #384552;
+  border-radius:6px;
+  opacity:0;
+  pointer-events:none;
+  transition:.18s ease;
+  font-size:9px;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1050px){
+  :root{--side:205px}
+  .search{width:170px}
+  .main{padding-left:24px;padding-right:24px}
+}
+
+@media(max-width:850px){
+  :root{--side:70px}
+
+  .brand{
+    width:70px;
+    justify-content:center;
+    padding:0;
+  }
+
+  .brand-text,
+  .side-btn .label,
+  .side-count{
+    display:none;
+  }
+
+  .side-btn{
+    justify-content:center;
+    padding:0;
+  }
+
+  .top-nav{
+    display:none;
+  }
+
+  .avatar-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:620px){
+  .search,
+  .icon-btn{
+    display:none;
+  }
+
+  .main{
+    padding:20px 14px 34px;
+  }
+
+  .hero{
+    min-height:215px;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .messages{
+    grid-template-columns:1fr;
+  }
+
+  .conversations{
+    max-height:180px;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+
+  .market-head,
+  .footer{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <div id="app">
+<header class="topbar">
 
-    <!-- TOPBAR -->
-    <header class="topbar">
+  <button class="brand" data-page="home" type="button">
+    <span class="brand-mark">R</span>
+    <span class="brand-text">RiseUp</span>
+  </button>
 
-      <button class="brand" id="brandButton" type="button">
-        <span class="brand-mark">R</span>
-        <span class="brand-text">RiseUp</span>
+  <nav class="top-nav">
+    <button data-page="home" class="active" type="button">Home</button>
+    <button data-page="discover" type="button">Discover</button>
+    <button data-page="marketplace" type="button">Marketplace</button>
+    <button id="createButton" class="create" type="button">Create</button>
+  </nav>
+
+  <div class="top-actions">
+
+    <label class="search">
+      <input id="searchInput" type="search" placeholder="Search RiseUp" autocomplete="off">
+    </label>
+
+    <button class="icon-btn" id="messagesButton" type="button" aria-label="Messages">M</button>
+    <button class="icon-btn" id="notificationsButton" type="button" aria-label="Notifications">N</button>
+
+    <button class="token-btn" id="tokenButton" type="button">
+      <span class="token-circle">T</span>
+      <span id="tokenBalance">0</span>
+    </button>
+
+    <button class="profile-btn" id="profileButton" type="button">
+      R
+    </button>
+
+  </div>
+</header>
+
+<aside class="sidebar">
+
+  <div class="side-scroll">
+
+    <div class="side-group">
+
+      <button class="side-btn active" data-page="home" type="button">
+        <span>Home</span>
       </button>
 
-      <nav class="top-nav">
-        <button class="top-page active" data-page="home" type="button">Home</button>
-        <button class="top-page" data-page="discover" type="button">Discover</button>
-        <button class="top-page" data-page="marketplace" type="button">Marketplace</button>
-        <button id="createTop" class="create-button" type="button">Create</button>
-      </nav>
-
-      <div class="top-actions">
-
-        <label class="search">
-          <span class="search-icon"></span>
-          <input id="globalSearch" type="search" placeholder="Search RiseUp" autocomplete="off">
-        </label>
-
-        <button class="top-icon" id="messagesTop" type="button" aria-label="Messages">
-          <span class="mail-icon"></span>
-        </button>
-
-        <button class="top-icon" id="notificationsTop" type="button" aria-label="Notifications">
-          <span class="bell-icon"></span>
-        </button>
-
-        <button class="token-button" id="tokenButton" type="button">
-          <span class="token-mark">T</span>
-          <span id="topTokenBalance">0</span>
-        </button>
-
-        <button class="profile-button" id="profileButton" type="button">
-          <span id="profileLetter">R</span>
-        </button>
-
-      </div>
-    </header>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
-      <div class="sidebar-scroll">
-
-        <div class="side-group">
-
-          <button class="side-button active" data-page="home" type="button">
-            <span class="side-icon ico-home"></span>
-            <span class="label">Home</span>
-          </button>
-
-          <button class="side-button" data-page="discover" type="button">
-            <span class="side-icon ico-circle"></span>
-            <span class="label">Discover</span>
-          </button>
-
-          <button class="side-button" data-page="avatar" type="button">
-            <span class="side-icon ico-user"></span>
-            <span class="label">Avatar</span>
-          </button>
-
-          <button class="side-button" data-page="inventory" type="button">
-            <span class="side-icon ico-box"></span>
-            <span class="label">Inventory</span>
-          </button>
-
-        </div>
-
-        <div class="side-divider"></div>
-
-        <div class="side-group">
-
-          <button class="side-button" data-page="friends" type="button">
-            <span class="side-icon ico-friends"></span>
-            <span class="label">Friends</span>
-            <span class="side-count" id="friendsCount">0</span>
-          </button>
-
-          <button class="side-button" data-page="messages" type="button">
-            <span class="side-icon ico-chat"></span>
-            <span class="label">Messages</span>
-          </button>
-
-          <button class="side-button" data-page="marketplace" type="button">
-            <span class="side-icon ico-shop"></span>
-            <span class="label">Marketplace</span>
-          </button>
-
-        </div>
-
-        <div class="side-divider"></div>
-
-        <div class="side-group">
-
-          <button class="side-button" id="studioButton" type="button">
-            <span class="side-icon ico-studio"></span>
-            <span class="label">Studio</span>
-          </button>
-
-          <button class="side-button" id="riseCodeButton" type="button">
-            <span class="side-icon ico-code"></span>
-            <span class="label">RiseCode</span>
-          </button>
-
-          <button class="side-button" data-page="settings" type="button">
-            <span class="side-icon ico-settings"></span>
-            <span class="label">Settings</span>
-          </button>
-
-        </div>
-
-      </div>
-
-      <div class="sidebar-bottom">
-        <button class="sidebar-create" id="sidebarCreate" type="button">
-          <span class="plus">+</span>
-          <strong>Create</strong>
-        </button>
-      </div>
-
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-
-      <!-- HOME -->
-      <section class="page active" data-page-content="home">
-
-        <div class="hero">
-          <div>
-            <span class="eyebrow">RISEUP</span>
-            <h1>Welcome back, <span id="welcomeName">Creator</span></h1>
-            <p>Play experiences, build worlds, and create something of your own.</p>
-          </div>
-
-          <button class="primary" data-create="studio" type="button">
-            Create a Game
-          </button>
-        </div>
-
-        <section class="section">
-
-          <div class="section-title">
-            <div>
-              <h2>Friends</h2>
-              <p>People in your RiseUp community.</p>
-            </div>
-
-            <button class="link-button" data-page-action="friends" type="button">
-              View All
-            </button>
-          </div>
-
-          <div class="friend-grid" id="homeFriends"></div>
-
-        </section>
-
-        <section class="section">
-
-          <div class="section-title">
-            <div>
-              <h2>Continue Playing</h2>
-              <p>Your recent experiences.</p>
-            </div>
-
-            <button class="link-button" data-page-action="discover" type="button">
-              View All
-            </button>
-          </div>
-
-          <div class="grid" id="continueGames"></div>
-
-          <div class="empty" id="continueEmpty">
-            <div class="empty-art"></div>
-            <h3>No games to continue</h3>
-            <p>Play an experience and it will appear here.</p>
-          </div>
-
-        </section>
-
-        <section class="section">
-
-          <div class="section-title">
-            <div>
-              <h2>Recommended For You</h2>
-              <p>Experiences from the RiseUp community.</p>
-            </div>
-
-            <button class="link-button" data-page-action="discover" type="button">
-              View All
-            </button>
-          </div>
-
-          <div class="grid" id="recommendedGames"></div>
-
-          <div class="empty" id="recommendedEmpty">
-            <div class="empty-art"></div>
-            <h3>No games yet</h3>
-            <p>Be the first creator to make a game.</p>
-            <button class="primary" data-create="studio" type="button">Create a Game</button>
-          </div>
-
-        </section>
-
-      </section>
-
-      <!-- DISCOVER -->
-      <section class="page" data-page-content="discover">
-
-        <div class="page-header">
-          <span class="eyebrow">EXPLORE</span>
-          <h1>Discover</h1>
-          <p>Find games and experiences made by the RiseUp community.</p>
-        </div>
-
-        <div class="tabs">
-          <button class="tab active" data-discover-filter="all" type="button">All</button>
-          <button class="tab" data-discover-filter="recent" type="button">Recent</button>
-          <button class="tab" data-discover-filter="mine" type="button">My Games</button>
-        </div>
-
-        <div class="grid" id="discoverGames"></div>
-
-        <div class="empty" id="discoverEmpty">
-          <div class="empty-art"></div>
-          <h3>No games yet</h3>
-          <p>Be the first creator to make a game.</p>
-          <button class="primary" data-create="studio" type="button">Create a Game</button>
-        </div>
-
-      </section>
-
-      <!-- AVATAR -->
-      <section class="page" data-page-content="avatar">
-
-        <div class="page-header">
-          <span class="eyebrow">CHARACTER</span>
-          <h1>Avatar</h1>
-          <p>Customize your RiseUp character.</p>
-        </div>
-
-        <div class="avatar-layout">
-
-          <section class="card-panel avatar-preview-panel">
-
-            <div class="avatar-preview">
-
-              <div class="avatar-head">
-                <span class="avatar-eye left"></span>
-                <span class="avatar-eye right"></span>
-                <span class="avatar-smile"></span>
-              </div>
-
-              <div class="avatar-body"></div>
-
-              <div class="avatar-arms">
-                <span></span>
-                <span></span>
-              </div>
-
-              <div class="avatar-legs">
-                <span></span>
-                <span></span>
-              </div>
-
-            </div>
-
-            <h2 id="avatarName">Creator</h2>
-
-          </section>
-
-          <section class="card-panel">
-
-            <h2 style="font-size:15px;margin-bottom:16px;">Appearance</h2>
-
-            <div class="setting-row">
-              <span>Head</span>
-              <button class="choice active" data-avatar-head="#FFE047" type="button">Yellow</button>
-            </div>
-
-            <div class="setting-row">
-              <span>Body</span>
-              <button class="choice active" data-avatar-body="#249BFF" type="button">Blue</button>
-            </div>
-
-            <div class="setting-row">
-              <span>Legs</span>
-              <button class="choice active" data-avatar-legs="#00A82D" type="button">Green</button>
-            </div>
-
-          </section>
-
-        </div>
-
-      </section>
-
-      <!-- INVENTORY -->
-      <section class="page" data-page-content="inventory">
-
-        <div class="page-header">
-          <span class="eyebrow">COLLECTION</span>
-          <h1>Inventory</h1>
-          <p>Your items and creator assets.</p>
-        </div>
-
-        <div class="tabs">
-          <button class="tab active" data-inventory-tab="items" type="button">Items</button>
-          <button class="tab" data-inventory-tab="models" type="button">Models</button>
-          <button class="tab" data-inventory-tab="passes" type="button">Game Passes</button>
-        </div>
-
-        <div class="inventory-grid" id="inventoryGrid"></div>
-
-      </section>
-
-      <!-- FRIENDS -->
-      <section class="page" data-page-content="friends">
-
-        <div class="page-header">
-          <span class="eyebrow">SOCIAL</span>
-          <h1>Friends</h1>
-          <p>Connect with people on RiseUp.</p>
-        </div>
-
-        <div class="toolbar">
-          <input id="friendSearch" type="search" placeholder="Search users..." autocomplete="off">
-          <button class="primary" id="addFriendButton" type="button">Add Friend</button>
-        </div>
-
-        <div class="friend-grid" id="friendsGrid"></div>
-
-      </section>
-
-      <!-- MESSAGES -->
-      <section class="page" data-page-content="messages">
-
-        <div class="page-header">
-          <span class="eyebrow">SOCIAL</span>
-          <h1>Messages</h1>
-          <p>Your RiseUp conversations.</p>
-        </div>
-
-        <div class="messages-shell">
-
-          <div class="conversation-list" id="conversationList"></div>
-
-          <div class="message-panel" id="messagePanel">
-
-            <div class="message-empty">
-              <div>
-                <h3>No conversation selected</h3>
-                <p>Select a conversation to start messaging.</p>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      <!-- MARKETPLACE -->
-      <section class="page" data-page-content="marketplace">
-
-        <div class="page-header market-head">
-
-          <div>
-            <span class="eyebrow">RISEUP MARKETPLACE</span>
-            <h1>Marketplace</h1>
-            <p>Discover items, assets, and creator content.</p>
-          </div>
-
-          <div class="balance">
-            <span>Tokens</span>
-            <strong id="marketTokenBalance">0</strong>
-          </div>
-
-        </div>
-
-        <div class="tabs">
-          <button class="tab active" data-market-category="featured" type="button">Featured</button>
-          <button class="tab" data-market-category="avatar" type="button">Avatar</button>
-          <button class="tab" data-market-category="models" type="button">Models</button>
-          <button class="tab" data-market-category="effects" type="button">Effects</button>
-        </div>
-
-        <div class="market-grid" id="marketGrid"></div>
-
-      </section>
-
-      <!-- TOKEN CENTER -->
-      <section class="page" data-page-content="tokens">
-
-        <div class="page-header">
-          <span class="eyebrow">RISEUP TOKENS</span>
-          <h1>Token Center</h1>
-          <p>Earn free Tokens through your RiseUp activity.</p>
-        </div>
-
-        <div class="token-hero">
-
-          <div class="token-total">
-            <div class="token-big">T</div>
-
-            <div>
-              <strong id="tokenCenterBalance">0</strong>
-              <span>Your current Token balance</span>
-            </div>
-          </div>
-
-          <button class="primary" id="claimMonthly" type="button">
-            Claim Monthly 10
-          </button>
-
-        </div>
-
-        <div class="token-pack-grid">
-
-          <article class="token-card">
-            <div class="token-card-title">Monthly Reward</div>
-            <div class="token-card-value">+10 Tokens</div>
-            <div class="token-card-description">
-              Get 10 free Tokens once every month.
-            </div>
-            <span class="reward-badge" id="monthlyStatus">Available</span>
-          </article>
-
-          <article class="token-card">
-            <div class="token-card-title">Daily Activity</div>
-            <div class="token-card-value">+1 Token</div>
-            <div class="token-card-description">
-              A future free daily reward for active players.
-            </div>
-            <button class="secondary" id="dailyReward" type="button">Claim Daily</button>
-          </article>
-
-          <article class="token-card">
-            <div class="token-card-title">Weekly Reward</div>
-            <div class="token-card-value">+5 Tokens</div>
-            <div class="token-card-description">
-              A future free weekly reward for returning players.
-            </div>
-            <button class="secondary" id="weeklyReward" type="button">Claim Weekly</button>
-          </article>
-
-          <article class="token-card">
-            <div class="token-card-title">Creator Rewards</div>
-            <div class="token-card-value">Earn Tokens</div>
-            <div class="token-card-description">
-              Future creator rewards can grant Tokens from your experiences.
-            </div>
-            <button class="secondary" id="creatorRewards" type="button">Learn More</button>
-          </article>
-
-        </div>
-
-        <div class="token-note">
-          Tokens are currently a free RiseUp prototype currency. No real-money purchases are enabled in this version.
-        </div>
-
-      </section>
-
-      <!-- SETTINGS -->
-      <section class="page" data-page-content="settings">
-
-        <div class="page-header">
-          <span class="eyebrow">PREFERENCES</span>
-          <h1>Settings</h1>
-          <p>Manage your RiseUp experience.</p>
-        </div>
-
-        <div class="settings">
-
-          <section class="settings-card">
-
-            <h2>Account</h2>
-
-            <div class="settings-row">
-              <div>
-                <strong>Username</strong>
-                <small id="settingsUsername">Creator</small>
-              </div>
-            </div>
-
-            <div class="settings-row">
-              <div>
-                <strong>Tokens</strong>
-                <small id="settingsTokens">0</small>
-              </div>
-            </div>
-
-          </section>
-
-          <section class="settings-card">
-
-            <h2>Preferences</h2>
-
-            <label class="settings-row">
-              <div>
-                <strong>Reduced motion</strong>
-                <small>Reduce animated transitions.</small>
-              </div>
-              <input id="reducedMotion" type="checkbox">
-            </label>
-
-          </section>
-
-          <section class="settings-card danger">
-
-            <h2>Account Actions</h2>
-
-            <button class="danger-button" id="logoutButton" type="button">
-              Log Out
-            </button>
-
-          </section>
-
-        </div>
-
-      </section>
-
-      <!-- FOOTER -->
-      <footer class="footer">
-
-        <button class="footer-brand" id="footerBrand" type="button">
-          <span class="footer-mark">R</span>
-
-          <span>
-            <strong>RiseUp</strong>
-            <span>Create. Play. Rise.</span>
-          </span>
-        </button>
-
-        <nav class="footer-links">
-
-          <button data-info="about" type="button">About</button>
-          <button data-info="careers" type="button">Careers</button>
-          <button data-info="help" type="button">Help</button>
-          <button data-info="terms" type="button">Terms</button>
-          <button data-info="privacy" type="button">Privacy</button>
-
-        </nav>
-
-        <span class="footer-copy">© 2026 RiseUp</span>
-
-      </footer>
-
-    </main>
-
-    <!-- PROFILE MENU -->
-    <div class="menu profile-menu" id="profileMenu">
-
-      <div class="menu-header">
-
-        <div class="menu-avatar" id="menuAvatar">R</div>
-
-        <div>
-          <strong id="menuName">Creator</strong>
-          <span id="menuUsername">@Creator</span>
-        </div>
-
-      </div>
-
-      <button data-profile-page="avatar" type="button">Avatar</button>
-      <button data-profile-page="inventory" type="button">Inventory</button>
-      <button data-profile-page="friends" type="button">Friends</button>
-      <button data-profile-page="settings" type="button">Settings</button>
-
-      <div class="menu-divider"></div>
-
-      <button id="profileStudio" type="button">Studio</button>
-      <button id="profileCode" type="button">RiseCode</button>
-
-      <div class="menu-divider"></div>
-
-      <button id="profileLogout" class="menu-danger" type="button">Log Out</button>
-
-    </div>
-
-    <!-- CREATE MENU -->
-    <div class="menu create-menu" id="createMenu">
-
-      <div class="menu-label">Create</div>
-
-      <button class="create-item" id="createStudio" type="button">
-        <span class="menu-box">3D</span>
-        <span class="create-copy">
-          <strong>RiseUp Studio</strong>
-          <small>Build and edit your game.</small>
-        </span>
+      <button class="side-btn" data-page="discover" type="button">
+        <span>Discover</span>
       </button>
 
-      <button class="create-item" id="createCode" type="button">
-        <span class="menu-box">&lt;&gt;</span>
-        <span class="create-copy">
-          <strong>RiseCode</strong>
-          <small>Write code for your game.</small>
-        </span>
+      <button class="side-btn" data-page="avatar" type="button">
+        <span>Avatar</span>
+      </button>
+
+      <button class="side-btn" data-page="inventory" type="button">
+        <span>Inventory</span>
       </button>
 
     </div>
 
-    <!-- NOTIFICATIONS -->
-    <div class="popover" id="notificationPopover">
+    <div class="side-divider"></div>
 
-      <div class="popover-title">
-        <span>Notifications</span>
-        <button id="clearNotifications" type="button">Clear</button>
-      </div>
+    <div class="side-group">
 
-      <div class="popover-content" id="notificationList"></div>
+      <button class="side-btn" data-page="friends" type="button">
+        <span>Friends</span>
+        <span class="side-count" id="friendsCount">0</span>
+      </button>
 
-    </div>
-
-    <!-- QUICK MESSAGES -->
-    <div class="popover" id="messagePopover">
-
-      <div class="popover-title">
+      <button class="side-btn" data-page="messages" type="button">
         <span>Messages</span>
-        <button id="openMessages" type="button">Open</button>
-      </div>
+      </button>
 
-      <div class="popover-content" id="quickMessageList"></div>
+      <button class="side-btn" data-page="marketplace" type="button">
+        <span>Marketplace</span>
+      </button>
 
-    </div>
-
-    <!-- TOKEN POPOVER -->
-    <div class="popover" id="tokenPopover">
-
-      <div class="token-popover">
-        <div class="token-popover-icon">T</div>
-        <strong>Your Tokens</strong>
-        <div class="token-popover-balance">
-          <span id="tokenPopoverBalance">0</span> Tokens
-        </div>
-
-        <button class="primary" id="openTokenCenter" type="button" style="width:100%;">
-          Open Token Center
-        </button>
-      </div>
+      <button class="side-btn" data-page="tokens" type="button">
+        <span>Tokens</span>
+      </button>
 
     </div>
 
-    <!-- FRIEND MODAL -->
-    <div class="backdrop hidden" id="friendModal">
+    <div class="side-divider"></div>
 
-      <div class="modal">
+    <div class="side-group">
 
-        <button class="modal-close" data-close="friendModal" type="button">X</button>
+      <button class="side-btn" id="studioButton" type="button">
+        <span>Studio</span>
+      </button>
 
-        <span class="eyebrow">SOCIAL</span>
-        <h2>Add Friend</h2>
-        <p>Enter a RiseUp username to add them to your friends list.</p>
+      <button class="side-btn" id="riseCodeButton" type="button">
+        <span>RiseCode</span>
+      </button>
 
-        <input id="friendInput" type="text" placeholder="Username" autocomplete="off">
-
-        <div class="modal-actions">
-          <button class="secondary" data-close="friendModal" type="button">Cancel</button>
-          <button class="primary" id="confirmFriend" type="button">Add Friend</button>
-        </div>
-
-      </div>
+      <button class="side-btn" data-page="settings" type="button">
+        <span>Settings</span>
+      </button>
 
     </div>
-
-    <!-- INFO MODAL -->
-    <div class="backdrop hidden" id="infoModal">
-
-      <div class="modal">
-
-        <button class="modal-close" data-close="infoModal" type="button">X</button>
-
-        <span class="eyebrow" id="infoEyebrow">RISEUP</span>
-        <h2 id="infoTitle">RiseUp</h2>
-        <p id="infoText">Welcome to RiseUp.</p>
-
-        <div class="modal-actions">
-          <button class="primary" data-close="infoModal" type="button">Close</button>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
 
   </div>
 
-  <script>
-  (() => {
-    "use strict";
-
-    const KEYS = {
-      user: "riseup_currentUser",
-      games: "riseup_games",
-      friends: "riseup_friends",
-      inventory: "riseup_inventory",
-      messages: "riseup_messages",
-      notifications: "riseup_notifications",
-      avatar: "riseup_avatar",
-      settings: "riseup_settings",
-      tokens: "riseup_tokens"
-    };
-
-    const state = {
-      page: "home",
-      discoverFilter: "all",
-      inventoryTab: "items",
-      marketCategory: "featured",
-      search: "",
-      selectedConversation: null
-    };
-
-    let toastTimer = null;
-
-    document.addEventListener("DOMContentLoaded", init);
-
-    function init() {
-      bindAll();
-      renderEverything();
-      navigate("home");
-    }
-
-    function bindAll() {
-
-      /* MAIN NAV */
-
-      document.addEventListener("click", handleButtonClick);
-
-      document.getElementById("globalSearch")
-        ?.addEventListener("input", event => {
-          state.search = event.target.value.trim().toLowerCase();
-
-          if (state.search) {
-            navigate("discover");
-          }
-        });
-
-      document.getElementById("friendSearch")
-        ?.addEventListener("input", renderFriends);
-
-      document.getElementById("friendInput")
-        ?.addEventListener("keydown", event => {
-          if (event.key === "Enter") {
-            addFriend();
-          }
-        });
-
-      document.getElementById("reducedMotion")
-        ?.addEventListener("change", event => {
-          const settings = getSettings();
-          settings.reducedMotion = event.target.checked;
-          saveSettings(settings);
-        });
-
-      /* TOKEN CENTER */
-
-      document.getElementById("claimMonthly")
-        ?.addEventListener("click", claimMonthly);
-
-      document.getElementById("dailyReward")
-        ?.addEventListener("click", () => {
-          toast("Daily rewards are coming soon.");
-        });
-
-      document.getElementById("weeklyReward")
-        ?.addEventListener("click", () => {
-          toast("Weekly rewards are coming soon.");
-        });
-
-      document.getElementById("creatorRewards")
-        ?.addEventListener("click", () => {
-          showInfo(
-            "CREATOR REWARDS",
-            "Creator rewards are planned for a future RiseUp update. Your games can eventually earn Tokens based on participation."
-          );
-        });
-
-      /* MODALS */
-
-      document.querySelectorAll("[data-close]").forEach(button => {
-        button.addEventListener("click", () => {
-          closeModal(button.dataset.close);
-        });
-      });
-
-      document.querySelectorAll(".backdrop").forEach(backdrop => {
-        backdrop.addEventListener("click", event => {
-          if (event.target === backdrop) {
-            backdrop.classList.add("hidden");
-          }
-        });
-      });
-    }
-
-    function handleButtonClick(event) {
-      const button = event.target.closest("button");
-
-      if (!button) return;
-
-      /* PAGE */
-
-      if (button.dataset.page) {
-        navigate(button.dataset.page);
-        return;
-      }
-
-      if (button.dataset.pageAction) {
-        navigate(button.dataset.pageAction);
-        return;
-      }
-
-      /* BRAND */
-
-      if (
-        button.id === "brandButton" ||
-        button.id === "footerBrand"
-      ) {
-        closePopups();
-        navigate("home");
-        return;
-      }
-
-      /* CREATE ACTIONS */
-
-      if (button.dataset.create === "studio") {
-        openStudio();
-        return;
-      }
-
-      /* STUDIO */
-
-      if (
-        button.id === "studioButton" ||
-        button.id === "profileStudio" ||
-        button.id === "createStudio"
-      ) {
-        openStudio();
-        return;
-      }
-
-      /* RISECODE */
-
-      if (
-        button.id === "riseCodeButton" ||
-        button.id === "profileCode" ||
-        button.id === "createCode"
-      ) {
-        openRiseCode();
-        return;
-      }
-
-      /* CREATE MENUS */
-
-      if (
-        button.id === "createTop" ||
-        button.id === "sidebarCreate"
-      ) {
-        togglePopup("createMenu");
-        return;
-      }
-
-      /* PROFILE */
-
-      if (button.id === "profileButton") {
-        togglePopup("profileMenu");
-        return;
-      }
-
-      if (button.dataset.profilePage) {
-        closePopups();
-        navigate(button.dataset.profilePage);
-        return;
-      }
-
-      /* LOGOUT */
-
-      if (
-        button.id === "profileLogout" ||
-        button.id === "logoutButton"
-      ) {
-        logout();
-        return;
-      }
-
-      /* MESSAGES */
-
-      if (button.id === "messagesTop") {
-        togglePopup("messagePopover");
-        renderQuickMessages();
-        return;
-      }
-
-      if (button.id === "openMessages") {
-        closePopups();
-        navigate("messages");
-        return;
-      }
-
-      /* NOTIFICATIONS */
-
-      if (button.id === "notificationsTop") {
-        togglePopup("notificationPopover");
-        renderNotifications();
-        return;
-      }
-
-      if (button.id === "clearNotifications") {
-        localStorage.removeItem(notificationsKey());
-        renderNotifications();
-        toast("Notifications cleared.");
-        return;
-      }
-
-      /* TOKENS */
-
-      if (button.id === "tokenButton") {
-        togglePopup("tokenPopover");
-        updateTokenUI();
-        return;
-      }
-
-      if (button.id === "openTokenCenter") {
-        closePopups();
-        navigate("tokens");
-        return;
-      }
-
-      /* FRIENDS */
-
-      if (
-        button.id === "addFriendButton"
-      ) {
-        openModal("friendModal");
-        return;
-      }
-
-      if (button.id === "confirmFriend") {
-        addFriend();
-        return;
-      }
-
-      /* FOOTER */
-
-      if (button.dataset.info) {
-        showInfoModal(button.dataset.info);
-        return;
-      }
-
-      /* DISCOVER FILTER */
-
-      if (button.dataset.discoverFilter) {
-        setDiscoverFilter(button.dataset.discoverFilter);
-        return;
-      }
-
-      /* INVENTORY */
-
-      if (button.dataset.inventoryTab) {
-        setInventoryTab(button.dataset.inventoryTab);
-        return;
-      }
-
-      /* MARKETPLACE */
-
-      if (button.dataset.marketCategory) {
-        setMarketCategory(button.dataset.marketCategory);
-        return;
-      }
-
-      /* BUY */
-
-      if (button.dataset.buyIndex !== undefined) {
-        buyItem(Number(button.dataset.buyIndex));
-        return;
-      }
-
-      /* GAME CARDS */
-
-      if (button.dataset.gameId) {
-        const game = readGames().find(
-          item => String(item.id) === String(button.dataset.gameId)
-        );
-
-        if (game) {
-          localStorage.setItem("riseup_play_game_id", game.id);
-          openStudio();
+  <div class="side-bottom">
+    <button class="side-create" id="sidebarCreate" type="button">
+      + Create
+    </button>
+  </div>
+
+</aside>
+
+<main class="main">
+
+  <!-- HOME -->
+
+  <section class="page active" data-page-content="home">
+
+    <div class="hero">
+
+      <div>
+        <span class="eyebrow">RISEUP</span>
+        <h1>Welcome back, <span id="welcomeName">Creator</span></h1>
+        <p class="subtitle">
+          Play experiences, build worlds, and create something of your own.
+        </p>
+      </div>
+
+      <button class="primary" data-open-studio type="button">
+        Create a Game
+      </button>
+
+    </div>
+
+    <section class="section">
+
+      <div class="section-head">
+        <div>
+          <h2>Friends</h2>
+          <p>People in your RiseUp community.</p>
+        </div>
+
+        <button class="link" data-page="friends" type="button">
+          View All
+        </button>
+      </div>
+
+      <div class="friend-grid" id="homeFriends"></div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+        <div>
+          <h2>Continue Playing</h2>
+          <p>Your recent experiences.</p>
+        </div>
+
+        <button class="link" data-page="discover" type="button">
+          View All
+        </button>
+      </div>
+
+      <div class="grid" id="continueGames"></div>
+
+      <div class="empty" id="continueEmpty">
+        <div class="empty-art"></div>
+        <h3>No games to continue</h3>
+        <p>Play an experience and it will appear here.</p>
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-head">
+        <div>
+          <h2>Recommended For You</h2>
+          <p>Experiences from the RiseUp community.</p>
+        </div>
+
+        <button class="link" data-page="discover" type="button">
+          View All
+        </button>
+      </div>
+
+      <div class="grid" id="recommendedGames"></div>
+
+      <div class="empty" id="recommendedEmpty">
+        <div class="empty-art"></div>
+        <h3>No games yet</h3>
+        <p>Be the first creator to make a game.</p>
+        <button class="primary" data-open-studio type="button">
+          Create a Game
+        </button>
+      </div>
+
+    </section>
+
+  </section>
+
+  <!-- DISCOVER -->
+
+  <section class="page" data-page-content="discover">
+
+    <div class="page-header">
+      <span class="eyebrow">EXPLORE</span>
+      <h1>Discover</h1>
+      <p class="subtitle">
+        Find games made by the RiseUp community.
+      </p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-discover="all" type="button">All</button>
+      <button class="tab" data-discover="recent" type="button">Recent</button>
+      <button class="tab" data-discover="mine" type="button">My Games</button>
+    </div>
+
+    <div class="grid" id="discoverGrid"></div>
+
+    <div class="empty" id="discoverEmpty">
+      <div class="empty-art"></div>
+      <h3>No games yet</h3>
+      <p>Be the first creator to make a game.</p>
+      <button class="primary" data-open-studio type="button">Create a Game</button>
+    </div>
+
+  </section>
+
+  <!-- AVATAR -->
+
+  <section class="page" data-page-content="avatar">
+
+    <div class="page-header">
+      <span class="eyebrow">CHARACTER</span>
+      <h1>Avatar</h1>
+      <p class="subtitle">Customize your RiseUp character.</p>
+    </div>
+
+    <div class="avatar-layout">
+
+      <section class="card avatar-preview">
+
+        <div class="avatar">
+
+          <div class="avatar-head">
+            <span class="eye left"></span>
+            <span class="eye right"></span>
+            <span class="smile"></span>
+          </div>
+
+          <div class="avatar-body"></div>
+
+          <div class="avatar-arms">
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="avatar-legs">
+            <span></span>
+            <span></span>
+          </div>
+
+        </div>
+
+        <div class="avatar-name" id="avatarName">Creator</div>
+
+      </section>
+
+      <section class="card">
+
+        <h2 style="font-size:15px;margin-bottom:15px;">Appearance</h2>
+
+        <div class="setting">
+          <span>Head</span>
+          <button class="choice active" data-color-part="head" data-color="#FFE047" type="button">Yellow</button>
+        </div>
+
+        <div class="setting">
+          <span>Body</span>
+          <button class="choice active" data-color-part="body" data-color="#249BFF" type="button">Blue</button>
+        </div>
+
+        <div class="setting">
+          <span>Legs</span>
+          <button class="choice active" data-color-part="legs" data-color="#00A82D" type="button">Green</button>
+        </div>
+
+      </section>
+
+    </div>
+
+  </section>
+
+  <!-- INVENTORY -->
+
+  <section class="page" data-page-content="inventory">
+
+    <div class="page-header">
+      <span class="eyebrow">COLLECTION</span>
+      <h1>Inventory</h1>
+      <p class="subtitle">Your items and creator assets.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-inventory="items" type="button">Items</button>
+      <button class="tab" data-inventory="models" type="button">Models</button>
+      <button class="tab" data-inventory="passes" type="button">Game Passes</button>
+    </div>
+
+    <div class="inventory" id="inventoryGrid"></div>
+
+  </section>
+
+  <!-- FRIENDS -->
+
+  <section class="page" data-page-content="friends">
+
+    <div class="page-header">
+      <span class="eyebrow">SOCIAL</span>
+      <h1>Friends</h1>
+      <p class="subtitle">Connect with people on RiseUp.</p>
+    </div>
+
+    <div class="toolbar">
+      <input id="friendSearch" type="search" placeholder="Search users..." autocomplete="off">
+      <button class="primary" id="addFriendButton" type="button">Add Friend</button>
+    </div>
+
+    <div class="friend-grid" id="friendsGrid"></div>
+
+  </section>
+
+  <!-- MESSAGES -->
+
+  <section class="page" data-page-content="messages">
+
+    <div class="page-header">
+      <span class="eyebrow">SOCIAL</span>
+      <h1>Messages</h1>
+      <p class="subtitle">Your RiseUp conversations.</p>
+    </div>
+
+    <div class="messages">
+
+      <div class="conversations" id="conversationList"></div>
+
+      <div class="chat" id="chatPanel">
+
+        <div class="empty" style="border:0;border-radius:0;height:100%;">
+          <h3>No conversation selected</h3>
+          <p>Select a conversation to begin.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- MARKETPLACE -->
+
+  <section class="page" data-page-content="marketplace">
+
+    <div class="page-header market-head">
+
+      <div>
+        <span class="eyebrow">RISEUP MARKETPLACE</span>
+        <h1>Marketplace</h1>
+        <p class="subtitle">
+          Discover items, assets, and creator content.
+        </p>
+      </div>
+
+      <div class="balance">
+        <span>Tokens</span>
+        <strong id="marketTokens">0</strong>
+      </div>
+
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-market="featured" type="button">Featured</button>
+      <button class="tab" data-market="avatar" type="button">Avatar</button>
+      <button class="tab" data-market="models" type="button">Models</button>
+      <button class="tab" data-market="effects" type="button">Effects</button>
+    </div>
+
+    <div class="market-grid" id="marketGrid"></div>
+
+  </section>
+
+  <!-- TOKENS -->
+
+  <section class="page" data-page-content="tokens">
+
+    <div class="page-header">
+      <span class="eyebrow">RISEUP TOKENS</span>
+      <h1>Token Center</h1>
+      <p class="subtitle">
+        Earn free Tokens while using RiseUp.
+      </p>
+    </div>
+
+    <div class="token-hero">
+
+      <div class="token-total">
+
+        <div class="token-big">T</div>
+
+        <div>
+          <strong id="centerTokens">0</strong>
+          <span>Your current Token balance</span>
+        </div>
+
+      </div>
+
+      <button class="primary" id="monthlyClaim" type="button">
+        Claim Monthly 10
+      </button>
+
+    </div>
+
+    <div class="token-grid">
+
+      <article class="token-card">
+        <h3>Monthly Reward</h3>
+        <div class="token-value">+10 Tokens</div>
+        <p>Receive 10 free Tokens once every month.</p>
+        <button class="secondary" id="monthlyCardButton" type="button">
+          Claim Monthly
+        </button>
+      </article>
+
+      <article class="token-card">
+        <h3>Daily Reward</h3>
+        <div class="token-value">+1 Token</div>
+        <p>Daily free rewards can be enabled later.</p>
+        <button class="secondary" id="dailyButton" type="button">
+          Coming Soon
+        </button>
+      </article>
+
+      <article class="token-card">
+        <h3>Weekly Reward</h3>
+        <div class="token-value">+5 Tokens</div>
+        <p>Weekly free rewards can be enabled later.</p>
+        <button class="secondary" id="weeklyButton" type="button">
+          Coming Soon
+        </button>
+      </article>
+
+      <article class="token-card">
+        <h3>Creator Rewards</h3>
+        <div class="token-value">Earn Tokens</div>
+        <p>Future creator systems can reward successful experiences.</p>
+        <button class="secondary" id="creatorRewardButton" type="button">
+          Learn More
+        </button>
+      </article>
+
+    </div>
+
+    <div class="card" style="margin-top:13px;color:var(--muted2);font-size:8px;">
+      Tokens are currently free prototype currency. No real-money purchases are enabled.
+    </div>
+
+  </section>
+
+  <!-- SETTINGS -->
+
+  <section class="page" data-page-content="settings">
+
+    <div class="page-header">
+      <span class="eyebrow">PREFERENCES</span>
+      <h1>Settings</h1>
+      <p class="subtitle">Manage your RiseUp experience.</p>
+    </div>
+
+    <div class="settings">
+
+      <section class="card">
+
+        <h2 style="font-size:13px;margin-bottom:10px;">Account</h2>
+
+        <div class="settings-row">
+          <div>
+            <strong>Username</strong>
+            <small id="settingsUsername">Creator</small>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <strong>Tokens</strong>
+            <small id="settingsTokenValue">0</small>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="card">
+
+        <h2 style="font-size:13px;margin-bottom:10px;">Preferences</h2>
+
+        <label class="settings-row">
+          <div>
+            <strong>Reduced motion</strong>
+            <small>Reduce interface animation.</small>
+          </div>
+          <input id="reducedMotion" type="checkbox">
+        </label>
+
+      </section>
+
+      <section class="card danger">
+
+        <h2 style="font-size:13px;margin-bottom:10px;">Account Actions</h2>
+
+        <button class="danger-btn" id="logoutButton" type="button">
+          Log Out
+        </button>
+
+      </section>
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer class="footer">
+
+    <button class="footer-brand" data-page="home" type="button">
+      <span class="footer-mark">R</span>
+      <span>
+        <strong>RiseUp</strong>
+        <small>Create. Play. Rise.</small>
+      </span>
+    </button>
+
+    <nav class="footer-links">
+      <button data-info="about" type="button">About</button>
+      <button data-info="careers" type="button">Careers</button>
+      <button data-info="help" type="button">Help</button>
+      <button data-info="terms" type="button">Terms</button>
+      <button data-info="privacy" type="button">Privacy</button>
+    </nav>
+
+    <span class="footer-copy">© 2026 RiseUp</span>
+
+  </footer>
+
+</main>
+
+<!-- PROFILE -->
+
+<div class="popup" id="profilePopup">
+
+  <div class="popup-header">
+
+    <div class="popup-avatar" id="popupAvatar">R</div>
+
+    <div class="popup-user">
+      <strong id="popupName">Creator</strong>
+      <span id="popupUsername">@Creator</span>
+    </div>
+
+  </div>
+
+  <button data-page="avatar" type="button">Avatar</button>
+  <button data-page="inventory" type="button">Inventory</button>
+  <button data-page="friends" type="button">Friends</button>
+  <button data-page="settings" type="button">Settings</button>
+
+  <div class="popup-divider"></div>
+
+  <button id="profileStudio" type="button">Studio</button>
+  <button id="profileCode" type="button">RiseCode</button>
+
+  <div class="popup-divider"></div>
+
+  <button id="profileLogout" type="button" style="color:#ef9999;">Log Out</button>
+
+</div>
+
+<!-- CREATE -->
+
+<div class="popup" id="createPopup">
+
+  <div style="padding:8px;color:var(--muted2);font-size:8px;font-weight:900;letter-spacing:.7px;">
+    CREATE
+  </div>
+
+  <button class="create-item" id="createStudio" type="button">
+    <span class="create-icon">3D</span>
+    <span>
+      <strong>RiseUp Studio</strong><br>
+      <span style="color:var(--muted2);font-size:7px;">Build your game</span>
+    </span>
+  </button>
+
+  <button class="create-item" id="createCode" type="button">
+    <span class="create-icon">&lt;&gt;</span>
+    <span>
+      <strong>RiseCode</strong><br>
+      <span style="color:var(--muted2);font-size:7px;">Code your game</span>
+    </span>
+  </button>
+
+</div>
+
+<!-- NOTIFICATIONS -->
+
+<div class="popup" id="notificationPopup">
+
+  <div class="popup-title">
+    Notifications
+  </div>
+
+  <div class="popup-list" id="notificationList"></div>
+
+</div>
+
+<!-- MESSAGES -->
+
+<div class="popup" id="messagePopup">
+
+  <div class="popup-title">
+    Messages
+  </div>
+
+  <div class="popup-list" id="quickMessages"></div>
+
+  <button id="openMessagesPage" type="button" style="padding:10px;">
+    Open Messages
+  </button>
+
+</div>
+
+<!-- TOKENS -->
+
+<div class="popup" id="tokenPopup">
+
+  <div class="token-popup-symbol">T</div>
+
+  <div class="token-popup">
+    <strong>Your Tokens</strong>
+
+    <div class="token-popup-balance">
+      <span id="popupTokens">0</span> Tokens
+    </div>
+
+    <button class="primary" id="openTokensPage" type="button" style="width:100%;">
+      Open Token Center
+    </button>
+
+  </div>
+
+</div>
+
+<!-- FRIEND MODAL -->
+
+<div class="modal-backdrop hidden" id="friendModal">
+
+  <div class="modal">
+
+    <button class="modal-close" data-close="friendModal" type="button">X</button>
+
+    <span class="eyebrow">SOCIAL</span>
+    <h2>Add Friend</h2>
+
+    <p>
+      Enter a RiseUp username.
+    </p>
+
+    <input id="friendInput" type="text" placeholder="Username" autocomplete="off">
+
+    <div class="modal-actions">
+      <button class="secondary" data-close="friendModal" type="button">Cancel</button>
+      <button class="primary" id="confirmFriend" type="button">Add Friend</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- INFO MODAL -->
+
+<div class="modal-backdrop hidden" id="infoModal">
+
+  <div class="modal">
+
+    <button class="modal-close" data-close="infoModal" type="button">X</button>
+
+    <span class="eyebrow" id="infoEyebrow">RISEUP</span>
+    <h2 id="infoTitle">RiseUp</h2>
+    <p id="infoText">Welcome to RiseUp.</p>
+
+    <div class="modal-actions">
+      <button class="primary" data-close="infoModal" type="button">
+        Close
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const KEY = {
+    user:"riseup_currentUser",
+    games:"riseup_games",
+    friends:"riseup_friends",
+    inventory:"riseup_inventory",
+    messages:"riseup_messages",
+    notifications:"riseup_notifications",
+    avatar:"riseup_avatar",
+    settings:"riseup_settings",
+    tokens:"riseup_tokens"
+  };
+
+  const state = {
+    page:"home",
+    discover:"all",
+    inventory:"items",
+    market:"featured",
+    selectedMessage:null,
+    search:""
+  };
+
+  const marketItems = [
+    {name:"Classic Block Pack",type:"Models",category:"models",price:25},
+    {name:"Modern Avatar Bundle",type:"Avatar",category:"avatar",price:75},
+    {name:"City Environment",type:"Models",category:"models",price:120},
+    {name:"Energy Effect Pack",type:"Effects",category:"effects",price:50},
+    {name:"Creator Starter Pack",type:"Featured",category:"featured",price:100}
+  ];
+
+  const info = {
+    about:[
+      "ABOUT",
+      "About RiseUp",
+      "RiseUp is a creator-focused platform for making, sharing, discovering, and playing interactive experiences."
+    ],
+    careers:[
+      "CAREERS",
+      "Careers",
+      "RiseUp careers will be added as the platform grows."
+    ],
+    help:[
+      "HELP",
+      "Help",
+      "Use RiseUp Studio to build games and RiseCode to script them. More creator tools are being added over time."
+    ],
+    terms:[
+      "TERMS",
+      "Terms",
+      "RiseUp terms cover use of the platform, publishing experiences, and participation in the community."
+    ],
+    privacy:[
+      "PRIVACY",
+      "Privacy",
+      "RiseUp is designed to keep account information, settings, and public experience content as separate systems."
+    ]
+  };
+
+  document.addEventListener("DOMContentLoaded", init);
+
+  function init(){
+
+    /*
+     * EVERYTHING USES ONE CLICK SYSTEM.
+     * This avoids relying on dozens of separate button handlers.
+     */
+
+    document.addEventListener("click", onClick);
+
+    document.getElementById("searchInput")
+      ?.addEventListener("input", event => {
+        state.search = event.target.value.trim().toLowerCase();
+
+        if(state.search){
+          navigate("discover");
+        }else{
+          renderDiscover();
         }
-      }
+      });
+
+    document.getElementById("friendSearch")
+      ?.addEventListener("input", renderFriends);
+
+    document.getElementById("friendInput")
+      ?.addEventListener("keydown", event => {
+        if(event.key === "Enter"){
+          addFriend();
+        }
+      });
+
+    document.getElementById("monthlyClaim")
+      ?.addEventListener("click", claimMonthly);
+
+    document.getElementById("monthlyCardButton")
+      ?.addEventListener("click", claimMonthly);
+
+    document.getElementById("dailyButton")
+      ?.addEventListener("click", () => {
+        toast("Daily Tokens are coming soon.");
+      });
+
+    document.getElementById("weeklyButton")
+      ?.addEventListener("click", () => {
+        toast("Weekly Tokens are coming soon.");
+      });
+
+    document.getElementById("creatorRewardButton")
+      ?.addEventListener("click", () => {
+        showInfo(
+          "CREATOR REWARDS",
+          "Creator Token rewards can be added later when RiseUp's creator economy is ready."
+        );
+      });
+
+    renderAll();
+    navigate("home");
+  }
+
+  function onClick(event){
+
+    const button = event.target.closest("button");
+
+    if(!button){
+      return;
     }
 
-    /* =========================================================
-       NAVIGATION
-       ========================================================= */
+    if(button.dataset.page){
+      closePopups();
+      navigate(button.dataset.page);
+      return;
+    }
 
-    function navigate(page) {
-      const valid = [
-        "home",
-        "discover",
-        "avatar",
-        "inventory",
-        "friends",
-        "messages",
-        "marketplace",
-        "tokens",
-        "settings"
-      ];
+    if(button.dataset.pageAction){
+      closePopups();
+      navigate(button.dataset.pageAction);
+      return;
+    }
 
-      if (!valid.includes(page)) {
-        page = "home";
-      }
+    if(button.dataset.openStudio !== undefined){
+      openStudio();
+      return;
+    }
 
-      state.page = page;
+    if(button.dataset.info){
+      showInfoModal(button.dataset.info);
+      return;
+    }
 
-      document.querySelectorAll("[data-page-content]").forEach(section => {
+    if(button.dataset.close){
+      closeModal(button.dataset.close);
+      return;
+    }
+
+    if(button.dataset.discover){
+      state.discover = button.dataset.discover;
+      updateTabs("[data-discover]",state.discover);
+      renderDiscover();
+      return;
+    }
+
+    if(button.dataset.inventory){
+      state.inventory = button.dataset.inventory;
+      updateTabs("[data-inventory]",state.inventory);
+      renderInventory();
+      return;
+    }
+
+    if(button.dataset.market){
+      state.market = button.dataset.market;
+      updateTabs("[data-market]",state.market);
+      renderMarketplace();
+      return;
+    }
+
+    if(button.dataset.colorPart){
+      setAvatarColor(
+        button.dataset.colorPart,
+        button.dataset.color
+      );
+      return;
+    }
+
+    if(button.dataset.buyIndex !== undefined){
+      buyItem(Number(button.dataset.buyIndex));
+      return;
+    }
+
+    if(button.id === "profileButton"){
+      togglePopup("profilePopup");
+      return;
+    }
+
+    if(button.id === "createButton" || button.id === "sidebarCreate"){
+      togglePopup("createPopup");
+      return;
+    }
+
+    if(button.id === "messagesButton"){
+      togglePopup("messagePopup");
+      renderQuickMessages();
+      return;
+    }
+
+    if(button.id === "notificationsButton"){
+      togglePopup("notificationPopup");
+      renderNotifications();
+      return;
+    }
+
+    if(button.id === "tokenButton"){
+      togglePopup("tokenPopup");
+      updateTokens();
+      return;
+    }
+
+    if(button.id === "openTokensPage"){
+      closePopups();
+      navigate("tokens");
+      return;
+    }
+
+    if(button.id === "openMessagesPage"){
+      closePopups();
+      navigate("messages");
+      return;
+    }
+
+    if(button.id === "studioButton" ||
+       button.id === "profileStudio" ||
+       button.id === "createStudio"){
+      openStudio();
+      return;
+    }
+
+    if(button.id === "riseCodeButton" ||
+       button.id === "profileCode" ||
+       button.id === "createCode"){
+      openRiseCode();
+      return;
+    }
+
+    if(button.id === "profileLogout" ||
+       button.id === "logoutButton"){
+      logout();
+      return;
+    }
+
+    if(button.id === "addFriendButton"){
+      openModal("friendModal");
+      return;
+    }
+
+    if(button.id === "confirmFriend"){
+      addFriend();
+      return;
+    }
+  }
+
+  function navigate(page){
+
+    const pages = [
+      "home",
+      "discover",
+      "avatar",
+      "inventory",
+      "friends",
+      "messages",
+      "marketplace",
+      "tokens",
+      "settings"
+    ];
+
+    if(!pages.includes(page)){
+      page = "home";
+    }
+
+    state.page = page;
+
+    document.querySelectorAll("[data-page-content]")
+      .forEach(section => {
         section.classList.toggle(
           "active",
           section.dataset.pageContent === page
         );
       });
 
-      document.querySelectorAll("[data-page]").forEach(button => {
+    document.querySelectorAll("[data-page]")
+      .forEach(button => {
         button.classList.toggle(
           "active",
           button.dataset.page === page
         );
       });
 
-      closePopups();
-      renderPage(page);
+    closePopups();
+    renderPage(page);
 
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: getSettings().reducedMotion ? "auto" : "smooth"
-      });
-    }
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
+  }
 
-    function renderPage(page) {
-      if (page === "home") renderHome();
-      if (page === "discover") renderDiscover();
-      if (page === "avatar") renderAvatar();
-      if (page === "inventory") renderInventory();
-      if (page === "friends") renderFriends();
-      if (page === "messages") renderMessages();
-      if (page === "marketplace") renderMarketplace();
-      if (page === "tokens") renderTokenCenter();
-      if (page === "settings") renderSettings();
-    }
+  function renderPage(page){
 
-    /* =========================================================
-       FILE NAVIGATION
-       ========================================================= */
+    if(page === "home") renderHome();
+    if(page === "discover") renderDiscover();
+    if(page === "avatar") renderAvatar();
+    if(page === "inventory") renderInventory();
+    if(page === "friends") renderFriends();
+    if(page === "messages") renderMessages();
+    if(page === "marketplace") renderMarketplace();
+    if(page === "tokens") renderTokensPage();
+    if(page === "settings") renderSettings();
+  }
 
-    function openStudio() {
-      closePopups();
-      window.location.href = "studio.html";
-    }
+  function openStudio(){
+    window.location.href = "./studio.html";
+  }
 
-    function openRiseCode() {
-      closePopups();
-      window.location.href = "code.html";
-    }
+  function openRiseCode(){
+    window.location.href = "./code.html";
+  }
 
-    /* =========================================================
-       RENDER EVERYTHING
-       ========================================================= */
+  /* USER */
 
-    function renderEverything() {
-      renderUser();
-      renderHome();
-      renderDiscover();
-      renderAvatar();
-      renderInventory();
-      renderFriends();
-      renderMessages();
-      renderMarketplace();
-      renderTokenCenter();
-      renderNotifications();
-      renderQuickMessages();
-      renderSettings();
-    }
+  function getUser(){
 
-    /* =========================================================
-       USER
-       ========================================================= */
+    try{
+      const raw = localStorage.getItem(KEY.user);
 
-    function getUser() {
-      try {
-        const raw = localStorage.getItem(KEYS.user);
-
-        if (!raw) {
-          return "Creator";
-        }
-
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return raw;
-        }
-      } catch {
+      if(!raw){
         return "Creator";
       }
-    }
 
-    function getUsername() {
-      const user = getUser();
-
-      if (!user) return "Creator";
-
-      if (typeof user === "string") {
-        return user;
+      try{
+        return JSON.parse(raw);
+      }catch{
+        return raw;
       }
 
-      return (
-        user.username ||
-        user.name ||
-        user.user ||
-        user.displayName ||
-        "Creator"
+    }catch{
+      return "Creator";
+    }
+  }
+
+  function username(){
+
+    const user = getUser();
+
+    if(!user){
+      return "Creator";
+    }
+
+    if(typeof user === "string"){
+      return user;
+    }
+
+    return (
+      user.username ||
+      user.name ||
+      user.user ||
+      user.displayName ||
+      "Creator"
+    );
+  }
+
+  function displayName(){
+
+    const user = getUser();
+
+    if(!user){
+      return "Creator";
+    }
+
+    if(typeof user === "string"){
+      return user;
+    }
+
+    return (
+      user.displayName ||
+      user.username ||
+      user.name ||
+      user.user ||
+      "Creator"
+    );
+  }
+
+  function renderUser(){
+
+    const name = displayName();
+    const user = username();
+    const letter = name.charAt(0).toUpperCase() || "R";
+
+    document.getElementById("welcomeName").textContent = name;
+    document.getElementById("avatarName").textContent = name;
+    document.getElementById("profileButton").textContent = letter;
+    document.getElementById("popupAvatar").textContent = letter;
+    document.getElementById("popupName").textContent = name;
+    document.getElementById("popupUsername").textContent = "@" + user;
+    document.getElementById("settingsUsername").textContent = user;
+
+    updateFriendCount();
+    updateTokens();
+  }
+
+  /* TOKENS */
+
+  function tokenKey(){
+    return KEY.tokens + "_" + username();
+  }
+
+  function getTokens(){
+
+    const value = Number(
+      localStorage.getItem(tokenKey())
+    );
+
+    if(!Number.isFinite(value) || value < 0){
+      return 0;
+    }
+
+    return Math.floor(value);
+  }
+
+  function setTokens(value){
+
+    const amount = Math.max(
+      0,
+      Math.floor(Number(value) || 0)
+    );
+
+    localStorage.setItem(
+      tokenKey(),
+      String(amount)
+    );
+
+    updateTokens();
+  }
+
+  function updateTokens(){
+
+    const amount = getTokens();
+
+    setText("tokenBalance",amount);
+    setText("marketTokens",amount);
+    setText("centerTokens",amount);
+    setText("popupTokens",amount);
+    setText("settingsTokenValue",amount);
+
+    updateMonthlyButton();
+  }
+
+  function monthKey(){
+    return "riseup_token_month_" + username();
+  }
+
+  function currentMonth(){
+
+    const date = new Date();
+
+    return (
+      date.getFullYear() +
+      "-" +
+      String(date.getMonth()+1).padStart(2,"0")
+    );
+  }
+
+  function claimMonthly(){
+
+    const month = currentMonth();
+    const previous = localStorage.getItem(monthKey());
+
+    if(previous === month){
+      toast("Your 10 Tokens were already claimed this month.");
+      return;
+    }
+
+    setTokens(
+      getTokens() + 10
+    );
+
+    localStorage.setItem(
+      monthKey(),
+      month
+    );
+
+    updateMonthlyButton();
+
+    toast("+10 Tokens added.");
+  }
+
+  function updateMonthlyButton(){
+
+    const button = document.getElementById("monthlyClaim");
+
+    if(!button){
+      return;
+    }
+
+    const claimed =
+      localStorage.getItem(monthKey()) === currentMonth();
+
+    button.disabled = claimed;
+    button.textContent = claimed
+      ? "Claimed This Month"
+      : "Claim Monthly 10";
+
+    button.style.opacity = claimed ? ".55" : "1";
+  }
+
+  function renderTokensPage(){
+    updateTokens();
+  }
+
+  /* GAMES */
+
+  function getGames(){
+
+    try{
+
+      const data = JSON.parse(
+        localStorage.getItem(KEY.games) || "[]"
+      );
+
+      return Array.isArray(data)
+        ? data
+        : [];
+
+    }catch{
+      return [];
+    }
+  }
+
+  function gameMatchesSearch(game){
+
+    if(!state.search){
+      return true;
+    }
+
+    const text = [
+      game.name,
+      game.title,
+      game.creator,
+      game.owner,
+      game.description
+    ]
+    .join(" ")
+    .toLowerCase();
+
+    return text.includes(state.search);
+  }
+
+  function renderHome(){
+
+    const games = getGames()
+      .filter(gameMatchesSearch);
+
+    const mine = games.filter(game => {
+
+      const owner = String(
+        game.owner ||
+        game.creator ||
+        ""
+      ).toLowerCase();
+
+      return owner === username().toLowerCase();
+    });
+
+    renderGameGrid(
+      document.getElementById("continueGames"),
+      mine.slice(0,4)
+    );
+
+    renderGameGrid(
+      document.getElementById("recommendedGames"),
+      games.slice(0,8)
+    );
+
+    show(
+      "continueEmpty",
+      mine.length === 0
+    );
+
+    show(
+      "recommendedEmpty",
+      games.length === 0
+    );
+
+    renderHomeFriends();
+  }
+
+  function renderDiscover(){
+
+    let games = getGames()
+      .filter(gameMatchesSearch);
+
+    if(state.discover === "recent"){
+
+      games.sort(
+        (a,b) =>
+          new Date(
+            b.updatedAt ||
+            b.createdAt ||
+            0
+          ) -
+          new Date(
+            a.updatedAt ||
+            a.createdAt ||
+            0
+          )
       );
     }
 
-    function getDisplayName() {
-      const user = getUser();
+    if(state.discover === "mine"){
 
-      if (!user) return "Creator";
+      const current = username().toLowerCase();
 
-      if (typeof user === "string") {
-        return user;
-      }
-
-      return (
-        user.displayName ||
-        user.username ||
-        user.name ||
-        user.user ||
-        "Creator"
-      );
-    }
-
-    function renderUser() {
-      const name = getDisplayName();
-      const username = getUsername();
-      const letter = name.charAt(0).toUpperCase() || "R";
-
-      setText("welcomeName", name);
-      setText("avatarName", name);
-      setText("profileLetter", letter);
-      setText("menuAvatar", letter);
-      setText("menuName", name);
-      setText("menuUsername", "@" + username);
-      setText("settingsUsername", username);
-
-      updateFriendCount();
-      updateTokenUI();
-    }
-
-    /* =========================================================
-       TOKENS
-       ========================================================= */
-
-    function tokenKey() {
-      return KEYS.tokens + "_" + getUsername();
-    }
-
-    function getTokens() {
-      const raw = Number(localStorage.getItem(tokenKey()));
-
-      return Number.isFinite(raw) && raw >= 0
-        ? Math.floor(raw)
-        : 0;
-    }
-
-    function setTokens(amount) {
-      const value = Math.max(
-        0,
-        Math.floor(Number(amount) || 0)
-      );
-
-      localStorage.setItem(tokenKey(), String(value));
-
-      updateTokenUI();
-    }
-
-    function updateTokenUI() {
-      const amount = getTokens();
-
-      setText("topTokenBalance", amount);
-      setText("marketTokenBalance", amount);
-      setText("settingsTokens", amount);
-      setText("tokenCenterBalance", amount);
-      setText("tokenPopoverBalance", amount);
-
-      updateMonthlyStatus();
-    }
-
-    function renderTokenCenter() {
-      updateTokenUI();
-      updateMonthlyStatus();
-    }
-
-    function monthlyKey() {
-      return "riseup_monthly_token_" + getUsername();
-    }
-
-    function getMonthId() {
-      const date = new Date();
-
-      return (
-        date.getFullYear() +
-        "-" +
-        String(date.getMonth() + 1).padStart(2, "0")
-      );
-    }
-
-    function claimMonthly() {
-      const currentMonth = getMonthId();
-      const claimed = localStorage.getItem(monthlyKey());
-
-      if (claimed === currentMonth) {
-        toast("Your 10 Tokens have already been claimed this month.");
-        return;
-      }
-
-      setTokens(getTokens() + 10);
-
-      localStorage.setItem(
-        monthlyKey(),
-        currentMonth
-      );
-
-      updateMonthlyStatus();
-
-      toast("+10 Tokens added to your balance.");
-    }
-
-    function updateMonthlyStatus() {
-      const status = document.getElementById("monthlyStatus");
-      const button = document.getElementById("claimMonthly");
-
-      if (!status || !button) return;
-
-      const claimed =
-        localStorage.getItem(monthlyKey()) === getMonthId();
-
-      status.textContent = claimed
-        ? "Already claimed"
-        : "Available";
-
-      button.textContent = claimed
-        ? "Claimed This Month"
-        : "Claim Monthly 10";
-
-      button.disabled = claimed;
-      button.style.opacity = claimed ? ".55" : "1";
-      button.style.cursor = claimed ? "default" : "pointer";
-    }
-
-    /* =========================================================
-       GAMES
-       ========================================================= */
-
-    function readGames() {
-      try {
-        const data = JSON.parse(
-          localStorage.getItem(KEYS.games) || "[]"
-        );
-
-        return Array.isArray(data)
-          ? data
-          : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function matchesSearch(game) {
-      if (!state.search) {
-        return true;
-      }
-
-      const text = [
-        game.name,
-        game.title,
-        game.creator,
-        game.owner,
-        game.description
-      ]
-      .join(" ")
-      .toLowerCase();
-
-      return text.includes(state.search);
-    }
-
-    function renderHome() {
-      const games = readGames().filter(matchesSearch);
-
-      const current = getUsername().toLowerCase();
-
-      const mine = games.filter(game => {
-        const owner = String(
+      games = games.filter(game =>
+        String(
           game.owner ||
           game.creator ||
           ""
-        ).toLowerCase();
-
-        return owner === current;
-      });
-
-      renderGameGrid(
-        document.getElementById("continueGames"),
-        mine.slice(0, 4)
+        ).toLowerCase() === current
       );
-
-      renderGameGrid(
-        document.getElementById("recommendedGames"),
-        games.slice(0, 8)
-      );
-
-      showIf(
-        document.getElementById("continueEmpty"),
-        mine.length === 0
-      );
-
-      showIf(
-        document.getElementById("recommendedEmpty"),
-        games.length === 0
-      );
-
-      renderHomeFriends();
     }
 
-    function renderDiscover() {
-      let games = readGames().filter(matchesSearch);
-      const current = getUsername().toLowerCase();
+    renderGameGrid(
+      document.getElementById("discoverGrid"),
+      games
+    );
 
-      if (state.discoverFilter === "recent") {
-        games.sort(
-          (a,b) =>
-            new Date(b.updatedAt || b.createdAt || 0) -
-            new Date(a.updatedAt || a.createdAt || 0)
-        );
+    show(
+      "discoverEmpty",
+      games.length === 0
+    );
+  }
+
+  function renderGameGrid(container,games){
+
+    if(!container){
+      return;
+    }
+
+    container.innerHTML = "";
+
+    games.forEach(game => {
+
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "game";
+      button.dataset.gameId = game.id;
+
+      const image = document.createElement("div");
+      image.className = "game-image";
+      image.textContent = "R";
+
+      if(game.thumbnail){
+        image.style.backgroundImage =
+          'url("' +
+          safeUrl(game.thumbnail) +
+          '")';
+
+        image.style.backgroundSize = "cover";
+        image.style.backgroundPosition = "center";
       }
 
-      if (state.discoverFilter === "mine") {
-        games = games.filter(game =>
-          String(
-            game.owner ||
-            game.creator ||
-            ""
-          ).toLowerCase() === current
+      const info = document.createElement("div");
+      info.className = "game-info";
+
+      info.innerHTML =
+        "<div class='game-title'></div>" +
+        "<div class='game-creator'></div>";
+
+      info.querySelector(".game-title").textContent =
+        game.name ||
+        game.title ||
+        "Untitled Experience";
+
+      info.querySelector(".game-creator").textContent =
+        "By " +
+        (
+          game.creator ||
+          game.owner ||
+          "Unknown Creator"
         );
-      }
 
-      renderGameGrid(
-        document.getElementById("discoverGames"),
-        games
-      );
+      button.appendChild(image);
+      button.appendChild(info);
 
-      showIf(
-        document.getElementById("discoverEmpty"),
-        games.length === 0
-      );
-    }
+      button.addEventListener("click",() => {
 
-    function renderGameGrid(container, games) {
-      if (!container) return;
-
-      container.innerHTML = "";
-
-      games.forEach(game => {
-        const button = document.createElement("button");
-
-        button.type = "button";
-        button.className = "game-card";
-        button.dataset.gameId = game.id;
-
-        const thumb = document.createElement("div");
-        thumb.className = "game-thumb";
-        thumb.textContent = "R";
-
-        if (game.thumbnail) {
-          thumb.style.backgroundImage =
-            'url("' + safeUrl(game.thumbnail) + '")';
-          thumb.style.backgroundSize = "cover";
-          thumb.style.backgroundPosition = "center";
-        }
-
-        const info = document.createElement("div");
-        info.className = "game-info";
-
-        const title = document.createElement("div");
-        title.className = "game-title";
-        title.textContent =
-          game.name ||
-          game.title ||
-          "Untitled Experience";
-
-        const creator = document.createElement("div");
-        creator.className = "game-creator";
-        creator.textContent =
-          "By " +
-          (
-            game.creator ||
-            game.owner ||
-            "Unknown Creator"
-          );
-
-        info.appendChild(title);
-        info.appendChild(creator);
-
-        button.appendChild(thumb);
-        button.appendChild(info);
-
-        container.appendChild(button);
-      });
-    }
-
-    function setDiscoverFilter(filter) {
-      state.discoverFilter = filter;
-
-      document.querySelectorAll("[data-discover-filter]").forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.discoverFilter === filter
+        localStorage.setItem(
+          "riseup_play_game_id",
+          game.id
         );
+
+        openStudio();
       });
 
-      renderDiscover();
-    }
+      container.appendChild(button);
+    });
+  }
 
-    /* =========================================================
-       FRIENDS
-       ========================================================= */
+  /* FRIENDS */
 
-    function friendsKey() {
-      return KEYS.friends + "_" + getUsername();
-    }
+  function friendsKey(){
+    return KEY.friends + "_" + username();
+  }
 
-    function readFriends() {
-      try {
-        const data = JSON.parse(
-          localStorage.getItem(friendsKey()) || "[]"
-        );
+  function getFriends(){
 
-        if (!Array.isArray(data)) {
-          return [];
-        }
+    try{
 
-        return data.map(item => ({
-          name:
-            typeof item === "string"
-              ? item
-              : item.name ||
-                item.username ||
-                item.displayName ||
-                "Friend"
-        }));
-      } catch {
+      const data = JSON.parse(
+        localStorage.getItem(friendsKey()) || "[]"
+      );
+
+      if(!Array.isArray(data)){
         return [];
       }
+
+      return data.map(item => ({
+        name:
+          typeof item === "string"
+            ? item
+            : item.name ||
+              item.username ||
+              item.displayName ||
+              "Friend"
+      }));
+
+    }catch{
+      return [];
+    }
+  }
+
+  function saveFriends(list){
+
+    localStorage.setItem(
+      friendsKey(),
+      JSON.stringify(list)
+    );
+  }
+
+  function updateFriendCount(){
+    setText(
+      "friendsCount",
+      getFriends().length
+    );
+  }
+
+  function renderHomeFriends(){
+
+    const container =
+      document.getElementById("homeFriends");
+
+    if(!container){
+      return;
     }
 
-    function saveFriends(friends) {
-      localStorage.setItem(
-        friendsKey(),
-        JSON.stringify(friends)
-      );
-    }
+    container.innerHTML = "";
 
-    function renderHomeFriends() {
-      const container = document.getElementById("homeFriends");
+    const friends = getFriends();
 
-      if (!container) return;
+    if(!friends.length){
 
-      container.innerHTML = "";
-
-      const friends = readFriends();
-
-      if (!friends.length) {
-        container.innerHTML = `
-          <div class="empty" style="grid-column:1/-1;min-height:110px;">
-            <h3>No friends yet</h3>
-            <p>Add friends to see them here.</p>
-          </div>
-        `;
-        return;
-      }
-
-      friends.slice(0,8).forEach(friend => {
-        container.appendChild(makeFriendCard(friend));
-      });
-    }
-
-    function renderFriends() {
-      const container = document.getElementById("friendsGrid");
-
-      if (!container) return;
-
-      container.innerHTML = "";
-
-      const search =
-        document.getElementById("friendSearch")
-          ?.value
-          .trim()
-          .toLowerCase() || "";
-
-      const friends = readFriends().filter(friend => {
-        return !search ||
-          friend.name.toLowerCase().includes(search);
-      });
-
-      if (!friends.length) {
-        container.innerHTML = `
-          <div class="empty" style="grid-column:1/-1;">
-            <div class="empty-art"></div>
-            <h3>${search ? "No matching friends" : "No friends yet"}</h3>
-            <p>${search ? "Try another username." : "Add friends to start building your community."}</p>
-            ${search ? "" : '<button class="primary" data-open-friend="1" type="button">Add Friend</button>'}
-          </div>
-        `;
-        return;
-      }
-
-      friends.forEach(friend => {
-        container.appendChild(makeFriendCard(friend));
-      });
-    }
-
-    function makeFriendCard(friend) {
-      const card = document.createElement("div");
-      card.className = "friend";
-
-      const avatar = document.createElement("div");
-      avatar.className = "friend-avatar";
-      avatar.textContent =
-        friend.name.charAt(0).toUpperCase();
-
-      const name = document.createElement("span");
-      name.className = "friend-name";
-      name.textContent = friend.name;
-
-      card.appendChild(avatar);
-      card.appendChild(name);
-
-      return card;
-    }
-
-    function addFriend() {
-      const input = document.getElementById("friendInput");
-
-      if (!input) return;
-
-      const name = input.value.trim();
-
-      if (!name) {
-        toast("Enter a username.");
-        return;
-      }
-
-      const friends = readFriends();
-
-      if (
-        friends.some(
-          friend =>
-            friend.name.toLowerCase() ===
-            name.toLowerCase()
-        )
-      ) {
-        toast("That friend is already added.");
-        return;
-      }
-
-      friends.push({ name });
-      saveFriends(friends);
-
-      input.value = "";
-
-      closeModal("friendModal");
-
-      renderFriends();
-      renderHomeFriends();
-      updateFriendCount();
-
-      toast(name + " added to friends.");
-    }
-
-    function updateFriendCount() {
-      setText(
-        "friendsCount",
-        readFriends().length
-      );
-    }
-
-    /* =========================================================
-       AVATAR
-       ========================================================= */
-
-    function avatarKey() {
-      return KEYS.avatar + "_" + getUsername();
-    }
-
-    function getAvatar() {
-      const fallback = {
-        head:"#FFE047",
-        body:"#249BFF",
-        legs:"#00A82D"
-      };
-
-      try {
-        return {
-          ...fallback,
-          ...(JSON.parse(
-            localStorage.getItem(avatarKey()) || "null"
-          ) || {})
-        };
-      } catch {
-        return fallback;
-      }
-    }
-
-    function renderAvatar() {
-      const avatar = getAvatar();
-
-      document.querySelector(".avatar-head").style.background =
-        avatar.head;
-
-      document.querySelector(".avatar-body").style.background =
-        avatar.body;
-
-      document.querySelectorAll(".avatar-arms span").forEach(arm => {
-        arm.style.background = avatar.head;
-      });
-
-      document.querySelectorAll(".avatar-legs span").forEach(leg => {
-        leg.style.background = avatar.legs;
-      });
-
-      setText("avatarName", getDisplayName());
-
-      updateChoiceStates("data-avatar-head", avatar.head);
-      updateChoiceStates("data-avatar-body", avatar.body);
-      updateChoiceStates("data-avatar-legs", avatar.legs);
-    }
-
-    function bindAvatarButtons() {
-      document.querySelectorAll("[data-avatar-head]").forEach(button => {
-        button.addEventListener("click", () => {
-          updateAvatar("head", button.dataset.avatarHead);
-        });
-      });
-
-      document.querySelectorAll("[data-avatar-body]").forEach(button => {
-        button.addEventListener("click", () => {
-          updateAvatar("body", button.dataset.avatarBody);
-        });
-      });
-
-      document.querySelectorAll("[data-avatar-legs]").forEach(button => {
-        button.addEventListener("click", () => {
-          updateAvatar("legs", button.dataset.avatarLegs);
-        });
-      });
-    }
-
-    function updateAvatar(part, color) {
-      const avatar = getAvatar();
-
-      avatar[part] = color;
-
-      localStorage.setItem(
-        avatarKey(),
-        JSON.stringify(avatar)
-      );
-
-      renderAvatar();
-      toast("Avatar updated.");
-    }
-
-    function updateChoiceStates(attribute, value) {
-      document.querySelectorAll("[" + attribute + "]").forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.getAttribute(attribute).toUpperCase() ===
-          String(value).toUpperCase()
-        );
-      });
-    }
-
-    /* =========================================================
-       INVENTORY
-       ========================================================= */
-
-    function inventoryKey() {
-      return KEYS.inventory + "_" + getUsername();
-    }
-
-    function readInventory() {
-      try {
-        const data = JSON.parse(
-          localStorage.getItem(inventoryKey()) || "[]"
-        );
-
-        return Array.isArray(data)
-          ? data
-          : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveInventory(data) {
-      localStorage.setItem(
-        inventoryKey(),
-        JSON.stringify(data)
-      );
-    }
-
-    function setInventoryTab(tab) {
-      state.inventoryTab = tab;
-
-      document.querySelectorAll("[data-inventory-tab]").forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.inventoryTab === tab
-        );
-      });
-
-      renderInventory();
-    }
-
-    function renderInventory() {
-      const container =
-        document.getElementById("inventoryGrid");
-
-      if (!container) return;
-
-      const items = readInventory().filter(item =>
-        !item.category ||
-        item.category === state.inventoryTab
-      );
-
-      container.innerHTML = "";
-
-      if (!items.length) {
-        container.innerHTML = `
-          <div class="empty" style="grid-column:1/-1;">
-            <div class="empty-art"></div>
-            <h3>No ${escapeHtml(state.inventoryTab)} yet</h3>
-            <p>Your ${escapeHtml(state.inventoryTab)} will appear here.</p>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(item => {
-        container.innerHTML += `
-          <article class="inventory-item">
-            <div class="inventory-image"></div>
-            <strong>${escapeHtml(item.name || "Item")}</strong>
-            <span>${escapeHtml(item.type || "RiseUp Item")}</span>
-          </article>
-        `;
-      });
-    }
-
-    /* =========================================================
-       MARKETPLACE
-       ========================================================= */
-
-    const MARKET = [
-      {
-        name:"Classic Block Pack",
-        type:"Models",
-        category:"models",
-        price:25
-      },
-      {
-        name:"Modern Avatar Bundle",
-        type:"Avatar",
-        category:"avatar",
-        price:75
-      },
-      {
-        name:"City Environment",
-        type:"Models",
-        category:"models",
-        price:120
-      },
-      {
-        name:"Energy Effect Pack",
-        type:"Effects",
-        category:"effects",
-        price:50
-      },
-      {
-        name:"Creator Starter Pack",
-        type:"Featured",
-        category:"featured",
-        price:100
-      }
-    ];
-
-    function setMarketCategory(category) {
-      state.marketCategory = category;
-
-      document.querySelectorAll("[data-market-category]").forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.marketCategory === category
-        );
-      });
-
-      renderMarketplace();
-    }
-
-    function getMarketItems() {
-      if (state.marketCategory === "featured") {
-        return MARKET.slice(0,3);
-      }
-
-      return MARKET.filter(
-        item => item.category === state.marketCategory
-      );
-    }
-
-    function renderMarketplace() {
-      const container =
-        document.getElementById("marketGrid");
-
-      if (!container) return;
-
-      container.innerHTML = "";
-
-      getMarketItems().forEach((item,index) => {
-        const card = document.createElement("article");
-        card.className = "market-card";
-
-        card.innerHTML = `
-          <div class="market-image">R</div>
-
-          <div class="market-info">
-
-            <strong>${escapeHtml(item.name)}</strong>
-
-            <span>${escapeHtml(item.type)}</span>
-
-            <div class="market-bottom">
-
-              <span class="price">
-                ${item.price} Tokens
-              </span>
-
-              <button
-                class="buy"
-                data-buy-index="${MARKET.indexOf(item)}"
-                type="button"
-              >
-                Buy
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-        container.appendChild(card);
-      });
-
-      updateTokenUI();
-    }
-
-    function buyItem(index) {
-      const item = MARKET[index];
-
-      if (!item) return;
-
-      const tokens = getTokens();
-
-      if (tokens < item.price) {
-        toast("You do not have enough Tokens.");
-        return;
-      }
-
-      setTokens(tokens - item.price);
-
-      const inventory = readInventory();
-
-      inventory.push({
-        name:item.name,
-        type:item.type,
-        category:item.category
-      });
-
-      saveInventory(inventory);
-
-      renderInventory();
-
-      toast("Purchased " + item.name + ".");
-    }
-
-    /* =========================================================
-       MESSAGES
-       ========================================================= */
-
-    function messagesKey() {
-      return KEYS.messages + "_" + getUsername();
-    }
-
-    function readMessages() {
-      try {
-        const data = JSON.parse(
-          localStorage.getItem(messagesKey()) || "[]"
-        );
-
-        return Array.isArray(data)
-          ? data
-          : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveMessages(data) {
-      localStorage.setItem(
-        messagesKey(),
-        JSON.stringify(data)
-      );
-    }
-
-    function renderMessages() {
-      const list =
-        document.getElementById("conversationList");
-
-      const panel =
-        document.getElementById("messagePanel");
-
-      if (!list || !panel) return;
-
-      const messages = readMessages();
-
-      list.innerHTML = "";
-
-      if (!messages.length) {
-        list.innerHTML = `
-          <div style="
-            padding:20px;
-            color:#6f7b87;
-            font-size:9px;
-            text-align:center;
-          ">
-            No conversations yet.
-          </div>
-        `;
-
-        panel.innerHTML = `
-          <div class="message-empty">
-            <div>
-              <h3>No conversation selected</h3>
-              <p>Your future conversations will appear here.</p>
-            </div>
-          </div>
-        `;
-
-        return;
-      }
-
-      messages.forEach((message,index) => {
-        const row = document.createElement("button");
-
-        row.type = "button";
-        row.className =
-          "conversation" +
-          (
-            state.selectedConversation === index
-              ? " active"
-              : ""
-          );
-
-        row.innerHTML = `
-          <div class="friend-avatar">
-            ${escapeHtml(
-              (message.name || "U")
-                .charAt(0)
-                .toUpperCase()
-            )}
-          </div>
-
-          <div style="text-align:left;">
-            <strong style="font-size:9px;">
-              ${escapeHtml(message.name || "User")}
-            </strong>
-            <small>
-              ${escapeHtml(message.preview || "No messages yet.")}
-            </small>
-          </div>
-        `;
-
-        row.addEventListener("click", () => {
-          state.selectedConversation = index;
-          renderMessages();
-        });
-
-        list.appendChild(row);
-      });
-
-      if (state.selectedConversation !== null) {
-        renderOpenConversation(messages[state.selectedConversation]);
-      }
-    }
-
-    function renderOpenConversation(conversation) {
-      const panel =
-        document.getElementById("messagePanel");
-
-      if (!panel || !conversation) return;
-
-      panel.innerHTML = `
-        <div class="message-header">
-          ${escapeHtml(conversation.name || "Conversation")}
-        </div>
-
-        <div class="message-history">
-          ${escapeHtml(
-            conversation.preview ||
-            "No messages yet."
-          )}
-        </div>
-
-        <div class="message-compose">
-          <input id="messageInput" type="text" placeholder="Write a message..." autocomplete="off">
-          <button class="primary" id="sendMessage" type="button">Send</button>
+      container.innerHTML = `
+        <div class="empty"
+          style="grid-column:1/-1;min-height:110px;">
+          <h3>No friends yet</h3>
+          <p>Add friends to see them here.</p>
         </div>
       `;
 
-      const input = document.getElementById("messageInput");
-
-      document.getElementById("sendMessage")
-        ?.addEventListener("click", () => {
-          sendConversationMessage(conversation);
-        });
-
-      input?.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          sendConversationMessage(conversation);
-        }
-      });
+      return;
     }
 
-    function sendConversationMessage(conversation) {
-      const input =
-        document.getElementById("messageInput");
-
-      const text =
-        input?.value.trim();
-
-      if (!text) return;
-
-      conversation.preview = text;
-
-      saveMessages(readMessages());
-
-      if (input) {
-        input.value = "";
-      }
-
-      renderMessages();
-      toast("Message sent.");
-    }
-
-    function renderQuickMessages() {
-      const list =
-        document.getElementById("quickMessageList");
-
-      if (!list) return;
-
-      const messages = readMessages();
-
-      list.innerHTML = "";
-
-      if (!messages.length) {
-        list.innerHTML = `
-          <div class="popover-row">
-            <strong>No messages</strong>
-            <span>Your conversations will appear here.</span>
-          </div>
-        `;
-        return;
-      }
-
-      messages.slice(0,5).forEach(message => {
-        list.innerHTML += `
-          <div class="popover-row">
-            <strong>${escapeHtml(message.name || "User")}</strong>
-            <span>${escapeHtml(message.preview || "No message")}</span>
-          </div>
-        `;
-      });
-    }
-
-    /* =========================================================
-       NOTIFICATIONS
-       ========================================================= */
-
-    function notificationsKey() {
-      return KEYS.notifications + "_" + getUsername();
-    }
-
-    function readNotifications() {
-      try {
-        const data = JSON.parse(
-          localStorage.getItem(notificationsKey()) || "[]"
-        );
-
-        return Array.isArray(data)
-          ? data
-          : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function renderNotifications() {
-      const list =
-        document.getElementById("notificationList");
-
-      if (!list) return;
-
-      const notifications = readNotifications();
-
-      list.innerHTML = "";
-
-      if (!notifications.length) {
-        list.innerHTML = `
-          <div class="popover-row">
-            <strong>You're all caught up</strong>
-            <span>No new notifications.</span>
-          </div>
-        `;
-        return;
-      }
-
-      notifications.forEach(item => {
-        list.innerHTML += `
-          <div class="popover-row">
-            <strong>${escapeHtml(item.title || "Notification")}</strong>
-            <span>${escapeHtml(item.text || "")}</span>
-          </div>
-        `;
-      });
-    }
-
-    /* =========================================================
-       SETTINGS
-       ========================================================= */
-
-    function settingsKey() {
-      return KEYS.settings + "_" + getUsername();
-    }
-
-    function getSettings() {
-      try {
-        return {
-          reducedMotion:false,
-          ...(JSON.parse(
-            localStorage.getItem(settingsKey()) || "null"
-          ) || {})
-        };
-      } catch {
-        return {
-          reducedMotion:false
-        };
-      }
-    }
-
-    function saveSettings(settings) {
-      localStorage.setItem(
-        settingsKey(),
-        JSON.stringify(settings)
+    friends.slice(0,8).forEach(friend => {
+      container.appendChild(
+        makeFriend(friend)
       );
+    });
+  }
+
+  function renderFriends(){
+
+    const container =
+      document.getElementById("friendsGrid");
+
+    if(!container){
+      return;
     }
 
-    function renderSettings() {
-      const reduced =
-        document.getElementById("reducedMotion");
+    const search =
+      document.getElementById("friendSearch")
+        ?.value
+        .trim()
+        .toLowerCase() || "";
 
-      if (reduced) {
-        reduced.checked =
-          Boolean(getSettings().reducedMotion);
-      }
+    const friends =
+      getFriends().filter(friend =>
+        !search ||
+        friend.name.toLowerCase().includes(search)
+      );
+
+    container.innerHTML = "";
+
+    if(!friends.length){
+
+      container.innerHTML = `
+        <div class="empty"
+          style="grid-column:1/-1;">
+          <div class="empty-art"></div>
+          <h3>${search ? "No matching friends" : "No friends yet"}</h3>
+          <p>${search ? "Try another username." : "Add friends to start building your community."}</p>
+        </div>
+      `;
+
+      return;
     }
 
-    /* =========================================================
-       INFO PAGES
-       ========================================================= */
+    friends.forEach(friend => {
+      container.appendChild(
+        makeFriend(friend)
+      );
+    });
+  }
 
-    const INFO = {
-      about:{
-        eyebrow:"ABOUT",
-        title:"About RiseUp",
-        text:
-          "RiseUp is a creator-focused platform built for making, sharing, discovering, and playing interactive experiences."
-      },
+  function makeFriend(friend){
 
-      careers:{
-        eyebrow:"CAREERS",
-        title:"Careers",
-        text:
-          "RiseUp careers are planned for the future as the platform grows and the creator community expands."
-      },
+    const item =
+      document.createElement("div");
 
-      help:{
-        eyebrow:"HELP",
-        title:"Help",
-        text:
-          "Use RiseUp Studio to build games, RiseCode to script them, and the RiseUp app to manage your creator and player experience."
-      },
+    item.className = "friend";
 
-      terms:{
-        eyebrow:"TERMS",
-        title:"Terms",
-        text:
-          "RiseUp's terms describe the rules for using the platform, publishing experiences, and participating in the community."
-      },
+    item.innerHTML = `
+      <div class="friend-avatar"></div>
+      <span class="friend-name"></span>
+    `;
 
-      privacy:{
-        eyebrow:"PRIVACY",
-        title:"Privacy",
-        text:
-          "RiseUp is designed so account data, local settings, and public experience information can be handled as separate systems."
-      }
+    item.querySelector(".friend-avatar")
+      .textContent =
+      friend.name
+        .charAt(0)
+        .toUpperCase();
+
+    item.querySelector(".friend-name")
+      .textContent =
+      friend.name;
+
+    return item;
+  }
+
+  function addFriend(){
+
+    const input =
+      document.getElementById("friendInput");
+
+    if(!input){
+      return;
+    }
+
+    const name =
+      input.value.trim();
+
+    if(!name){
+      toast("Enter a username.");
+      return;
+    }
+
+    const friends = getFriends();
+
+    if(
+      friends.some(
+        friend =>
+          friend.name.toLowerCase() ===
+          name.toLowerCase()
+      )
+    ){
+      toast("That friend is already added.");
+      return;
+    }
+
+    friends.push({name});
+
+    saveFriends(friends);
+
+    input.value = "";
+
+    closeModal("friendModal");
+
+    renderFriends();
+    renderHomeFriends();
+    updateFriendCount();
+
+    toast(name + " added to friends.");
+  }
+
+  /* AVATAR */
+
+  function avatarKey(){
+    return KEY.avatar + "_" + username();
+  }
+
+  function getAvatar(){
+
+    const fallback = {
+      head:"#FFE047",
+      body:"#249BFF",
+      legs:"#00A82D"
     };
 
-    function showInfoModal(type) {
-      const item = INFO[type];
+    try{
 
-      if (!item) return;
+      return {
+        ...fallback,
+        ...(JSON.parse(
+          localStorage.getItem(avatarKey()) || "null"
+        ) || {})
+      };
 
-      setText("infoEyebrow", item.eyebrow);
-      setText("infoTitle", item.title);
-      setText("infoText", item.text);
+    }catch{
+      return fallback;
+    }
+  }
 
-      openModal("infoModal");
+  function setAvatarColor(part,color){
+
+    const avatar = getAvatar();
+
+    avatar[part] = color;
+
+    localStorage.setItem(
+      avatarKey(),
+      JSON.stringify(avatar)
+    );
+
+    renderAvatar();
+
+    toast("Avatar updated.");
+  }
+
+  function renderAvatar(){
+
+    const avatar = getAvatar();
+
+    const head =
+      document.querySelector(".avatar-head");
+
+    const body =
+      document.querySelector(".avatar-body");
+
+    if(head){
+      head.style.background = avatar.head;
     }
 
-    function showInfo(eyebrow, text) {
-      setText("infoEyebrow", eyebrow);
-      setText("infoTitle", eyebrow);
-      setText("infoText", text);
-
-      openModal("infoModal");
+    if(body){
+      body.style.background = avatar.body;
     }
 
-    /* =========================================================
-       POPUPS
-       ========================================================= */
-
-    function togglePopup(id) {
-      const target =
-        document.getElementById(id);
-
-      if (!target) return;
-
-      const wasOpen =
-        target.classList.contains("open");
-
-      closePopups();
-
-      if (!wasOpen) {
-        target.classList.add("open");
-      }
-    }
-
-    function closePopups() {
-      document.querySelectorAll(".menu.open,.popover.open").forEach(item => {
-        item.classList.remove("open");
-      });
-    }
-
-    document.addEventListener("click", event => {
-      if (
-        !event.target.closest(".menu") &&
-        !event.target.closest(".popover") &&
-        !event.target.closest("#profileButton") &&
-        !event.target.closest("#createTop") &&
-        !event.target.closest("#sidebarCreate") &&
-        !event.target.closest("#messagesTop") &&
-        !event.target.closest("#notificationsTop") &&
-        !event.target.closest("#tokenButton")
-      ) {
-        closePopups();
-      }
-
-      if (event.target.closest("[data-open-friend]")) {
-        openModal("friendModal");
-      }
+    document.querySelectorAll(
+      ".avatar-arms span"
+    ).forEach(item => {
+      item.style.background = avatar.head;
     });
 
-    /* =========================================================
-       MODALS
-       ========================================================= */
+    document.querySelectorAll(
+      ".avatar-legs span"
+    ).forEach(item => {
+      item.style.background = avatar.legs;
+    });
 
-    function openModal(id) {
-      document.getElementById(id)?.classList.remove("hidden");
+    updateColorButtons("head",avatar.head);
+    updateColorButtons("body",avatar.body);
+    updateColorButtons("legs",avatar.legs);
+  }
+
+  function updateColorButtons(part,color){
+
+    document.querySelectorAll(
+      '[data-color-part="' +
+      part +
+      '"]'
+    ).forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.color.toUpperCase() ===
+        String(color).toUpperCase()
+      );
+    });
+  }
+
+  /* INVENTORY */
+
+  function inventoryKey(){
+    return KEY.inventory + "_" + username();
+  }
+
+  function getInventory(){
+
+    try{
+
+      const data = JSON.parse(
+        localStorage.getItem(inventoryKey()) || "[]"
+      );
+
+      return Array.isArray(data)
+        ? data
+        : [];
+
+    }catch{
+      return [];
+    }
+  }
+
+  function saveInventory(list){
+
+    localStorage.setItem(
+      inventoryKey(),
+      JSON.stringify(list)
+    );
+  }
+
+  function renderInventory(){
+
+    const container =
+      document.getElementById("inventoryGrid");
+
+    if(!container){
+      return;
     }
 
-    function closeModal(id) {
-      document.getElementById(id)?.classList.add("hidden");
+    const items =
+      getInventory().filter(item =>
+        !item.category ||
+        item.category === state.inventory
+      );
+
+    container.innerHTML = "";
+
+    if(!items.length){
+
+      container.innerHTML = `
+        <div class="empty" style="grid-column:1/-1;">
+          <div class="empty-art"></div>
+          <h3>No ${escapeHtml(state.inventory)} yet</h3>
+          <p>Your ${escapeHtml(state.inventory)} will appear here.</p>
+        </div>
+      `;
+
+      return;
     }
 
-    /* =========================================================
-       LOGOUT
-       ========================================================= */
+    items.forEach(item => {
 
-    function logout() {
-      localStorage.removeItem(KEYS.user);
-      window.location.href = "index.html";
+      const card =
+        document.createElement("article");
+
+      card.className = "inventory-item";
+
+      card.innerHTML = `
+        <div class="inventory-image"></div>
+        <strong>${escapeHtml(item.name || "Item")}</strong>
+        <span style="margin-top:3px;color:var(--muted2);font-size:8px;">
+          ${escapeHtml(item.type || "RiseUp Item")}
+        </span>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  /* MARKET */
+
+  function getMarket(){
+
+    if(state.market === "featured"){
+      return marketItems.slice(0,3);
     }
 
-    /* =========================================================
-       HELPERS
-       ========================================================= */
+    return marketItems.filter(
+      item => item.category === state.market
+    );
+  }
 
-    function setText(id, value) {
-      const element = document.getElementById(id);
+  function renderMarketplace(){
 
-      if (element) {
-        element.textContent = value;
+    const container =
+      document.getElementById("marketGrid");
+
+    if(!container){
+      return;
+    }
+
+    container.innerHTML = "";
+
+    getMarket().forEach(item => {
+
+      const index =
+        marketItems.indexOf(item);
+
+      const card =
+        document.createElement("article");
+
+      card.className = "market-card";
+
+      card.innerHTML = `
+        <div class="market-image">R</div>
+
+        <div class="market-info">
+
+          <strong>${escapeHtml(item.name)}</strong>
+
+          <span class="market-type">
+            ${escapeHtml(item.type)}
+          </span>
+
+          <div class="market-bottom">
+
+            <span class="price">
+              ${item.price} Tokens
+            </span>
+
+            <button
+              class="buy"
+              data-buy-index="${index}"
+              type="button">
+              Buy
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    updateTokens();
+  }
+
+  function buyItem(index){
+
+    const item =
+      marketItems[index];
+
+    if(!item){
+      return;
+    }
+
+    const tokens =
+      getTokens();
+
+    if(tokens < item.price){
+      toast("You do not have enough Tokens.");
+      return;
+    }
+
+    setTokens(
+      tokens - item.price
+    );
+
+    const inventory =
+      getInventory();
+
+    inventory.push({
+      name:item.name,
+      type:item.type,
+      category:item.category
+    });
+
+    saveInventory(inventory);
+
+    renderInventory();
+
+    toast(
+      "Purchased " +
+      item.name +
+      "."
+    );
+  }
+
+  /* MESSAGES */
+
+  function messageKey(){
+    return KEY.messages + "_" + username();
+  }
+
+  function getMessages(){
+
+    try{
+
+      const data = JSON.parse(
+        localStorage.getItem(messageKey()) || "[]"
+      );
+
+      return Array.isArray(data)
+        ? data
+        : [];
+
+    }catch{
+      return [];
+    }
+  }
+
+  function saveMessages(list){
+
+    localStorage.setItem(
+      messageKey(),
+      JSON.stringify(list)
+    );
+  }
+
+  function renderMessages(){
+
+    const list =
+      document.getElementById("conversationList");
+
+    const panel =
+      document.getElementById("chatPanel");
+
+    if(!list || !panel){
+      return;
+    }
+
+    const messages =
+      getMessages();
+
+    list.innerHTML = "";
+
+    if(!messages.length){
+
+      list.innerHTML = `
+        <div style="
+          padding:20px;
+          color:var(--muted2);
+          text-align:center;
+          font-size:9px;">
+          No conversations yet.
+        </div>
+      `;
+
+      panel.innerHTML = `
+        <div class="empty"
+          style="border:0;border-radius:0;height:100%;">
+          <h3>No conversation selected</h3>
+          <p>Your conversations will appear here.</p>
+        </div>
+      `;
+
+      return;
+    }
+
+    messages.forEach((message,index) => {
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "conversation" +
+        (
+          state.selectedMessage === index
+            ? " active"
+            : ""
+        );
+
+      button.type = "button";
+
+      button.innerHTML = `
+        <div class="friend-avatar">
+          ${escapeHtml(
+            (message.name || "U")
+              .charAt(0)
+              .toUpperCase()
+          )}
+        </div>
+
+        <div>
+          <strong style="font-size:9px;">
+            ${escapeHtml(message.name || "User")}
+          </strong>
+
+          <div style="
+            margin-top:3px;
+            color:var(--muted2);
+            font-size:8px;">
+            ${escapeHtml(message.preview || "No messages")}
+          </div>
+        </div>
+      `;
+
+      button.addEventListener("click",() => {
+
+        state.selectedMessage = index;
+
+        renderMessages();
+      });
+
+      list.appendChild(button);
+    });
+
+    if(
+      state.selectedMessage !== null &&
+      messages[state.selectedMessage]
+    ){
+      renderChat(
+        messages[state.selectedMessage]
+      );
+    }
+  }
+
+  function renderChat(message){
+
+    const panel =
+      document.getElementById("chatPanel");
+
+    if(!panel){
+      return;
+    }
+
+    panel.innerHTML = `
+      <div class="chat-header">
+        ${escapeHtml(message.name || "Conversation")}
+      </div>
+
+      <div class="chat-history">
+        ${escapeHtml(
+          message.preview ||
+          "No messages yet."
+        )}
+      </div>
+
+      <div class="chat-compose">
+
+        <input
+          id="chatInput"
+          type="text"
+          placeholder="Write a message..."
+          autocomplete="off">
+
+        <button
+          class="primary"
+          id="sendChat"
+          type="button">
+          Send
+        </button>
+
+      </div>
+    `;
+
+    const input =
+      document.getElementById("chatInput");
+
+    document.getElementById("sendChat")
+      ?.addEventListener("click",() => {
+
+        const text =
+          input?.value.trim();
+
+        if(!text){
+          return;
+        }
+
+        message.preview = text;
+
+        saveMessages(
+          getMessages()
+        );
+
+        renderMessages();
+
+        toast("Message sent.");
+      });
+
+    input?.addEventListener("keydown",event => {
+
+      if(event.key === "Enter"){
+
+        document.getElementById(
+          "sendChat"
+        )?.click();
+
       }
+    });
+  }
+
+  function renderQuickMessages(){
+
+    const list =
+      document.getElementById("quickMessages");
+
+    if(!list){
+      return;
     }
 
-    function showIf(element, show) {
-      if (!element) return;
+    const messages =
+      getMessages();
 
-      element.style.display = show ? "" : "none";
+    list.innerHTML = "";
+
+    if(!messages.length){
+
+      list.innerHTML = `
+        <div class="popup-item">
+          <strong>No messages</strong>
+          <span>Your conversations will appear here.</span>
+        </div>
+      `;
+
+      return;
     }
 
-    function toast(message) {
-      const element =
-        document.getElementById("toast");
+    messages.slice(0,5).forEach(message => {
 
-      if (!element) return;
+      list.innerHTML += `
+        <div class="popup-item">
+          <strong>${escapeHtml(message.name || "User")}</strong>
+          <span>${escapeHtml(message.preview || "No message")}</span>
+        </div>
+      `;
 
-      element.textContent = message;
-      element.classList.add("show");
+    });
+  }
 
-      clearTimeout(toastTimer);
+  /* NOTIFICATIONS */
 
-      toastTimer = setTimeout(() => {
+  function notificationsKey(){
+    return KEY.notifications + "_" + username();
+  }
+
+  function getNotifications(){
+
+    try{
+
+      const data = JSON.parse(
+        localStorage.getItem(
+          notificationsKey()
+        ) || "[]"
+      );
+
+      return Array.isArray(data)
+        ? data
+        : [];
+
+    }catch{
+      return [];
+    }
+  }
+
+  function renderNotifications(){
+
+    const list =
+      document.getElementById("notificationList");
+
+    if(!list){
+      return;
+    }
+
+    const items =
+      getNotifications();
+
+    list.innerHTML = "";
+
+    if(!items.length){
+
+      list.innerHTML = `
+        <div class="popup-item">
+          <strong>You're all caught up</strong>
+          <span>No new notifications.</span>
+        </div>
+      `;
+
+      return;
+    }
+
+    items.forEach(item => {
+
+      list.innerHTML += `
+        <div class="popup-item">
+          <strong>${escapeHtml(item.title || "Notification")}</strong>
+          <span>${escapeHtml(item.text || "")}</span>
+        </div>
+      `;
+
+    });
+  }
+
+  /* SETTINGS */
+
+  function settingsKey(){
+    return KEY.settings + "_" + username();
+  }
+
+  function getSettings(){
+
+    try{
+
+      return {
+        reducedMotion:false,
+        ...(JSON.parse(
+          localStorage.getItem(
+            settingsKey()
+          ) || "null"
+        ) || {})
+      };
+
+    }catch{
+      return {
+        reducedMotion:false
+      };
+    }
+  }
+
+  function saveSettings(settings){
+
+    localStorage.setItem(
+      settingsKey(),
+      JSON.stringify(settings)
+    );
+  }
+
+  function renderSettings(){
+
+    const reduced =
+      document.getElementById("reducedMotion");
+
+    if(reduced){
+      reduced.checked =
+        !!getSettings().reducedMotion;
+    }
+  }
+
+  document.addEventListener("change",event => {
+
+    if(event.target.id === "reducedMotion"){
+
+      const settings =
+        getSettings();
+
+      settings.reducedMotion =
+        event.target.checked;
+
+      saveSettings(settings);
+    }
+
+  });
+
+  /* MODALS */
+
+  function openModal(id){
+    document.getElementById(id)
+      ?.classList.remove("hidden");
+  }
+
+  function closeModal(id){
+    document.getElementById(id)
+      ?.classList.add("hidden");
+  }
+
+  document.addEventListener("click",event => {
+
+    if(event.target.classList.contains("modal-backdrop")){
+
+      event.target.classList.add("hidden");
+    }
+
+  });
+
+  function showInfoModal(type){
+
+    const item =
+      info[type];
+
+    if(!item){
+      return;
+    }
+
+    setText("infoEyebrow",item[0]);
+    setText("infoTitle",item[1]);
+    setText("infoText",item[2]);
+
+    openModal("infoModal");
+  }
+
+  function showInfo(title,text){
+
+    setText("infoEyebrow","RISEUP");
+    setText("infoTitle",title);
+    setText("infoText",text);
+
+    openModal("infoModal");
+  }
+
+  /* POPUPS */
+
+  function togglePopup(id){
+
+    const target =
+      document.getElementById(id);
+
+    if(!target){
+      return;
+    }
+
+    const wasOpen =
+      target.classList.contains("open");
+
+    closePopups();
+
+    if(!wasOpen){
+      target.classList.add("open");
+    }
+  }
+
+  function closePopups(){
+
+    document
+      .querySelectorAll(".popup.open")
+      .forEach(item =>
+        item.classList.remove("open")
+      );
+  }
+
+  document.addEventListener("click",event => {
+
+    if(
+      !event.target.closest(".popup") &&
+      !event.target.closest("#profileButton") &&
+      !event.target.closest("#createButton") &&
+      !event.target.closest("#sidebarCreate") &&
+      !event.target.closest("#messagesButton") &&
+      !event.target.closest("#notificationsButton") &&
+      !event.target.closest("#tokenButton")
+    ){
+      closePopups();
+    }
+
+  });
+
+  /* LOGOUT */
+
+  function logout(){
+
+    localStorage.removeItem(
+      KEY.user
+    );
+
+    window.location.href =
+      "./index.html";
+  }
+
+  /* UI */
+
+  function updateTabs(selector,value){
+
+    document.querySelectorAll(selector)
+      .forEach(button => {
+
+        const key =
+          selector === "[data-discover]"
+            ? "discover"
+            : selector === "[data-inventory]"
+              ? "inventory"
+              : "market";
+
+        button.classList.toggle(
+          "active",
+          button.dataset[key] === value
+        );
+      });
+  }
+
+  function renderAll(){
+
+    renderUser();
+    renderHome();
+    renderDiscover();
+    renderAvatar();
+    renderInventory();
+    renderFriends();
+    renderMessages();
+    renderMarketplace();
+    renderTokensPage();
+    renderNotifications();
+    renderQuickMessages();
+    renderSettings();
+  }
+
+  function show(id,visible){
+
+    const element =
+      document.getElementById(id);
+
+    if(element){
+      element.style.display =
+        visible ? "" : "none";
+    }
+  }
+
+  function setText(id,value){
+
+    const element =
+      document.getElementById(id);
+
+    if(element){
+      element.textContent =
+        value;
+    }
+  }
+
+  function safeUrl(value){
+
+    return String(value || "")
+      .replaceAll("\\","\\\\")
+      .replaceAll('"','\\"')
+      .replace(/[\r\n]/g,"");
+  }
+
+  function escapeHtml(value){
+
+    return String(value)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  let toastTimer = null;
+
+  function toast(message){
+
+    const element =
+      document.getElementById("toast");
+
+    if(!element){
+      return;
+    }
+
+    element.textContent =
+      message;
+
+    element.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+      setTimeout(() => {
+
         element.classList.remove("show");
-      }, 2300);
-    }
 
-    function safeUrl(value) {
-      return String(value || "")
-        .replaceAll("\\","\\\\")
-        .replaceAll('"','\\"')
-        .replace(/[\r\n]/g,"");
-    }
+      },2300);
+  }
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    /* Bind avatar buttons after DOM is ready. */
-    bindAvatarButtons();
-
-    window.RiseUpEverything = {
-      state,
-      navigate,
-      openStudio,
-      openRiseCode,
-      getTokens,
-      setTokens,
-      claimMonthly
-    };
-  })();
-  </script>
+})();
+</script>
 
 </body>
 </html>
