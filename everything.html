@@ -2,21 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>RiseUp</title>
 
 <style>
 :root{
-  --bg:#080b0f;
-  --panel:#11161d;
-  --panel2:#171d25;
-  --panel3:#1d2630;
-  --border:#29333e;
+  --bg:#0b0e12;
+  --bg2:#10141a;
+  --panel:#141920;
+  --panel2:#1a2028;
+  --panel3:#202833;
+  --border:#29323d;
+  --border2:#3a4654;
   --text:#f4f7fa;
-  --muted:#a7b0ba;
-  --muted2:#6e7a86;
+  --muted:#a7b1bc;
+  --muted2:#707c88;
   --blue:#4da3ff;
-  --blue2:#245f94;
+  --blue2:#255f94;
   --gold:#ffd84d;
   --green:#3dcc7b;
   --red:#e26565;
@@ -30,18 +32,35 @@
   scrollbar-color:#303a45 transparent;
 }
 
-html,body{
-  margin:0;
+*::-webkit-scrollbar{
+  width:7px;
+  height:7px;
+}
+
+*::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+*::-webkit-scrollbar-thumb{
+  background:#303a45;
+  border-radius:99px;
+}
+
+html{
   min-height:100%;
 }
 
 body{
+  margin:0;
+  min-height:100vh;
   background:var(--bg);
   color:var(--text);
   font-family:Inter,"Segoe UI",Arial,sans-serif;
 }
 
-button,input{
+button,
+input,
+textarea{
   font:inherit;
 }
 
@@ -51,27 +70,28 @@ button{
 }
 
 button:focus-visible,
-input:focus-visible{
+input:focus-visible,
+textarea:focus-visible{
   outline:2px solid var(--blue);
   outline-offset:2px;
 }
 
 .hidden{
-  display:none !important;
+  display:none!important;
 }
 
-/* TOP */
+/* ================= TOPBAR ================= */
 
 .topbar{
   position:fixed;
+  top:0;
   left:0;
   right:0;
-  top:0;
   height:var(--top);
+  z-index:1000;
   display:flex;
   align-items:center;
-  z-index:1000;
-  background:#0c1015;
+  background:#0d1116;
   border-bottom:1px solid var(--border);
 }
 
@@ -83,32 +103,32 @@ input:focus-visible{
   gap:10px;
   padding:0 16px;
   color:white;
-  background:none;
-  cursor:pointer;
+  background:transparent;
+  text-align:left;
 }
 
-.brand-mark{
+.logo{
   width:31px;
   height:31px;
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:7px;
-  background:linear-gradient(135deg,#66b7ff,#23679f);
+  background:linear-gradient(135deg,#69baff,#23689f);
   font-size:14px;
   font-weight:900;
 }
 
-.brand-text{
+.brand-name{
   font-size:16px;
   font-weight:850;
 }
 
 .top-nav{
-  flex:1;
   display:flex;
   align-items:center;
   gap:3px;
+  flex:1;
 }
 
 .top-nav button{
@@ -127,10 +147,14 @@ input:focus-visible{
   background:#182029;
 }
 
-.top-nav .create{
+.top-nav .create-top{
   color:white;
   background:var(--blue2);
-  border:1px solid #3279b4;
+  border:1px solid #337ab5;
+}
+
+.top-nav .create-top:hover{
+  background:var(--blue);
 }
 
 .top-actions{
@@ -148,13 +172,17 @@ input:focus-visible{
 .search input{
   width:100%;
   height:100%;
-  padding:0 10px;
+  padding:0 11px;
   color:white;
   background:#090d12;
   border:1px solid var(--border);
   border-radius:5px;
   outline:none;
   font-size:10px;
+}
+
+.search input:focus{
+  border-color:var(--blue);
 }
 
 .icon-btn,
@@ -168,6 +196,8 @@ input:focus-visible{
 
 .icon-btn{
   width:33px;
+  font-size:9px;
+  font-weight:800;
 }
 
 .icon-btn:hover,
@@ -180,7 +210,7 @@ input:focus-visible{
 .token-btn{
   display:flex;
   align-items:center;
-  gap:5px;
+  gap:6px;
   padding:0 8px;
   font-size:10px;
   font-weight:800;
@@ -207,7 +237,7 @@ input:focus-visible{
   font-weight:900;
 }
 
-/* SIDE */
+/* ================= SIDEBAR ================= */
 
 .sidebar{
   position:fixed;
@@ -215,14 +245,15 @@ input:focus-visible{
   left:0;
   bottom:0;
   width:var(--side);
+  z-index:900;
   display:flex;
   flex-direction:column;
-  z-index:900;
-  background:#0c1015;
+  background:#0d1116;
   border-right:1px solid var(--border);
 }
 
-.side-scroll{
+.sidebar-scroll{
+  flex:1;
   overflow:auto;
   padding:10px 9px;
 }
@@ -244,11 +275,10 @@ input:focus-visible{
   height:38px;
   display:flex;
   align-items:center;
-  gap:10px;
   padding:0 11px;
+  border-radius:5px;
   color:var(--muted);
   background:transparent;
-  border-radius:5px;
   text-align:left;
   font-size:10px;
   font-weight:700;
@@ -271,7 +301,6 @@ input:focus-visible{
 }
 
 .side-bottom{
-  margin-top:auto;
   padding:10px;
   border-top:1px solid var(--border);
 }
@@ -281,7 +310,7 @@ input:focus-visible{
   height:40px;
   color:white;
   background:var(--blue2);
-  border:1px solid #327ab5;
+  border:1px solid #337ab5;
   border-radius:5px;
   font-size:10px;
   font-weight:800;
@@ -291,14 +320,14 @@ input:focus-visible{
   background:var(--blue);
 }
 
-/* MAIN */
+/* ================= MAIN ================= */
 
 .main{
   min-height:100vh;
   margin-left:var(--side);
   padding:calc(var(--top) + 28px) 38px 50px;
   background:
-    radial-gradient(circle at 85% 0%,rgba(42,83,115,.13),transparent 33%),
+    radial-gradient(circle at 85% 0%,rgba(48,91,125,.13),transparent 35%),
     var(--bg);
 }
 
@@ -320,9 +349,10 @@ input:focus-visible{
   gap:20px;
   padding:28px;
   margin-bottom:30px;
-  background:linear-gradient(135deg,rgba(39,78,108,.42),rgba(18,24,31,.85));
   border:1px solid var(--border);
   border-radius:10px;
+  background:
+    linear-gradient(135deg,rgba(43,85,116,.43),rgba(18,24,31,.9));
 }
 
 .eyebrow{
@@ -332,21 +362,21 @@ input:focus-visible{
   letter-spacing:1.2px;
 }
 
-h1{
+.page-header{
+  margin-bottom:22px;
+}
+
+.page-header h1,
+.hero h1{
   margin:7px 0;
   font-size:31px;
   line-height:1.05;
+  letter-spacing:-.8px;
 }
 
-h2{
+.subtitle,
+.hero p{
   margin:0;
-}
-
-p{
-  margin:0;
-}
-
-.subtitle{
   color:var(--muted);
   font-size:10px;
   line-height:1.55;
@@ -357,7 +387,7 @@ p{
   padding:0 14px;
   color:white;
   background:var(--blue2);
-  border:1px solid #327ab5;
+  border:1px solid #337ab5;
   border-radius:5px;
   font-size:10px;
   font-weight:800;
@@ -391,28 +421,33 @@ p{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
-  gap:10px;
+  gap:12px;
   margin-bottom:13px;
 }
 
 .section-head h2{
+  margin:0;
   font-size:17px;
 }
 
 .section-head p{
-  margin-top:3px;
+  margin:3px 0 0;
   color:var(--muted2);
   font-size:9px;
 }
 
 .link{
   color:var(--blue);
-  background:none;
+  background:transparent;
   font-size:9px;
   font-weight:800;
 }
 
-/* CARDS */
+.link:hover{
+  color:white;
+}
+
+/* ================= GRIDS ================= */
 
 .grid{
   display:grid;
@@ -421,20 +456,20 @@ p{
 }
 
 .game{
-  padding:0;
   overflow:hidden;
+  padding:0;
   color:white;
-  text-align:left;
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:7px;
+  text-align:left;
   transition:.15s ease;
 }
 
 .game:hover{
   transform:translateY(-2px);
   background:var(--panel2);
-  border-color:#3a4754;
+  border-color:var(--border2);
 }
 
 .game-image{
@@ -443,8 +478,8 @@ p{
   align-items:center;
   justify-content:center;
   background:linear-gradient(135deg,#204d6c,#12202b);
-  color:rgba(255,255,255,.16);
-  font-size:30px;
+  color:rgba(255,255,255,.15);
+  font-size:29px;
   font-weight:900;
 }
 
@@ -454,7 +489,7 @@ p{
 
 .game-title{
   overflow:hidden;
-  margin-bottom:4px;
+  margin:0 0 4px;
   font-size:11px;
   font-weight:800;
   white-space:nowrap;
@@ -466,16 +501,18 @@ p{
   font-size:8px;
 }
 
+/* ================= EMPTY ================= */
+
 .empty{
-  min-height:155px;
+  min-height:160px;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
-  flex-direction:column;
-  text-align:center;
   padding:25px;
+  text-align:center;
   background:var(--panel);
-  border:1px dashed #394550;
+  border:1px dashed var(--border2);
   border-radius:8px;
 }
 
@@ -484,7 +521,7 @@ p{
   height:40px;
   margin-bottom:9px;
   border-radius:9px;
-  background:linear-gradient(135deg,#1e4f76,#14222f);
+  background:linear-gradient(135deg,#1f5077,#14222f);
 }
 
 .empty h3{
@@ -493,12 +530,12 @@ p{
 }
 
 .empty p{
-  margin-bottom:13px;
+  margin:0 0 13px;
   color:var(--muted2);
   font-size:9px;
 }
 
-/* AVATAR */
+/* ================= AVATAR ================= */
 
 .avatar-layout{
   display:grid;
@@ -513,7 +550,7 @@ p{
   border-radius:8px;
 }
 
-.avatar-preview{
+.avatar-preview-card{
   min-height:420px;
   display:flex;
   flex-direction:column;
@@ -521,18 +558,18 @@ p{
   justify-content:center;
 }
 
-.avatar{
-  position:relative;
+.avatar-preview{
   width:190px;
   height:265px;
+  position:relative;
 }
 
 .avatar-head{
   position:absolute;
-  width:98px;
-  height:98px;
   left:46px;
   top:8px;
+  width:98px;
+  height:98px;
   border-radius:50%;
   background:#ffe047;
 }
@@ -594,17 +631,19 @@ p{
 .avatar-legs span:last-child{right:52px}
 
 .avatar-name{
-  margin-top:7px;
+  margin-top:8px;
   font-size:15px;
+  font-weight:800;
 }
 
-.setting{
+.setting-row{
   min-height:52px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  border-top:1px solid var(--border);
+  gap:10px;
   color:var(--muted);
+  border-top:1px solid var(--border);
   font-size:10px;
 }
 
@@ -624,7 +663,34 @@ p{
   border-color:var(--blue);
 }
 
-/* TOOLBAR */
+/* ================= TABS ================= */
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-bottom:17px;
+}
+
+.tab{
+  height:31px;
+  padding:0 11px;
+  color:var(--muted);
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:9px;
+  font-weight:700;
+}
+
+.tab:hover,
+.tab.active{
+  color:white;
+  background:#1a2530;
+  border-color:#365065;
+}
+
+/* ================= FRIENDS ================= */
 
 .toolbar{
   display:flex;
@@ -643,8 +709,6 @@ p{
   outline:none;
   font-size:10px;
 }
-
-/* FRIENDS */
 
 .friend-grid{
   display:grid;
@@ -677,36 +741,14 @@ p{
   font-weight:900;
 }
 
-/* TABS */
-
-.tabs{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
-  margin-bottom:17px;
+.friend-name{
+  font-size:10px;
+  font-weight:750;
 }
 
-.tab{
-  height:31px;
-  padding:0 11px;
-  color:var(--muted);
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:5px;
-  font-size:9px;
-  font-weight:700;
-}
+/* ================= INVENTORY ================= */
 
-.tab.active,
-.tab:hover{
-  color:white;
-  background:#1a2530;
-  border-color:#365065;
-}
-
-/* INVENTORY */
-
-.inventory{
+.inventory-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
   gap:12px;
@@ -730,7 +772,17 @@ p{
   background:linear-gradient(135deg,#17334b,#10171e);
 }
 
-/* MARKET */
+.inventory-item strong{
+  font-size:10px;
+}
+
+.inventory-item span{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:8px;
+}
+
+/* ================= MARKET ================= */
 
 .market-head{
   display:flex;
@@ -747,14 +799,17 @@ p{
   border-radius:6px;
 }
 
-.balance span{
+.balance span,
+.balance strong{
   display:block;
+}
+
+.balance span{
   color:var(--muted2);
   font-size:8px;
 }
 
 .balance strong{
-  display:block;
   margin-top:3px;
   font-size:13px;
 }
@@ -779,17 +834,12 @@ p{
   justify-content:center;
   background:linear-gradient(135deg,#1c4566,#101a22);
   color:rgba(255,255,255,.15);
-  font-size:28px;
+  font-size:27px;
   font-weight:900;
 }
 
 .market-info{
   padding:11px;
-}
-
-.market-info strong{
-  display:block;
-  font-size:10px;
 }
 
 .market-type{
@@ -803,6 +853,7 @@ p{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:8px;
   margin-top:10px;
 }
 
@@ -817,13 +868,17 @@ p{
   padding:0 10px;
   color:white;
   background:var(--blue2);
-  border:1px solid #327ab5;
+  border:1px solid #337ab5;
   border-radius:4px;
   font-size:9px;
   font-weight:800;
 }
 
-/* MESSAGES */
+.buy:hover{
+  background:var(--blue);
+}
+
+/* ================= MESSAGES ================= */
 
 .messages{
   min-height:470px;
@@ -842,13 +897,13 @@ p{
 
 .conversation{
   width:100%;
-  min-height:62px;
+  min-height:63px;
   display:flex;
   align-items:center;
   gap:9px;
   padding:9px 11px;
   color:var(--muted);
-  background:none;
+  background:transparent;
   border-bottom:1px solid var(--border);
   text-align:left;
 }
@@ -860,9 +915,9 @@ p{
 }
 
 .chat{
+  min-width:0;
   display:flex;
   flex-direction:column;
-  min-width:0;
 }
 
 .chat-header{
@@ -899,7 +954,7 @@ p{
   font-size:9px;
 }
 
-/* SETTINGS */
+/* ================= SETTINGS ================= */
 
 .settings{
   max-width:760px;
@@ -912,6 +967,7 @@ p{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:12px;
   border-top:1px solid var(--border);
   color:var(--muted);
   font-size:10px;
@@ -948,16 +1004,17 @@ p{
   font-weight:800;
 }
 
-/* TOKENS */
+/* ================= TOKENS ================= */
 
 .token-hero{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:15px;
+  gap:18px;
+  min-height:150px;
   padding:24px;
   margin-bottom:18px;
-  background:linear-gradient(135deg,rgba(85,67,19,.25),rgba(18,23,29,.9));
+  background:linear-gradient(135deg,rgba(85,67,19,.24),rgba(18,23,29,.92));
   border:1px solid rgba(255,216,77,.18);
   border-radius:9px;
 }
@@ -1019,14 +1076,25 @@ p{
 }
 
 .token-card p{
-  min-height:35px;
+  min-height:34px;
   margin:8px 0 13px;
   color:var(--muted2);
   font-size:8px;
   line-height:1.5;
 }
 
-/* FOOTER */
+.token-note{
+  margin-top:13px;
+  padding:11px;
+  color:var(--muted2);
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-size:8px;
+  line-height:1.5;
+}
+
+/* ================= FOOTER ================= */
 
 .footer{
   max-width:1450px;
@@ -1043,13 +1111,12 @@ p{
   display:flex;
   align-items:center;
   gap:9px;
-  padding:0;
   color:white;
-  background:none;
+  background:transparent;
   text-align:left;
 }
 
-.footer-mark{
+.footer-logo{
   width:28px;
   height:28px;
   display:flex;
@@ -1086,7 +1153,7 @@ p{
 
 .footer-links button{
   color:var(--muted2);
-  background:none;
+  background:transparent;
   font-size:8px;
 }
 
@@ -1099,16 +1166,16 @@ p{
   font-size:8px;
 }
 
-/* POPUPS */
+/* ================= POPUPS ================= */
 
 .popup{
   position:fixed;
   z-index:2000;
   display:none;
   background:#151a21;
-  border:1px solid #384552;
+  border:1px solid var(--border2);
   border-radius:7px;
-  box-shadow:0 20px 50px rgba(0,0,0,.42);
+  box-shadow:0 20px 50px rgba(0,0,0,.44);
 }
 
 .popup.open{
@@ -1148,27 +1215,12 @@ p{
   padding:14px;
 }
 
-.popup button{
-  width:100%;
-  min-height:34px;
-  color:var(--muted);
-  background:none;
-  border-radius:4px;
-  text-align:left;
-  font-size:9px;
-  font-weight:700;
-}
-
-.popup button:hover{
-  color:white;
-  background:#202832;
-}
-
 .popup-header{
   display:flex;
   align-items:center;
   gap:9px;
   padding:9px;
+  margin-bottom:4px;
   border-bottom:1px solid var(--border);
 }
 
@@ -1200,14 +1252,62 @@ p{
   font-size:8px;
 }
 
+.popup button{
+  width:100%;
+  min-height:34px;
+  padding:0 9px;
+  color:var(--muted);
+  background:transparent;
+  border-radius:4px;
+  text-align:left;
+  font-size:9px;
+  font-weight:700;
+}
+
+.popup button:hover{
+  color:white;
+  background:#202832;
+}
+
 .popup-divider{
   height:1px;
   margin:5px 3px;
   background:var(--border);
 }
 
+.create-label{
+  padding:7px 9px 9px;
+  color:var(--muted2);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+
+.create-item{
+  min-height:54px!important;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.create-icon{
+  width:29px;
+  height:29px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:5px;
+  color:var(--blue);
+  background:#172536;
+  font-size:8px;
+  font-weight:900;
+}
+
 .popup-title{
-  padding:10px;
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
   border-bottom:1px solid var(--border);
   font-size:9px;
   font-weight:800;
@@ -1238,27 +1338,6 @@ p{
   font-size:8px;
 }
 
-.create-item{
-  min-height:55px !important;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:0 9px !important;
-}
-
-.create-icon{
-  width:29px;
-  height:29px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:5px;
-  color:var(--blue);
-  background:#172536;
-  font-size:8px;
-  font-weight:900;
-}
-
 .token-popup-symbol{
   width:39px;
   height:39px;
@@ -1285,7 +1364,7 @@ p{
   font-weight:900;
 }
 
-/* MODAL */
+/* ================= MODALS ================= */
 
 .modal-backdrop{
   position:fixed;
@@ -1304,9 +1383,9 @@ p{
   position:relative;
   padding:20px;
   background:#14191f;
-  border:1px solid #384552;
+  border:1px solid var(--border2);
   border-radius:8px;
-  box-shadow:0 25px 70px rgba(0,0,0,.48);
+  box-shadow:0 25px 70px rgba(0,0,0,.5);
 }
 
 .modal-close{
@@ -1316,7 +1395,7 @@ p{
   width:28px;
   height:28px;
   color:var(--muted);
-  background:none;
+  background:transparent;
   border-radius:4px;
 }
 
@@ -1326,12 +1405,12 @@ p{
 }
 
 .modal h2{
-  margin:5px 0 7px;
+  margin:6px 0 7px;
   font-size:17px;
 }
 
 .modal p{
-  margin-bottom:15px;
+  margin:0;
   color:var(--muted);
   font-size:9px;
   line-height:1.55;
@@ -1340,6 +1419,7 @@ p{
 .modal input{
   width:100%;
   height:36px;
+  margin-top:14px;
   padding:0 10px;
   color:white;
   background:#0a0f14;
@@ -1356,22 +1436,25 @@ p{
   margin-top:15px;
 }
 
-/* TOAST */
+/* ================= TOAST ================= */
 
 .toast{
   position:fixed;
   left:50%;
   bottom:20px;
   z-index:4000;
-  transform:translate(-50%,15px);
+  min-width:180px;
+  max-width:calc(100% - 30px);
   padding:10px 14px;
+  transform:translate(-50%,15px);
   color:white;
   background:#171d24;
-  border:1px solid #384552;
+  border:1px solid var(--border2);
   border-radius:6px;
   opacity:0;
   pointer-events:none;
   transition:.18s ease;
+  text-align:center;
   font-size:9px;
 }
 
@@ -1380,16 +1463,27 @@ p{
   transform:translate(-50%,0);
 }
 
-/* RESPONSIVE */
+/* ================= RESPONSIVE ================= */
 
 @media(max-width:1050px){
-  :root{--side:205px}
-  .search{width:170px}
-  .main{padding-left:24px;padding-right:24px}
+  :root{
+    --side:205px;
+  }
+
+  .search{
+    width:170px;
+  }
+
+  .main{
+    padding-left:24px;
+    padding-right:24px;
+  }
 }
 
 @media(max-width:850px){
-  :root{--side:70px}
+  :root{
+    --side:70px;
+  }
 
   .brand{
     width:70px;
@@ -1397,7 +1491,7 @@ p{
     padding:0;
   }
 
-  .brand-text,
+  .brand-name,
   .side-btn .label,
   .side-count{
     display:none;
@@ -1433,6 +1527,11 @@ p{
     align-items:flex-start;
   }
 
+  .hero h1,
+  .page-header h1{
+    font-size:25px;
+  }
+
   .messages{
     grid-template-columns:1fr;
   }
@@ -1444,6 +1543,7 @@ p{
   }
 
   .market-head,
+  .token-hero,
   .footer{
     flex-direction:column;
     align-items:flex-start;
@@ -1457,15 +1557,15 @@ p{
 <header class="topbar">
 
   <button class="brand" data-page="home" type="button">
-    <span class="brand-mark">R</span>
-    <span class="brand-text">RiseUp</span>
+    <span class="logo">R</span>
+    <span class="brand-name">RiseUp</span>
   </button>
 
   <nav class="top-nav">
     <button data-page="home" class="active" type="button">Home</button>
     <button data-page="discover" type="button">Discover</button>
     <button data-page="marketplace" type="button">Marketplace</button>
-    <button id="createButton" class="create" type="button">Create</button>
+    <button id="createButton" class="create-top" type="button">Create</button>
   </nav>
 
   <div class="top-actions">
@@ -1474,41 +1574,39 @@ p{
       <input id="searchInput" type="search" placeholder="Search RiseUp" autocomplete="off">
     </label>
 
-    <button class="icon-btn" id="messagesButton" type="button" aria-label="Messages">M</button>
-    <button class="icon-btn" id="notificationsButton" type="button" aria-label="Notifications">N</button>
+    <button class="icon-btn" id="messagesButton" type="button">M</button>
+    <button class="icon-btn" id="notificationsButton" type="button">N</button>
 
     <button class="token-btn" id="tokenButton" type="button">
       <span class="token-circle">T</span>
       <span id="tokenBalance">0</span>
     </button>
 
-    <button class="profile-btn" id="profileButton" type="button">
-      R
-    </button>
+    <button class="profile-btn" id="profileButton" type="button">R</button>
 
   </div>
 </header>
 
 <aside class="sidebar">
 
-  <div class="side-scroll">
+  <div class="sidebar-scroll">
 
     <div class="side-group">
 
       <button class="side-btn active" data-page="home" type="button">
-        <span>Home</span>
+        <span class="label">Home</span>
       </button>
 
       <button class="side-btn" data-page="discover" type="button">
-        <span>Discover</span>
+        <span class="label">Discover</span>
       </button>
 
       <button class="side-btn" data-page="avatar" type="button">
-        <span>Avatar</span>
+        <span class="label">Avatar</span>
       </button>
 
       <button class="side-btn" data-page="inventory" type="button">
-        <span>Inventory</span>
+        <span class="label">Inventory</span>
       </button>
 
     </div>
@@ -1518,20 +1616,20 @@ p{
     <div class="side-group">
 
       <button class="side-btn" data-page="friends" type="button">
-        <span>Friends</span>
+        <span class="label">Friends</span>
         <span class="side-count" id="friendsCount">0</span>
       </button>
 
       <button class="side-btn" data-page="messages" type="button">
-        <span>Messages</span>
+        <span class="label">Messages</span>
       </button>
 
       <button class="side-btn" data-page="marketplace" type="button">
-        <span>Marketplace</span>
+        <span class="label">Marketplace</span>
       </button>
 
       <button class="side-btn" data-page="tokens" type="button">
-        <span>Tokens</span>
+        <span class="label">Tokens</span>
       </button>
 
     </div>
@@ -1541,15 +1639,15 @@ p{
     <div class="side-group">
 
       <button class="side-btn" id="studioButton" type="button">
-        <span>Studio</span>
+        <span class="label">Studio</span>
       </button>
 
       <button class="side-btn" id="riseCodeButton" type="button">
-        <span>RiseCode</span>
+        <span class="label">RiseCode</span>
       </button>
 
       <button class="side-btn" data-page="settings" type="button">
-        <span>Settings</span>
+        <span class="label">Settings</span>
       </button>
 
     </div>
@@ -1566,450 +1664,619 @@ p{
 
 <main class="main">
 
-  <!-- HOME -->
+<!-- ================= HOME ================= -->
 
-  <section class="page active" data-page-content="home">
+<section class="page active" data-page-content="home">
 
-    <div class="hero">
+  <div class="hero">
 
+    <div>
+      <span class="eyebrow">RISEUP</span>
+
+      <h1>
+        Welcome back,
+        <span id="welcomeName">Creator</span>
+      </h1>
+
+      <p>
+        Play experiences, build worlds, and create something of your own.
+      </p>
+    </div>
+
+    <button class="primary" data-open-studio type="button">
+      Create a Game
+    </button>
+
+  </div>
+
+  <section class="section">
+
+    <div class="section-head">
       <div>
-        <span class="eyebrow">RISEUP</span>
-        <h1>Welcome back, <span id="welcomeName">Creator</span></h1>
-        <p class="subtitle">
-          Play experiences, build worlds, and create something of your own.
-        </p>
+        <h2>Friends</h2>
+        <p>People in your RiseUp community.</p>
       </div>
+
+      <button class="link" data-page="friends" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="friend-grid" id="homeFriends"></div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Continue Playing</h2>
+        <p>Your recent experiences.</p>
+      </div>
+
+      <button class="link" data-page="discover" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="grid" id="continueGames"></div>
+
+    <div class="empty" id="continueEmpty">
+      <div class="empty-art"></div>
+      <h3>No games to continue</h3>
+      <p>Play an experience and it will appear here.</p>
+    </div>
+
+  </section>
+
+  <section class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Recommended For You</h2>
+        <p>Experiences from the RiseUp community.</p>
+      </div>
+
+      <button class="link" data-page="discover" type="button">
+        View All
+      </button>
+    </div>
+
+    <div class="grid" id="recommendedGames"></div>
+
+    <div class="empty" id="recommendedEmpty">
+      <div class="empty-art"></div>
+      <h3>No games yet</h3>
+      <p>Be the first creator to make a game.</p>
 
       <button class="primary" data-open-studio type="button">
         Create a Game
       </button>
-
-    </div>
-
-    <section class="section">
-
-      <div class="section-head">
-        <div>
-          <h2>Friends</h2>
-          <p>People in your RiseUp community.</p>
-        </div>
-
-        <button class="link" data-page="friends" type="button">
-          View All
-        </button>
-      </div>
-
-      <div class="friend-grid" id="homeFriends"></div>
-
-    </section>
-
-    <section class="section">
-
-      <div class="section-head">
-        <div>
-          <h2>Continue Playing</h2>
-          <p>Your recent experiences.</p>
-        </div>
-
-        <button class="link" data-page="discover" type="button">
-          View All
-        </button>
-      </div>
-
-      <div class="grid" id="continueGames"></div>
-
-      <div class="empty" id="continueEmpty">
-        <div class="empty-art"></div>
-        <h3>No games to continue</h3>
-        <p>Play an experience and it will appear here.</p>
-      </div>
-
-    </section>
-
-    <section class="section">
-
-      <div class="section-head">
-        <div>
-          <h2>Recommended For You</h2>
-          <p>Experiences from the RiseUp community.</p>
-        </div>
-
-        <button class="link" data-page="discover" type="button">
-          View All
-        </button>
-      </div>
-
-      <div class="grid" id="recommendedGames"></div>
-
-      <div class="empty" id="recommendedEmpty">
-        <div class="empty-art"></div>
-        <h3>No games yet</h3>
-        <p>Be the first creator to make a game.</p>
-        <button class="primary" data-open-studio type="button">
-          Create a Game
-        </button>
-      </div>
-
-    </section>
-
-  </section>
-
-  <!-- DISCOVER -->
-
-  <section class="page" data-page-content="discover">
-
-    <div class="page-header">
-      <span class="eyebrow">EXPLORE</span>
-      <h1>Discover</h1>
-      <p class="subtitle">
-        Find games made by the RiseUp community.
-      </p>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-discover="all" type="button">All</button>
-      <button class="tab" data-discover="recent" type="button">Recent</button>
-      <button class="tab" data-discover="mine" type="button">My Games</button>
-    </div>
-
-    <div class="grid" id="discoverGrid"></div>
-
-    <div class="empty" id="discoverEmpty">
-      <div class="empty-art"></div>
-      <h3>No games yet</h3>
-      <p>Be the first creator to make a game.</p>
-      <button class="primary" data-open-studio type="button">Create a Game</button>
     </div>
 
   </section>
 
-  <!-- AVATAR -->
+</section>
 
-  <section class="page" data-page-content="avatar">
+<!-- ================= DISCOVER ================= -->
 
-    <div class="page-header">
-      <span class="eyebrow">CHARACTER</span>
-      <h1>Avatar</h1>
-      <p class="subtitle">Customize your RiseUp character.</p>
-    </div>
+<section class="page" data-page-content="discover">
 
-    <div class="avatar-layout">
+  <div class="page-header">
+    <span class="eyebrow">EXPLORE</span>
+    <h1>Discover</h1>
+    <p class="subtitle">
+      Find games made by the RiseUp community.
+    </p>
+  </div>
 
-      <section class="card avatar-preview">
+  <div class="tabs">
 
-        <div class="avatar">
-
-          <div class="avatar-head">
-            <span class="eye left"></span>
-            <span class="eye right"></span>
-            <span class="smile"></span>
-          </div>
-
-          <div class="avatar-body"></div>
-
-          <div class="avatar-arms">
-            <span></span>
-            <span></span>
-          </div>
-
-          <div class="avatar-legs">
-            <span></span>
-            <span></span>
-          </div>
-
-        </div>
-
-        <div class="avatar-name" id="avatarName">Creator</div>
-
-      </section>
-
-      <section class="card">
-
-        <h2 style="font-size:15px;margin-bottom:15px;">Appearance</h2>
-
-        <div class="setting">
-          <span>Head</span>
-          <button class="choice active" data-color-part="head" data-color="#FFE047" type="button">Yellow</button>
-        </div>
-
-        <div class="setting">
-          <span>Body</span>
-          <button class="choice active" data-color-part="body" data-color="#249BFF" type="button">Blue</button>
-        </div>
-
-        <div class="setting">
-          <span>Legs</span>
-          <button class="choice active" data-color-part="legs" data-color="#00A82D" type="button">Green</button>
-        </div>
-
-      </section>
-
-    </div>
-
-  </section>
-
-  <!-- INVENTORY -->
-
-  <section class="page" data-page-content="inventory">
-
-    <div class="page-header">
-      <span class="eyebrow">COLLECTION</span>
-      <h1>Inventory</h1>
-      <p class="subtitle">Your items and creator assets.</p>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-inventory="items" type="button">Items</button>
-      <button class="tab" data-inventory="models" type="button">Models</button>
-      <button class="tab" data-inventory="passes" type="button">Game Passes</button>
-    </div>
-
-    <div class="inventory" id="inventoryGrid"></div>
-
-  </section>
-
-  <!-- FRIENDS -->
-
-  <section class="page" data-page-content="friends">
-
-    <div class="page-header">
-      <span class="eyebrow">SOCIAL</span>
-      <h1>Friends</h1>
-      <p class="subtitle">Connect with people on RiseUp.</p>
-    </div>
-
-    <div class="toolbar">
-      <input id="friendSearch" type="search" placeholder="Search users..." autocomplete="off">
-      <button class="primary" id="addFriendButton" type="button">Add Friend</button>
-    </div>
-
-    <div class="friend-grid" id="friendsGrid"></div>
-
-  </section>
-
-  <!-- MESSAGES -->
-
-  <section class="page" data-page-content="messages">
-
-    <div class="page-header">
-      <span class="eyebrow">SOCIAL</span>
-      <h1>Messages</h1>
-      <p class="subtitle">Your RiseUp conversations.</p>
-    </div>
-
-    <div class="messages">
-
-      <div class="conversations" id="conversationList"></div>
-
-      <div class="chat" id="chatPanel">
-
-        <div class="empty" style="border:0;border-radius:0;height:100%;">
-          <h3>No conversation selected</h3>
-          <p>Select a conversation to begin.</p>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- MARKETPLACE -->
-
-  <section class="page" data-page-content="marketplace">
-
-    <div class="page-header market-head">
-
-      <div>
-        <span class="eyebrow">RISEUP MARKETPLACE</span>
-        <h1>Marketplace</h1>
-        <p class="subtitle">
-          Discover items, assets, and creator content.
-        </p>
-      </div>
-
-      <div class="balance">
-        <span>Tokens</span>
-        <strong id="marketTokens">0</strong>
-      </div>
-
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-market="featured" type="button">Featured</button>
-      <button class="tab" data-market="avatar" type="button">Avatar</button>
-      <button class="tab" data-market="models" type="button">Models</button>
-      <button class="tab" data-market="effects" type="button">Effects</button>
-    </div>
-
-    <div class="market-grid" id="marketGrid"></div>
-
-  </section>
-
-  <!-- TOKENS -->
-
-  <section class="page" data-page-content="tokens">
-
-    <div class="page-header">
-      <span class="eyebrow">RISEUP TOKENS</span>
-      <h1>Token Center</h1>
-      <p class="subtitle">
-        Earn free Tokens while using RiseUp.
-      </p>
-    </div>
-
-    <div class="token-hero">
-
-      <div class="token-total">
-
-        <div class="token-big">T</div>
-
-        <div>
-          <strong id="centerTokens">0</strong>
-          <span>Your current Token balance</span>
-        </div>
-
-      </div>
-
-      <button class="primary" id="monthlyClaim" type="button">
-        Claim Monthly 10
-      </button>
-
-    </div>
-
-    <div class="token-grid">
-
-      <article class="token-card">
-        <h3>Monthly Reward</h3>
-        <div class="token-value">+10 Tokens</div>
-        <p>Receive 10 free Tokens once every month.</p>
-        <button class="secondary" id="monthlyCardButton" type="button">
-          Claim Monthly
-        </button>
-      </article>
-
-      <article class="token-card">
-        <h3>Daily Reward</h3>
-        <div class="token-value">+1 Token</div>
-        <p>Daily free rewards can be enabled later.</p>
-        <button class="secondary" id="dailyButton" type="button">
-          Coming Soon
-        </button>
-      </article>
-
-      <article class="token-card">
-        <h3>Weekly Reward</h3>
-        <div class="token-value">+5 Tokens</div>
-        <p>Weekly free rewards can be enabled later.</p>
-        <button class="secondary" id="weeklyButton" type="button">
-          Coming Soon
-        </button>
-      </article>
-
-      <article class="token-card">
-        <h3>Creator Rewards</h3>
-        <div class="token-value">Earn Tokens</div>
-        <p>Future creator systems can reward successful experiences.</p>
-        <button class="secondary" id="creatorRewardButton" type="button">
-          Learn More
-        </button>
-      </article>
-
-    </div>
-
-    <div class="card" style="margin-top:13px;color:var(--muted2);font-size:8px;">
-      Tokens are currently free prototype currency. No real-money purchases are enabled.
-    </div>
-
-  </section>
-
-  <!-- SETTINGS -->
-
-  <section class="page" data-page-content="settings">
-
-    <div class="page-header">
-      <span class="eyebrow">PREFERENCES</span>
-      <h1>Settings</h1>
-      <p class="subtitle">Manage your RiseUp experience.</p>
-    </div>
-
-    <div class="settings">
-
-      <section class="card">
-
-        <h2 style="font-size:13px;margin-bottom:10px;">Account</h2>
-
-        <div class="settings-row">
-          <div>
-            <strong>Username</strong>
-            <small id="settingsUsername">Creator</small>
-          </div>
-        </div>
-
-        <div class="settings-row">
-          <div>
-            <strong>Tokens</strong>
-            <small id="settingsTokenValue">0</small>
-          </div>
-        </div>
-
-      </section>
-
-      <section class="card">
-
-        <h2 style="font-size:13px;margin-bottom:10px;">Preferences</h2>
-
-        <label class="settings-row">
-          <div>
-            <strong>Reduced motion</strong>
-            <small>Reduce interface animation.</small>
-          </div>
-          <input id="reducedMotion" type="checkbox">
-        </label>
-
-      </section>
-
-      <section class="card danger">
-
-        <h2 style="font-size:13px;margin-bottom:10px;">Account Actions</h2>
-
-        <button class="danger-btn" id="logoutButton" type="button">
-          Log Out
-        </button>
-
-      </section>
-
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-
-  <footer class="footer">
-
-    <button class="footer-brand" data-page="home" type="button">
-      <span class="footer-mark">R</span>
-      <span>
-        <strong>RiseUp</strong>
-        <small>Create. Play. Rise.</small>
-      </span>
+    <button class="tab active" data-discover="all" type="button">
+      All
     </button>
 
-    <nav class="footer-links">
-      <button data-info="about" type="button">About</button>
-      <button data-info="careers" type="button">Careers</button>
-      <button data-info="help" type="button">Help</button>
-      <button data-info="terms" type="button">Terms</button>
-      <button data-info="privacy" type="button">Privacy</button>
-    </nav>
+    <button class="tab" data-discover="recent" type="button">
+      Recent
+    </button>
 
-    <span class="footer-copy">© 2026 RiseUp</span>
+    <button class="tab" data-discover="mine" type="button">
+      My Games
+    </button>
 
-  </footer>
+  </div>
+
+  <div class="grid" id="discoverGrid"></div>
+
+  <div class="empty" id="discoverEmpty">
+    <div class="empty-art"></div>
+    <h3>No games yet</h3>
+    <p>Be the first creator to make a game.</p>
+
+    <button class="primary" data-open-studio type="button">
+      Create a Game
+    </button>
+  </div>
+
+</section>
+
+<!-- ================= AVATAR ================= -->
+
+<section class="page" data-page-content="avatar">
+
+  <div class="page-header">
+    <span class="eyebrow">CHARACTER</span>
+    <h1>Avatar</h1>
+    <p class="subtitle">
+      Customize your RiseUp character.
+    </p>
+  </div>
+
+  <div class="avatar-layout">
+
+    <section class="card avatar-preview-card">
+
+      <div class="avatar-preview">
+
+        <div class="avatar-head">
+          <span class="eye left"></span>
+          <span class="eye right"></span>
+          <span class="smile"></span>
+        </div>
+
+        <div class="avatar-body"></div>
+
+        <div class="avatar-arms">
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="avatar-legs">
+          <span></span>
+          <span></span>
+        </div>
+
+      </div>
+
+      <div class="avatar-name" id="avatarName">
+        Creator
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <h2 style="font-size:15px;margin:0 0 10px;">
+        Appearance
+      </h2>
+
+      <div class="setting-row">
+        <span>Head</span>
+        <button class="choice active"
+          data-color-part="head"
+          data-color="#FFE047"
+          type="button">
+          Yellow
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <span>Body</span>
+        <button class="choice active"
+          data-color-part="body"
+          data-color="#249BFF"
+          type="button">
+          Blue
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <span>Legs</span>
+        <button class="choice active"
+          data-color-part="legs"
+          data-color="#00A82D"
+          type="button">
+          Green
+        </button>
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+<!-- ================= INVENTORY ================= -->
+
+<section class="page" data-page-content="inventory">
+
+  <div class="page-header">
+    <span class="eyebrow">COLLECTION</span>
+    <h1>Inventory</h1>
+    <p class="subtitle">
+      Your items and creator assets.
+    </p>
+  </div>
+
+  <div class="tabs">
+
+    <button class="tab active"
+      data-inventory="items"
+      type="button">
+      Items
+    </button>
+
+    <button class="tab"
+      data-inventory="models"
+      type="button">
+      Models
+    </button>
+
+    <button class="tab"
+      data-inventory="passes"
+      type="button">
+      Game Passes
+    </button>
+
+  </div>
+
+  <div class="inventory-grid" id="inventoryGrid"></div>
+
+</section>
+
+<!-- ================= FRIENDS ================= -->
+
+<section class="page" data-page-content="friends">
+
+  <div class="page-header">
+    <span class="eyebrow">SOCIAL</span>
+    <h1>Friends</h1>
+    <p class="subtitle">
+      Connect with people on RiseUp.
+    </p>
+  </div>
+
+  <div class="toolbar">
+
+    <input
+      id="friendSearch"
+      type="search"
+      placeholder="Search users..."
+      autocomplete="off"
+    >
+
+    <button class="primary"
+      id="addFriendButton"
+      type="button">
+      Add Friend
+    </button>
+
+  </div>
+
+  <div class="friend-grid" id="friendsGrid"></div>
+
+</section>
+
+<!-- ================= MESSAGES ================= -->
+
+<section class="page" data-page-content="messages">
+
+  <div class="page-header">
+    <span class="eyebrow">SOCIAL</span>
+    <h1>Messages</h1>
+    <p class="subtitle">
+      Your RiseUp conversations.
+    </p>
+  </div>
+
+  <div class="messages">
+
+    <div class="conversations" id="conversationList"></div>
+
+    <div class="chat" id="chatPanel">
+
+      <div class="empty"
+        style="height:100%;min-height:470px;border:0;border-radius:0;">
+        <h3>No conversation selected</h3>
+        <p>Select a conversation to begin.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ================= MARKETPLACE ================= -->
+
+<section class="page" data-page-content="marketplace">
+
+  <div class="page-header market-head">
+
+    <div>
+      <span class="eyebrow">RISEUP MARKETPLACE</span>
+      <h1>Marketplace</h1>
+      <p class="subtitle">
+        Discover items, assets, and creator content.
+      </p>
+    </div>
+
+    <div class="balance">
+      <span>Tokens</span>
+      <strong id="marketTokens">0</strong>
+    </div>
+
+  </div>
+
+  <div class="tabs">
+
+    <button class="tab active"
+      data-market="featured"
+      type="button">
+      Featured
+    </button>
+
+    <button class="tab"
+      data-market="avatar"
+      type="button">
+      Avatar
+    </button>
+
+    <button class="tab"
+      data-market="models"
+      type="button">
+      Models
+    </button>
+
+    <button class="tab"
+      data-market="effects"
+      type="button">
+      Effects
+    </button>
+
+  </div>
+
+  <div class="market-grid" id="marketGrid"></div>
+
+</section>
+
+<!-- ================= TOKENS ================= -->
+
+<section class="page" data-page-content="tokens">
+
+  <div class="page-header">
+    <span class="eyebrow">RISEUP TOKENS</span>
+    <h1>Token Center</h1>
+    <p class="subtitle">
+      Earn free Tokens while using RiseUp.
+    </p>
+  </div>
+
+  <div class="token-hero">
+
+    <div class="token-total">
+
+      <div class="token-big">T</div>
+
+      <div>
+        <strong id="centerTokens">0</strong>
+        <span>Your current Token balance</span>
+      </div>
+
+    </div>
+
+    <button class="primary"
+      id="monthlyClaim"
+      type="button">
+      Claim Monthly 10
+    </button>
+
+  </div>
+
+  <div class="token-grid">
+
+    <article class="token-card">
+
+      <h3>Monthly Reward</h3>
+
+      <div class="token-value">
+        +10 Tokens
+      </div>
+
+      <p>
+        Receive 10 free Tokens once every month.
+      </p>
+
+      <button class="secondary"
+        id="monthlyCardButton"
+        type="button">
+        Claim Monthly
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Daily Reward</h3>
+
+      <div class="token-value">
+        +1 Token
+      </div>
+
+      <p>
+        Daily free rewards can be added later.
+      </p>
+
+      <button class="secondary"
+        id="dailyButton"
+        type="button">
+        Coming Soon
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Weekly Reward</h3>
+
+      <div class="token-value">
+        +5 Tokens
+      </div>
+
+      <p>
+        Weekly free rewards can be added later.
+      </p>
+
+      <button class="secondary"
+        id="weeklyButton"
+        type="button">
+        Coming Soon
+      </button>
+
+    </article>
+
+    <article class="token-card">
+
+      <h3>Creator Rewards</h3>
+
+      <div class="token-value">
+        Earn Tokens
+      </div>
+
+      <p>
+        Future creator systems can reward successful experiences.
+      </p>
+
+      <button class="secondary"
+        id="creatorRewardButton"
+        type="button">
+        Learn More
+      </button>
+
+    </article>
+
+  </div>
+
+  <div class="token-note">
+    Tokens are currently free prototype currency. No real-money purchases are enabled.
+  </div>
+
+</section>
+
+<!-- ================= SETTINGS ================= -->
+
+<section class="page" data-page-content="settings">
+
+  <div class="page-header">
+    <span class="eyebrow">PREFERENCES</span>
+    <h1>Settings</h1>
+    <p class="subtitle">
+      Manage your RiseUp experience.
+    </p>
+  </div>
+
+  <div class="settings">
+
+    <section class="card">
+
+      <h2 style="font-size:13px;margin:0 0 8px;">
+        Account
+      </h2>
+
+      <div class="settings-row">
+        <div>
+          <strong>Username</strong>
+          <small id="settingsUsername">
+            Creator
+          </small>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <strong>Tokens</strong>
+          <small id="settingsTokenValue">
+            0
+          </small>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <h2 style="font-size:13px;margin:0 0 8px;">
+        Preferences
+      </h2>
+
+      <label class="settings-row">
+
+        <div>
+          <strong>Reduced motion</strong>
+          <small>Reduce interface animation.</small>
+        </div>
+
+        <input id="reducedMotion" type="checkbox">
+
+      </label>
+
+    </section>
+
+    <section class="card danger">
+
+      <h2 style="font-size:13px;margin:0 0 10px;">
+        Account Actions
+      </h2>
+
+      <button
+        class="danger-btn"
+        id="logoutButton"
+        type="button">
+        Log Out
+      </button>
+
+    </section>
+
+  </div>
+
+</section>
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+  <button class="footer-brand"
+    data-page="home"
+    type="button">
+
+    <span class="footer-logo">R</span>
+
+    <span>
+      <strong>RiseUp</strong>
+      <small>Create. Play. Rise.</small>
+    </span>
+
+  </button>
+
+  <nav class="footer-links">
+
+    <button data-info="about" type="button">About</button>
+    <button data-info="careers" type="button">Careers</button>
+    <button data-info="help" type="button">Help</button>
+    <button data-info="terms" type="button">Terms</button>
+    <button data-info="privacy" type="button">Privacy</button>
+
+  </nav>
+
+  <span class="footer-copy">
+    © 2026 RiseUp
+  </span>
+
+</footer>
 
 </main>
 
-<!-- PROFILE -->
+<!-- ================= PROFILE POPUP ================= -->
 
 <div class="popup" id="profilePopup">
 
@@ -2036,37 +2303,55 @@ p{
 
   <div class="popup-divider"></div>
 
-  <button id="profileLogout" type="button" style="color:#ef9999;">Log Out</button>
+  <button id="profileLogout"
+    type="button"
+    style="color:#ef9999;">
+    Log Out
+  </button>
 
 </div>
 
-<!-- CREATE -->
+<!-- ================= CREATE POPUP ================= -->
 
 <div class="popup" id="createPopup">
 
-  <div style="padding:8px;color:var(--muted2);font-size:8px;font-weight:900;letter-spacing:.7px;">
+  <div class="create-label">
     CREATE
   </div>
 
-  <button class="create-item" id="createStudio" type="button">
+  <button class="create-item"
+    id="createStudio"
+    type="button">
+
     <span class="create-icon">3D</span>
+
     <span>
       <strong>RiseUp Studio</strong><br>
-      <span style="color:var(--muted2);font-size:7px;">Build your game</span>
+      <span style="color:var(--muted2);font-size:7px;">
+        Build your game
+      </span>
     </span>
+
   </button>
 
-  <button class="create-item" id="createCode" type="button">
+  <button class="create-item"
+    id="createCode"
+    type="button">
+
     <span class="create-icon">&lt;&gt;</span>
+
     <span>
       <strong>RiseCode</strong><br>
-      <span style="color:var(--muted2);font-size:7px;">Code your game</span>
+      <span style="color:var(--muted2);font-size:7px;">
+        Code your game
+      </span>
     </span>
+
   </button>
 
 </div>
 
-<!-- NOTIFICATIONS -->
+<!-- ================= NOTIFICATION POPUP ================= -->
 
 <div class="popup" id="notificationPopup">
 
@@ -2078,7 +2363,7 @@ p{
 
 </div>
 
-<!-- MESSAGES -->
+<!-- ================= MESSAGE POPUP ================= -->
 
 <div class="popup" id="messagePopup">
 
@@ -2088,26 +2373,34 @@ p{
 
   <div class="popup-list" id="quickMessages"></div>
 
-  <button id="openMessagesPage" type="button" style="padding:10px;">
+  <button
+    id="openMessagesPage"
+    type="button"
+    style="padding:10px;">
     Open Messages
   </button>
 
 </div>
 
-<!-- TOKENS -->
+<!-- ================= TOKEN POPUP ================= -->
 
 <div class="popup" id="tokenPopup">
 
   <div class="token-popup-symbol">T</div>
 
   <div class="token-popup">
+
     <strong>Your Tokens</strong>
 
     <div class="token-popup-balance">
       <span id="popupTokens">0</span> Tokens
     </div>
 
-    <button class="primary" id="openTokensPage" type="button" style="width:100%;">
+    <button
+      class="primary"
+      id="openTokensPage"
+      type="button"
+      style="width:100%;">
       Open Token Center
     </button>
 
@@ -2115,48 +2408,89 @@ p{
 
 </div>
 
-<!-- FRIEND MODAL -->
+<!-- ================= FRIEND MODAL ================= -->
 
 <div class="modal-backdrop hidden" id="friendModal">
 
   <div class="modal">
 
-    <button class="modal-close" data-close="friendModal" type="button">X</button>
+    <button
+      class="modal-close"
+      data-close="friendModal"
+      type="button">
+      X
+    </button>
 
     <span class="eyebrow">SOCIAL</span>
+
     <h2>Add Friend</h2>
 
     <p>
       Enter a RiseUp username.
     </p>
 
-    <input id="friendInput" type="text" placeholder="Username" autocomplete="off">
+    <input
+      id="friendInput"
+      type="text"
+      placeholder="Username"
+      autocomplete="off">
 
     <div class="modal-actions">
-      <button class="secondary" data-close="friendModal" type="button">Cancel</button>
-      <button class="primary" id="confirmFriend" type="button">Add Friend</button>
+
+      <button
+        class="secondary"
+        data-close="friendModal"
+        type="button">
+        Cancel
+      </button>
+
+      <button
+        class="primary"
+        id="confirmFriend"
+        type="button">
+        Add Friend
+      </button>
+
     </div>
 
   </div>
 
 </div>
 
-<!-- INFO MODAL -->
+<!-- ================= INFO MODAL ================= -->
 
 <div class="modal-backdrop hidden" id="infoModal">
 
   <div class="modal">
 
-    <button class="modal-close" data-close="infoModal" type="button">X</button>
+    <button
+      class="modal-close"
+      data-close="infoModal"
+      type="button">
+      X
+    </button>
 
-    <span class="eyebrow" id="infoEyebrow">RISEUP</span>
-    <h2 id="infoTitle">RiseUp</h2>
-    <p id="infoText">Welcome to RiseUp.</p>
+    <span class="eyebrow" id="infoEyebrow">
+      RISEUP
+    </span>
+
+    <h2 id="infoTitle">
+      RiseUp
+    </h2>
+
+    <p id="infoText">
+      Welcome to RiseUp.
+    </p>
 
     <div class="modal-actions">
-      <button class="primary" data-close="infoModal" type="button">
+
+      <button
+        class="primary"
+        data-close="infoModal"
+        type="button">
         Close
       </button>
+
     </div>
 
   </div>
@@ -2166,700 +2500,1198 @@ p{
 <div class="toast" id="toast"></div>
 
 <script>
-(() => {
-  "use strict";
+(function(){
 
-  const KEY = {
-    user:"riseup_currentUser",
-    games:"riseup_games",
-    friends:"riseup_friends",
-    inventory:"riseup_inventory",
-    messages:"riseup_messages",
-    notifications:"riseup_notifications",
-    avatar:"riseup_avatar",
-    settings:"riseup_settings",
-    tokens:"riseup_tokens"
-  };
+"use strict";
 
-  const state = {
-    page:"home",
-    discover:"all",
-    inventory:"items",
-    market:"featured",
-    selectedMessage:null,
-    search:""
-  };
+/* =========================================================
+   CONFIG
+========================================================= */
 
-  const marketItems = [
-    {name:"Classic Block Pack",type:"Models",category:"models",price:25},
-    {name:"Modern Avatar Bundle",type:"Avatar",category:"avatar",price:75},
-    {name:"City Environment",type:"Models",category:"models",price:120},
-    {name:"Energy Effect Pack",type:"Effects",category:"effects",price:50},
-    {name:"Creator Starter Pack",type:"Featured",category:"featured",price:100}
-  ];
+const KEYS = {
+  user:"riseup_currentUser",
+  games:"riseup_games",
+  friends:"riseup_friends",
+  inventory:"riseup_inventory",
+  messages:"riseup_messages",
+  notifications:"riseup_notifications",
+  avatar:"riseup_avatar",
+  settings:"riseup_settings",
+  tokens:"riseup_tokens",
+  monthly:"riseup_monthly_token"
+};
 
-  const info = {
-    about:[
-      "ABOUT",
-      "About RiseUp",
-      "RiseUp is a creator-focused platform for making, sharing, discovering, and playing interactive experiences."
-    ],
-    careers:[
-      "CAREERS",
-      "Careers",
-      "RiseUp careers will be added as the platform grows."
-    ],
-    help:[
-      "HELP",
-      "Help",
-      "Use RiseUp Studio to build games and RiseCode to script them. More creator tools are being added over time."
-    ],
-    terms:[
-      "TERMS",
-      "Terms",
-      "RiseUp terms cover use of the platform, publishing experiences, and participation in the community."
-    ],
-    privacy:[
-      "PRIVACY",
-      "Privacy",
-      "RiseUp is designed to keep account information, settings, and public experience content as separate systems."
-    ]
-  };
+const state = {
+  page:"home",
+  discover:"all",
+  inventory:"items",
+  market:"featured",
+  search:"",
+  selectedMessage:null
+};
 
-  document.addEventListener("DOMContentLoaded", init);
-
-  function init(){
-
-    /*
-     * EVERYTHING USES ONE CLICK SYSTEM.
-     * This avoids relying on dozens of separate button handlers.
-     */
-
-    document.addEventListener("click", onClick);
-
-    document.getElementById("searchInput")
-      ?.addEventListener("input", event => {
-        state.search = event.target.value.trim().toLowerCase();
-
-        if(state.search){
-          navigate("discover");
-        }else{
-          renderDiscover();
-        }
-      });
-
-    document.getElementById("friendSearch")
-      ?.addEventListener("input", renderFriends);
-
-    document.getElementById("friendInput")
-      ?.addEventListener("keydown", event => {
-        if(event.key === "Enter"){
-          addFriend();
-        }
-      });
-
-    document.getElementById("monthlyClaim")
-      ?.addEventListener("click", claimMonthly);
-
-    document.getElementById("monthlyCardButton")
-      ?.addEventListener("click", claimMonthly);
-
-    document.getElementById("dailyButton")
-      ?.addEventListener("click", () => {
-        toast("Daily Tokens are coming soon.");
-      });
-
-    document.getElementById("weeklyButton")
-      ?.addEventListener("click", () => {
-        toast("Weekly Tokens are coming soon.");
-      });
-
-    document.getElementById("creatorRewardButton")
-      ?.addEventListener("click", () => {
-        showInfo(
-          "CREATOR REWARDS",
-          "Creator Token rewards can be added later when RiseUp's creator economy is ready."
-        );
-      });
-
-    renderAll();
-    navigate("home");
+const MARKET = [
+  {
+    name:"Classic Block Pack",
+    type:"Models",
+    category:"models",
+    price:25
+  },
+  {
+    name:"Modern Avatar Bundle",
+    type:"Avatar",
+    category:"avatar",
+    price:75
+  },
+  {
+    name:"City Environment",
+    type:"Models",
+    category:"models",
+    price:120
+  },
+  {
+    name:"Energy Effect Pack",
+    type:"Effects",
+    category:"effects",
+    price:50
+  },
+  {
+    name:"Creator Starter Pack",
+    type:"Featured",
+    category:"featured",
+    price:100
   }
+];
 
-  function onClick(event){
+const INFO = {
+  about:{
+    eyebrow:"ABOUT",
+    title:"About RiseUp",
+    text:"RiseUp is a creator-focused platform for making, sharing, discovering, and playing interactive experiences."
+  },
 
-    const button = event.target.closest("button");
+  careers:{
+    eyebrow:"CAREERS",
+    title:"Careers",
+    text:"RiseUp careers will be added as the platform grows."
+  },
 
-    if(!button){
-      return;
-    }
+  help:{
+    eyebrow:"HELP",
+    title:"Help",
+    text:"Use RiseUp Studio to build games and RiseCode to script them. More creator tools will be added over time."
+  },
 
-    if(button.dataset.page){
+  terms:{
+    eyebrow:"TERMS",
+    title:"Terms",
+    text:"RiseUp terms cover use of the platform, publishing experiences, and participation in the community."
+  },
+
+  privacy:{
+    eyebrow:"PRIVACY",
+    title:"Privacy",
+    text:"RiseUp is designed to keep account information, settings, and public experience information separated."
+  }
+};
+
+let toastTimer = null;
+
+/* =========================================================
+   START
+========================================================= */
+
+document.addEventListener("DOMContentLoaded",function(){
+
+  setupEvents();
+  renderAll();
+  navigate("home");
+
+});
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function setupEvents(){
+
+  document.addEventListener("click",handleClick);
+
+  document.addEventListener("keydown",function(event){
+
+    if(event.key === "Escape"){
+
       closePopups();
-      navigate(button.dataset.page);
-      return;
+
+      document
+        .querySelectorAll(".modal-backdrop")
+        .forEach(modal=>{
+          modal.classList.add("hidden");
+        });
+
     }
 
-    if(button.dataset.pageAction){
-      closePopups();
-      navigate(button.dataset.pageAction);
-      return;
-    }
+  });
 
-    if(button.dataset.openStudio !== undefined){
-      openStudio();
-      return;
-    }
+  document
+    .getElementById("searchInput")
+    ?.addEventListener("input",function(event){
 
-    if(button.dataset.info){
-      showInfoModal(button.dataset.info);
-      return;
-    }
+      state.search =
+        event.target.value
+          .trim()
+          .toLowerCase();
 
-    if(button.dataset.close){
-      closeModal(button.dataset.close);
-      return;
-    }
-
-    if(button.dataset.discover){
-      state.discover = button.dataset.discover;
-      updateTabs("[data-discover]",state.discover);
-      renderDiscover();
-      return;
-    }
-
-    if(button.dataset.inventory){
-      state.inventory = button.dataset.inventory;
-      updateTabs("[data-inventory]",state.inventory);
-      renderInventory();
-      return;
-    }
-
-    if(button.dataset.market){
-      state.market = button.dataset.market;
-      updateTabs("[data-market]",state.market);
-      renderMarketplace();
-      return;
-    }
-
-    if(button.dataset.colorPart){
-      setAvatarColor(
-        button.dataset.colorPart,
-        button.dataset.color
+      navigate(
+        state.search
+          ? "discover"
+          : state.page
       );
-      return;
-    }
 
-    if(button.dataset.buyIndex !== undefined){
-      buyItem(Number(button.dataset.buyIndex));
-      return;
-    }
+    });
 
-    if(button.id === "profileButton"){
-      togglePopup("profilePopup");
-      return;
-    }
+  document
+    .getElementById("friendSearch")
+    ?.addEventListener("input",renderFriends);
 
-    if(button.id === "createButton" || button.id === "sidebarCreate"){
-      togglePopup("createPopup");
-      return;
-    }
+  document
+    .getElementById("friendInput")
+    ?.addEventListener("keydown",function(event){
 
-    if(button.id === "messagesButton"){
-      togglePopup("messagePopup");
-      renderQuickMessages();
-      return;
-    }
+      if(event.key === "Enter"){
+        addFriend();
+      }
 
-    if(button.id === "notificationsButton"){
-      togglePopup("notificationPopup");
-      renderNotifications();
-      return;
-    }
+    });
 
-    if(button.id === "tokenButton"){
-      togglePopup("tokenPopup");
-      updateTokens();
-      return;
-    }
+  document
+    .getElementById("monthlyClaim")
+    ?.addEventListener("click",claimMonthly);
 
-    if(button.id === "openTokensPage"){
-      closePopups();
-      navigate("tokens");
-      return;
-    }
+  document
+    .getElementById("monthlyCardButton")
+    ?.addEventListener("click",claimMonthly);
 
-    if(button.id === "openMessagesPage"){
-      closePopups();
-      navigate("messages");
-      return;
-    }
+  document
+    .getElementById("dailyButton")
+    ?.addEventListener("click",function(){
+      toast("Daily rewards are coming soon.");
+    });
 
-    if(button.id === "studioButton" ||
-       button.id === "profileStudio" ||
-       button.id === "createStudio"){
-      openStudio();
-      return;
-    }
+  document
+    .getElementById("weeklyButton")
+    ?.addEventListener("click",function(){
+      toast("Weekly rewards are coming soon.");
+    });
 
-    if(button.id === "riseCodeButton" ||
-       button.id === "profileCode" ||
-       button.id === "createCode"){
-      openRiseCode();
-      return;
-    }
+  document
+    .getElementById("creatorRewardButton")
+    ?.addEventListener("click",function(){
 
-    if(button.id === "profileLogout" ||
-       button.id === "logoutButton"){
-      logout();
-      return;
-    }
+      showInfo(
+        "CREATOR REWARDS",
+        "Creator Token rewards can be added later when RiseUp's creator economy is ready."
+      );
 
-    if(button.id === "addFriendButton"){
-      openModal("friendModal");
-      return;
-    }
+    });
 
-    if(button.id === "confirmFriend"){
-      addFriend();
-      return;
-    }
+  document
+    .getElementById("reducedMotion")
+    ?.addEventListener("change",function(event){
+
+      const settings = getSettings();
+
+      settings.reducedMotion =
+        event.target.checked;
+
+      saveSettings(settings);
+
+    });
+
+}
+
+/* =========================================================
+   ONE BUTTON SYSTEM
+========================================================= */
+
+function handleClick(event){
+
+  const button =
+    event.target.closest("button");
+
+  if(!button){
+    return;
   }
 
-  function navigate(page){
+  /* PAGE BUTTONS */
 
-    const pages = [
-      "home",
-      "discover",
-      "avatar",
-      "inventory",
-      "friends",
-      "messages",
-      "marketplace",
-      "tokens",
-      "settings"
-    ];
-
-    if(!pages.includes(page)){
-      page = "home";
-    }
-
-    state.page = page;
-
-    document.querySelectorAll("[data-page-content]")
-      .forEach(section => {
-        section.classList.toggle(
-          "active",
-          section.dataset.pageContent === page
-        );
-      });
-
-    document.querySelectorAll("[data-page]")
-      .forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.page === page
-        );
-      });
+  if(button.dataset.page){
 
     closePopups();
-    renderPage(page);
 
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
-    });
-  }
-
-  function renderPage(page){
-
-    if(page === "home") renderHome();
-    if(page === "discover") renderDiscover();
-    if(page === "avatar") renderAvatar();
-    if(page === "inventory") renderInventory();
-    if(page === "friends") renderFriends();
-    if(page === "messages") renderMessages();
-    if(page === "marketplace") renderMarketplace();
-    if(page === "tokens") renderTokensPage();
-    if(page === "settings") renderSettings();
-  }
-
-  function openStudio(){
-    window.location.href = "./studio.html";
-  }
-
-  function openRiseCode(){
-    window.location.href = "./code.html";
-  }
-
-  /* USER */
-
-  function getUser(){
-
-    try{
-      const raw = localStorage.getItem(KEY.user);
-
-      if(!raw){
-        return "Creator";
-      }
-
-      try{
-        return JSON.parse(raw);
-      }catch{
-        return raw;
-      }
-
-    }catch{
-      return "Creator";
-    }
-  }
-
-  function username(){
-
-    const user = getUser();
-
-    if(!user){
-      return "Creator";
-    }
-
-    if(typeof user === "string"){
-      return user;
-    }
-
-    return (
-      user.username ||
-      user.name ||
-      user.user ||
-      user.displayName ||
-      "Creator"
+    navigate(
+      button.dataset.page
     );
+
+    return;
   }
 
-  function displayName(){
+  /* PAGE ACTION */
 
-    const user = getUser();
+  if(button.dataset.openStudio !== undefined){
 
-    if(!user){
-      return "Creator";
-    }
+    openStudio();
 
-    if(typeof user === "string"){
-      return user;
-    }
+    return;
+  }
 
-    return (
-      user.displayName ||
-      user.username ||
-      user.name ||
-      user.user ||
-      "Creator"
+  /* FOOTER INFO */
+
+  if(button.dataset.info){
+
+    showInfoModal(
+      button.dataset.info
     );
+
+    return;
   }
 
-  function renderUser(){
+  /* CLOSE MODAL */
 
-    const name = displayName();
-    const user = username();
-    const letter = name.charAt(0).toUpperCase() || "R";
+  if(button.dataset.close){
 
-    document.getElementById("welcomeName").textContent = name;
-    document.getElementById("avatarName").textContent = name;
-    document.getElementById("profileButton").textContent = letter;
-    document.getElementById("popupAvatar").textContent = letter;
-    document.getElementById("popupName").textContent = name;
-    document.getElementById("popupUsername").textContent = "@" + user;
-    document.getElementById("settingsUsername").textContent = user;
+    closeModal(
+      button.dataset.close
+    );
 
-    updateFriendCount();
-    updateTokens();
+    return;
+  }
+
+  /* DISCOVER FILTER */
+
+  if(button.dataset.discover){
+
+    state.discover =
+      button.dataset.discover;
+
+    updateTabs(
+      "[data-discover]",
+      "discover",
+      state.discover
+    );
+
+    renderDiscover();
+
+    return;
+  }
+
+  /* INVENTORY FILTER */
+
+  if(button.dataset.inventory){
+
+    state.inventory =
+      button.dataset.inventory;
+
+    updateTabs(
+      "[data-inventory]",
+      "inventory",
+      state.inventory
+    );
+
+    renderInventory();
+
+    return;
+  }
+
+  /* MARKET FILTER */
+
+  if(button.dataset.market){
+
+    state.market =
+      button.dataset.market;
+
+    updateTabs(
+      "[data-market]",
+      "market",
+      state.market
+    );
+
+    renderMarketplace();
+
+    return;
+  }
+
+  /* AVATAR */
+
+  if(button.dataset.colorPart){
+
+    setAvatarColor(
+      button.dataset.colorPart,
+      button.dataset.color
+    );
+
+    return;
+  }
+
+  /* MARKET BUY */
+
+  if(button.dataset.buyIndex !== undefined){
+
+    buyItem(
+      Number(
+        button.dataset.buyIndex
+      )
+    );
+
+    return;
+  }
+
+  /* PROFILE */
+
+  if(button.id === "profileButton"){
+
+    togglePopup(
+      "profilePopup"
+    );
+
+    return;
+  }
+
+  /* CREATE */
+
+  if(
+    button.id === "createButton" ||
+    button.id === "sidebarCreate"
+  ){
+
+    togglePopup(
+      "createPopup"
+    );
+
+    return;
+  }
+
+  /* MESSAGES */
+
+  if(button.id === "messagesButton"){
+
+    togglePopup(
+      "messagePopup"
+    );
+
+    renderQuickMessages();
+
+    return;
+  }
+
+  if(button.id === "openMessagesPage"){
+
+    closePopups();
+
+    navigate(
+      "messages"
+    );
+
+    return;
+  }
+
+  /* NOTIFICATIONS */
+
+  if(button.id === "notificationsButton"){
+
+    togglePopup(
+      "notificationPopup"
+    );
+
+    renderNotifications();
+
+    return;
   }
 
   /* TOKENS */
 
-  function tokenKey(){
-    return KEY.tokens + "_" + username();
-  }
+  if(button.id === "tokenButton"){
 
-  function getTokens(){
-
-    const value = Number(
-      localStorage.getItem(tokenKey())
+    togglePopup(
+      "tokenPopup"
     );
 
-    if(!Number.isFinite(value) || value < 0){
-      return 0;
-    }
+    updateTokenUI();
 
-    return Math.floor(value);
+    return;
   }
 
-  function setTokens(value){
+  if(button.id === "openTokensPage"){
 
-    const amount = Math.max(
+    closePopups();
+
+    navigate(
+      "tokens"
+    );
+
+    return;
+  }
+
+  /* STUDIO */
+
+  if(
+    button.id === "studioButton" ||
+    button.id === "profileStudio" ||
+    button.id === "createStudio"
+  ){
+
+    openStudio();
+
+    return;
+  }
+
+  /* RISECODE */
+
+  if(
+    button.id === "riseCodeButton" ||
+    button.id === "profileCode" ||
+    button.id === "createCode"
+  ){
+
+    openRiseCode();
+
+    return;
+  }
+
+  /* LOGOUT */
+
+  if(
+    button.id === "profileLogout" ||
+    button.id === "logoutButton"
+  ){
+
+    logout();
+
+    return;
+  }
+
+  /* ADD FRIEND */
+
+  if(button.id === "addFriendButton"){
+
+    openModal(
+      "friendModal"
+    );
+
+    return;
+  }
+
+  if(button.id === "confirmFriend"){
+
+    addFriend();
+
+    return;
+  }
+
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function navigate(page){
+
+  const valid = [
+    "home",
+    "discover",
+    "avatar",
+    "inventory",
+    "friends",
+    "messages",
+    "marketplace",
+    "tokens",
+    "settings"
+  ];
+
+  if(!valid.includes(page)){
+    page = "home";
+  }
+
+  state.page = page;
+
+  document
+    .querySelectorAll("[data-page-content]")
+    .forEach(section=>{
+
+      section.classList.toggle(
+        "active",
+        section.dataset.pageContent === page
+      );
+
+    });
+
+  document
+    .querySelectorAll(".top-nav button[data-page]")
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === page
+      );
+
+    });
+
+  document
+    .querySelectorAll(".side-btn[data-page]")
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === page
+      );
+
+    });
+
+  closePopups();
+
+  renderPage(page);
+
+  window.scrollTo({
+    top:0,
+    left:0,
+    behavior:
+      getSettings().reducedMotion
+        ? "auto"
+        : "smooth"
+  });
+
+}
+
+function renderPage(page){
+
+  switch(page){
+
+    case "home":
+      renderHome();
+      break;
+
+    case "discover":
+      renderDiscover();
+      break;
+
+    case "avatar":
+      renderAvatar();
+      break;
+
+    case "inventory":
+      renderInventory();
+      break;
+
+    case "friends":
+      renderFriends();
+      break;
+
+    case "messages":
+      renderMessages();
+      break;
+
+    case "marketplace":
+      renderMarketplace();
+      break;
+
+    case "tokens":
+      renderTokens();
+      break;
+
+    case "settings":
+      renderSettings();
+      break;
+
+  }
+
+}
+
+/* =========================================================
+   APP NAVIGATION
+========================================================= */
+
+function openStudio(){
+
+  closePopups();
+
+  window.location.href =
+    "./studio.html";
+
+}
+
+function openRiseCode(){
+
+  closePopups();
+
+  window.location.href =
+    "./code.html";
+
+}
+
+/* =========================================================
+   USER
+========================================================= */
+
+function getStoredUser(){
+
+  try{
+
+    const raw =
+      localStorage.getItem(
+        KEYS.user
+      );
+
+    if(!raw){
+      return "Creator";
+    }
+
+    try{
+      return JSON.parse(raw);
+    }catch{
+      return raw;
+    }
+
+  }catch{
+    return "Creator";
+  }
+
+}
+
+function getUsername(){
+
+  const user =
+    getStoredUser();
+
+  if(!user){
+    return "Creator";
+  }
+
+  if(typeof user === "string"){
+    return user;
+  }
+
+  return (
+    user.username ||
+    user.name ||
+    user.user ||
+    user.displayName ||
+    "Creator"
+  );
+
+}
+
+function getDisplayName(){
+
+  const user =
+    getStoredUser();
+
+  if(!user){
+    return "Creator";
+  }
+
+  if(typeof user === "string"){
+    return user;
+  }
+
+  return (
+    user.displayName ||
+    user.username ||
+    user.name ||
+    user.user ||
+    "Creator"
+  );
+
+}
+
+function renderUser(){
+
+  const name =
+    getDisplayName();
+
+  const username =
+    getUsername();
+
+  const letter =
+    name.charAt(0).toUpperCase() ||
+    "R";
+
+  setText(
+    "welcomeName",
+    name
+  );
+
+  setText(
+    "avatarName",
+    name
+  );
+
+  setText(
+    "profileButton",
+    letter
+  );
+
+  setText(
+    "popupAvatar",
+    letter
+  );
+
+  setText(
+    "popupName",
+    name
+  );
+
+  setText(
+    "popupUsername",
+    "@" + username
+  );
+
+  setText(
+    "settingsUsername",
+    username
+  );
+
+}
+
+/* =========================================================
+   TOKENS
+========================================================= */
+
+function tokenKey(){
+
+  return (
+    KEYS.tokens +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getTokens(){
+
+  const value =
+    Number(
+      localStorage.getItem(
+        tokenKey()
+      )
+    );
+
+  if(
+    !Number.isFinite(value) ||
+    value < 0
+  ){
+    return 0;
+  }
+
+  return Math.floor(
+    value
+  );
+
+}
+
+function setTokens(value){
+
+  const amount =
+    Math.max(
       0,
-      Math.floor(Number(value) || 0)
+      Math.floor(
+        Number(value) || 0
+      )
     );
 
-    localStorage.setItem(
-      tokenKey(),
-      String(amount)
+  localStorage.setItem(
+    tokenKey(),
+    String(amount)
+  );
+
+  updateTokenUI();
+
+}
+
+function monthKey(){
+
+  return (
+    KEYS.monthly +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function currentMonth(){
+
+  const date =
+    new Date();
+
+  return (
+    date.getFullYear() +
+    "-" +
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0")
+  );
+
+}
+
+function claimMonthly(){
+
+  const month =
+    currentMonth();
+
+  if(
+    localStorage.getItem(
+      monthKey()
+    ) === month
+  ){
+
+    toast(
+      "Your 10 Tokens were already claimed this month."
     );
 
-    updateTokens();
+    return;
+
   }
 
-  function updateTokens(){
+  setTokens(
+    getTokens() + 10
+  );
 
-    const amount = getTokens();
+  localStorage.setItem(
+    monthKey(),
+    month
+  );
 
-    setText("tokenBalance",amount);
-    setText("marketTokens",amount);
-    setText("centerTokens",amount);
-    setText("popupTokens",amount);
-    setText("settingsTokenValue",amount);
+  updateMonthlyButton();
 
-    updateMonthlyButton();
-  }
+  toast(
+    "+10 Tokens added."
+  );
 
-  function monthKey(){
-    return "riseup_token_month_" + username();
-  }
+}
 
-  function currentMonth(){
+function updateMonthlyButton(){
 
-    const date = new Date();
-
-    return (
-      date.getFullYear() +
-      "-" +
-      String(date.getMonth()+1).padStart(2,"0")
-    );
-  }
-
-  function claimMonthly(){
-
-    const month = currentMonth();
-    const previous = localStorage.getItem(monthKey());
-
-    if(previous === month){
-      toast("Your 10 Tokens were already claimed this month.");
-      return;
-    }
-
-    setTokens(
-      getTokens() + 10
+  const button =
+    document.getElementById(
+      "monthlyClaim"
     );
 
-    localStorage.setItem(
-      monthKey(),
-      month
-    );
-
-    updateMonthlyButton();
-
-    toast("+10 Tokens added.");
+  if(!button){
+    return;
   }
 
-  function updateMonthlyButton(){
+  const claimed =
+    localStorage.getItem(
+      monthKey()
+    ) === currentMonth();
 
-    const button = document.getElementById("monthlyClaim");
+  button.disabled =
+    claimed;
 
-    if(!button){
-      return;
-    }
-
-    const claimed =
-      localStorage.getItem(monthKey()) === currentMonth();
-
-    button.disabled = claimed;
-    button.textContent = claimed
+  button.textContent =
+    claimed
       ? "Claimed This Month"
       : "Claim Monthly 10";
 
-    button.style.opacity = claimed ? ".55" : "1";
-  }
+  button.style.opacity =
+    claimed
+      ? ".55"
+      : "1";
 
-  function renderTokensPage(){
-    updateTokens();
-  }
+}
 
-  /* GAMES */
+function updateTokenUI(){
 
-  function getGames(){
+  const tokens =
+    getTokens();
 
-    try{
+  setText(
+    "tokenBalance",
+    tokens
+  );
 
-      const data = JSON.parse(
-        localStorage.getItem(KEY.games) || "[]"
+  setText(
+    "marketTokens",
+    tokens
+  );
+
+  setText(
+    "centerTokens",
+    tokens
+  );
+
+  setText(
+    "popupTokens",
+    tokens
+  );
+
+  setText(
+    "settingsTokenValue",
+    tokens
+  );
+
+  updateMonthlyButton();
+
+}
+
+function renderTokens(){
+
+  updateTokenUI();
+
+}
+
+/* =========================================================
+   GAMES
+========================================================= */
+
+function getGames(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          KEYS.games
+        ) || "[]"
       );
 
-      return Array.isArray(data)
-        ? data
-        : [];
+    return Array.isArray(data)
+      ? data
+      : [];
 
-    }catch{
-      return [];
-    }
+  }catch{
+    return [];
   }
 
-  function gameMatchesSearch(game){
+}
 
-    if(!state.search){
-      return true;
-    }
+function matchesSearch(game){
 
-    const text = [
-      game.name,
-      game.title,
-      game.creator,
-      game.owner,
-      game.description
-    ]
-    .join(" ")
-    .toLowerCase();
-
-    return text.includes(state.search);
+  if(!state.search){
+    return true;
   }
 
-  function renderHome(){
+  const text = [
+    game.name,
+    game.title,
+    game.creator,
+    game.owner,
+    game.description
+  ]
+  .join(" ")
+  .toLowerCase();
 
-    const games = getGames()
-      .filter(gameMatchesSearch);
+  return text.includes(
+    state.search
+  );
 
-    const mine = games.filter(game => {
+}
 
-      const owner = String(
+function renderHome(){
+
+  const games =
+    getGames()
+      .filter(matchesSearch);
+
+  const current =
+    getUsername()
+      .toLowerCase();
+
+  const mine =
+    games.filter(game=>
+      String(
         game.owner ||
         game.creator ||
         ""
-      ).toLowerCase();
-
-      return owner === username().toLowerCase();
-    });
-
-    renderGameGrid(
-      document.getElementById("continueGames"),
-      mine.slice(0,4)
+      ).toLowerCase() === current
     );
 
-    renderGameGrid(
-      document.getElementById("recommendedGames"),
-      games.slice(0,8)
+  renderGameGrid(
+    document.getElementById("continueGames"),
+    mine.slice(0,4)
+  );
+
+  renderGameGrid(
+    document.getElementById("recommendedGames"),
+    games.slice(0,8)
+  );
+
+  show(
+    "continueEmpty",
+    mine.length === 0
+  );
+
+  show(
+    "recommendedEmpty",
+    games.length === 0
+  );
+
+  renderHomeFriends();
+
+}
+
+function renderDiscover(){
+
+  let games =
+    getGames()
+      .filter(matchesSearch);
+
+  if(
+    state.discover === "recent"
+  ){
+
+    games.sort(
+      (a,b)=>
+        new Date(
+          b.updatedAt ||
+          b.createdAt ||
+          0
+        ) -
+        new Date(
+          a.updatedAt ||
+          a.createdAt ||
+          0
+        )
     );
 
-    show(
-      "continueEmpty",
-      mine.length === 0
-    );
-
-    show(
-      "recommendedEmpty",
-      games.length === 0
-    );
-
-    renderHomeFriends();
   }
 
-  function renderDiscover(){
+  if(
+    state.discover === "mine"
+  ){
 
-    let games = getGames()
-      .filter(gameMatchesSearch);
+    const current =
+      getUsername()
+        .toLowerCase();
 
-    if(state.discover === "recent"){
-
-      games.sort(
-        (a,b) =>
-          new Date(
-            b.updatedAt ||
-            b.createdAt ||
-            0
-          ) -
-          new Date(
-            a.updatedAt ||
-            a.createdAt ||
-            0
-          )
-      );
-    }
-
-    if(state.discover === "mine"){
-
-      const current = username().toLowerCase();
-
-      games = games.filter(game =>
+    games =
+      games.filter(game=>
         String(
           game.owner ||
           game.creator ||
           ""
         ).toLowerCase() === current
       );
-    }
 
-    renderGameGrid(
-      document.getElementById("discoverGrid"),
-      games
-    );
-
-    show(
-      "discoverEmpty",
-      games.length === 0
-    );
   }
 
-  function renderGameGrid(container,games){
+  renderGameGrid(
+    document.getElementById("discoverGrid"),
+    games
+  );
 
-    if(!container){
-      return;
+  show(
+    "discoverEmpty",
+    games.length === 0
+  );
+
+}
+
+function renderGameGrid(container,games){
+
+  if(!container){
+    return;
+  }
+
+  container.innerHTML =
+    "";
+
+  games.forEach(game=>{
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.type =
+      "button";
+
+    button.className =
+      "game";
+
+    const image =
+      document.createElement(
+        "div"
+      );
+
+    image.className =
+      "game-image";
+
+    image.textContent =
+      "R";
+
+    if(game.thumbnail){
+
+      image.style.backgroundImage =
+        'url("' +
+        safeUrl(
+          game.thumbnail
+        ) +
+        '")';
+
+      image.style.backgroundSize =
+        "cover";
+
+      image.style.backgroundPosition =
+        "center";
+
     }
 
-    container.innerHTML = "";
+    const infoBox =
+      document.createElement(
+        "div"
+      );
 
-    games.forEach(game => {
+    infoBox.className =
+      "game-info";
 
-      const button = document.createElement("button");
+    const title =
+      document.createElement(
+        "div"
+      );
 
-      button.type = "button";
-      button.className = "game";
-      button.dataset.gameId = game.id;
+    title.className =
+      "game-title";
 
-      const image = document.createElement("div");
-      image.className = "game-image";
-      image.textContent = "R";
+    title.textContent =
+      game.name ||
+      game.title ||
+      "Untitled Experience";
 
-      if(game.thumbnail){
-        image.style.backgroundImage =
-          'url("' +
-          safeUrl(game.thumbnail) +
-          '")';
+    const creator =
+      document.createElement(
+        "div"
+      );
 
-        image.style.backgroundSize = "cover";
-        image.style.backgroundPosition = "center";
-      }
+    creator.className =
+      "game-creator";
 
-      const info = document.createElement("div");
-      info.className = "game-info";
+    creator.textContent =
+      "By " +
+      (
+        game.creator ||
+        game.owner ||
+        "Unknown Creator"
+      );
 
-      info.innerHTML =
-        "<div class='game-title'></div>" +
-        "<div class='game-creator'></div>";
+    infoBox.appendChild(
+      title
+    );
 
-      info.querySelector(".game-title").textContent =
-        game.name ||
-        game.title ||
-        "Untitled Experience";
+    infoBox.appendChild(
+      creator
+    );
 
-      info.querySelector(".game-creator").textContent =
-        "By " +
-        (
-          game.creator ||
-          game.owner ||
-          "Unknown Creator"
-        );
+    button.appendChild(
+      image
+    );
 
-      button.appendChild(image);
-      button.appendChild(info);
+    button.appendChild(
+      infoBox
+    );
 
-      button.addEventListener("click",() => {
+    button.addEventListener(
+      "click",
+      function(){
 
         localStorage.setItem(
           "riseup_play_game_id",
@@ -2867,425 +3699,681 @@ p{
         );
 
         openStudio();
-      });
 
-      container.appendChild(button);
-    });
-  }
-
-  /* FRIENDS */
-
-  function friendsKey(){
-    return KEY.friends + "_" + username();
-  }
-
-  function getFriends(){
-
-    try{
-
-      const data = JSON.parse(
-        localStorage.getItem(friendsKey()) || "[]"
-      );
-
-      if(!Array.isArray(data)){
-        return [];
       }
-
-      return data.map(item => ({
-        name:
-          typeof item === "string"
-            ? item
-            : item.name ||
-              item.username ||
-              item.displayName ||
-              "Friend"
-      }));
-
-    }catch{
-      return [];
-    }
-  }
-
-  function saveFriends(list){
-
-    localStorage.setItem(
-      friendsKey(),
-      JSON.stringify(list)
     );
-  }
 
-  function updateFriendCount(){
-    setText(
-      "friendsCount",
-      getFriends().length
+    container.appendChild(
+      button
     );
-  }
 
-  function renderHomeFriends(){
+  });
 
-    const container =
-      document.getElementById("homeFriends");
+}
 
-    if(!container){
-      return;
-    }
+/* =========================================================
+   FRIENDS
+========================================================= */
 
-    container.innerHTML = "";
+function friendsKey(){
 
-    const friends = getFriends();
+  return (
+    KEYS.friends +
+    "_" +
+    getUsername()
+  );
 
-    if(!friends.length){
+}
 
-      container.innerHTML = `
-        <div class="empty"
-          style="grid-column:1/-1;min-height:110px;">
-          <h3>No friends yet</h3>
-          <p>Add friends to see them here.</p>
-        </div>
-      `;
+function getFriends(){
 
-      return;
-    }
+  try{
 
-    friends.slice(0,8).forEach(friend => {
-      container.appendChild(
-        makeFriend(friend)
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          friendsKey()
+        ) || "[]"
       );
-    });
-  }
-
-  function renderFriends(){
-
-    const container =
-      document.getElementById("friendsGrid");
-
-    if(!container){
-      return;
-    }
-
-    const search =
-      document.getElementById("friendSearch")
-        ?.value
-        .trim()
-        .toLowerCase() || "";
-
-    const friends =
-      getFriends().filter(friend =>
-        !search ||
-        friend.name.toLowerCase().includes(search)
-      );
-
-    container.innerHTML = "";
-
-    if(!friends.length){
-
-      container.innerHTML = `
-        <div class="empty"
-          style="grid-column:1/-1;">
-          <div class="empty-art"></div>
-          <h3>${search ? "No matching friends" : "No friends yet"}</h3>
-          <p>${search ? "Try another username." : "Add friends to start building your community."}</p>
-        </div>
-      `;
-
-      return;
-    }
-
-    friends.forEach(friend => {
-      container.appendChild(
-        makeFriend(friend)
-      );
-    });
-  }
-
-  function makeFriend(friend){
-
-    const item =
-      document.createElement("div");
-
-    item.className = "friend";
-
-    item.innerHTML = `
-      <div class="friend-avatar"></div>
-      <span class="friend-name"></span>
-    `;
-
-    item.querySelector(".friend-avatar")
-      .textContent =
-      friend.name
-        .charAt(0)
-        .toUpperCase();
-
-    item.querySelector(".friend-name")
-      .textContent =
-      friend.name;
-
-    return item;
-  }
-
-  function addFriend(){
-
-    const input =
-      document.getElementById("friendInput");
-
-    if(!input){
-      return;
-    }
-
-    const name =
-      input.value.trim();
-
-    if(!name){
-      toast("Enter a username.");
-      return;
-    }
-
-    const friends = getFriends();
 
     if(
-      friends.some(
-        friend =>
-          friend.name.toLowerCase() ===
-          name.toLowerCase()
-      )
+      !Array.isArray(data)
     ){
-      toast("That friend is already added.");
-      return;
+      return [];
     }
 
-    friends.push({name});
+    return data.map(item=>{
 
-    saveFriends(friends);
-
-    input.value = "";
-
-    closeModal("friendModal");
-
-    renderFriends();
-    renderHomeFriends();
-    updateFriendCount();
-
-    toast(name + " added to friends.");
-  }
-
-  /* AVATAR */
-
-  function avatarKey(){
-    return KEY.avatar + "_" + username();
-  }
-
-  function getAvatar(){
-
-    const fallback = {
-      head:"#FFE047",
-      body:"#249BFF",
-      legs:"#00A82D"
-    };
-
-    try{
+      if(typeof item === "string"){
+        return {
+          name:item
+        };
+      }
 
       return {
-        ...fallback,
-        ...(JSON.parse(
-          localStorage.getItem(avatarKey()) || "null"
-        ) || {})
+        name:
+          item.name ||
+          item.username ||
+          item.displayName ||
+          "Friend"
       };
 
-    }catch{
-      return fallback;
-    }
+    });
+
+  }catch{
+    return [];
   }
 
-  function setAvatarColor(part,color){
+}
 
-    const avatar = getAvatar();
+function saveFriends(list){
 
-    avatar[part] = color;
+  localStorage.setItem(
+    friendsKey(),
+    JSON.stringify(list)
+  );
 
-    localStorage.setItem(
-      avatarKey(),
-      JSON.stringify(avatar)
+}
+
+function renderHomeFriends(){
+
+  const container =
+    document.getElementById(
+      "homeFriends"
     );
 
-    renderAvatar();
-
-    toast("Avatar updated.");
+  if(!container){
+    return;
   }
 
-  function renderAvatar(){
+  container.innerHTML =
+    "";
 
-    const avatar = getAvatar();
+  const friends =
+    getFriends();
 
-    const head =
-      document.querySelector(".avatar-head");
+  if(!friends.length){
 
-    const body =
-      document.querySelector(".avatar-body");
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;min-height:110px;">
+        <h3>No friends yet</h3>
+        <p>Add friends to see them here.</p>
+      </div>
+      `;
 
-    if(head){
-      head.style.background = avatar.head;
-    }
+    return;
 
-    if(body){
-      body.style.background = avatar.body;
-    }
+  }
 
-    document.querySelectorAll(
+  friends
+    .slice(0,8)
+    .forEach(friend=>{
+      container.appendChild(
+        makeFriendCard(
+          friend
+        )
+      );
+    });
+
+}
+
+function renderFriends(){
+
+  const container =
+    document.getElementById(
+      "friendsGrid"
+    );
+
+  if(!container){
+    return;
+  }
+
+  const search =
+    document
+      .getElementById(
+        "friendSearch"
+      )
+      ?.value
+      .trim()
+      .toLowerCase() ||
+    "";
+
+  const friends =
+    getFriends()
+      .filter(friend=>
+        !search ||
+        friend.name
+          .toLowerCase()
+          .includes(search)
+      );
+
+  container.innerHTML =
+    "";
+
+  if(!friends.length){
+
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;">
+        <div class="empty-art"></div>
+        <h3>
+          ${
+            search
+              ? "No matching friends"
+              : "No friends yet"
+          }
+        </h3>
+        <p>
+          ${
+            search
+              ? "Try another username."
+              : "Add friends to start building your community."
+          }
+        </p>
+      </div>
+      `;
+
+    return;
+
+  }
+
+  friends.forEach(friend=>{
+    container.appendChild(
+      makeFriendCard(friend)
+    );
+  });
+
+}
+
+function makeFriendCard(friend){
+
+  const card =
+    document.createElement(
+      "div"
+    );
+
+  card.className =
+    "friend";
+
+  const avatar =
+    document.createElement(
+      "div"
+    );
+
+  avatar.className =
+    "friend-avatar";
+
+  avatar.textContent =
+    friend.name
+      .charAt(0)
+      .toUpperCase();
+
+  const name =
+    document.createElement(
+      "span"
+    );
+
+  name.className =
+    "friend-name";
+
+  name.textContent =
+    friend.name;
+
+  card.appendChild(
+    avatar
+  );
+
+  card.appendChild(
+    name
+  );
+
+  return card;
+
+}
+
+function addFriend(){
+
+  const input =
+    document.getElementById(
+      "friendInput"
+    );
+
+  if(!input){
+    return;
+  }
+
+  const name =
+    input.value.trim();
+
+  if(!name){
+
+    toast(
+      "Enter a username."
+    );
+
+    return;
+  }
+
+  const friends =
+    getFriends();
+
+  const exists =
+    friends.some(friend=>
+      friend.name
+        .toLowerCase() ===
+      name.toLowerCase()
+    );
+
+  if(exists){
+
+    toast(
+      "That friend is already added."
+    );
+
+    return;
+  }
+
+  friends.push({
+    name:name
+  });
+
+  saveFriends(
+    friends
+  );
+
+  input.value =
+    "";
+
+  closeModal(
+    "friendModal"
+  );
+
+  renderFriends();
+  renderHomeFriends();
+  updateFriendCount();
+
+  toast(
+    name +
+    " added to friends."
+  );
+
+}
+
+function updateFriendCount(){
+
+  setText(
+    "friendsCount",
+    getFriends().length
+  );
+
+}
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+function avatarKey(){
+
+  return (
+    KEYS.avatar +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getAvatar(){
+
+  const fallback = {
+    head:"#FFE047",
+    body:"#249BFF",
+    legs:"#00A82D"
+  };
+
+  try{
+
+    return {
+      ...fallback,
+      ...(JSON.parse(
+        localStorage.getItem(
+          avatarKey()
+        ) || "null"
+      ) || {})
+    };
+
+  }catch{
+
+    return fallback;
+
+  }
+
+}
+
+function setAvatarColor(
+  part,
+  color
+){
+
+  const avatar =
+    getAvatar();
+
+  avatar[part] =
+    color;
+
+  localStorage.setItem(
+    avatarKey(),
+    JSON.stringify(
+      avatar
+    )
+  );
+
+  renderAvatar();
+
+  toast(
+    "Avatar updated."
+  );
+
+}
+
+function renderAvatar(){
+
+  const avatar =
+    getAvatar();
+
+  const head =
+    document.querySelector(
+      ".avatar-head"
+    );
+
+  const body =
+    document.querySelector(
+      ".avatar-body"
+    );
+
+  if(head){
+    head.style.background =
+      avatar.head;
+  }
+
+  if(body){
+    body.style.background =
+      avatar.body;
+  }
+
+  document
+    .querySelectorAll(
       ".avatar-arms span"
-    ).forEach(item => {
-      item.style.background = avatar.head;
+    )
+    .forEach(arm=>{
+      arm.style.background =
+        avatar.head;
     });
 
-    document.querySelectorAll(
+  document
+    .querySelectorAll(
       ".avatar-legs span"
-    ).forEach(item => {
-      item.style.background = avatar.legs;
+    )
+    .forEach(leg=>{
+      leg.style.background =
+        avatar.legs;
     });
 
-    updateColorButtons("head",avatar.head);
-    updateColorButtons("body",avatar.body);
-    updateColorButtons("legs",avatar.legs);
-  }
+  setText(
+    "avatarName",
+    getDisplayName()
+  );
 
-  function updateColorButtons(part,color){
+  updateColorState(
+    "head",
+    avatar.head
+  );
 
-    document.querySelectorAll(
+  updateColorState(
+    "body",
+    avatar.body
+  );
+
+  updateColorState(
+    "legs",
+    avatar.legs
+  );
+
+}
+
+function updateColorState(
+  part,
+  value
+){
+
+  document
+    .querySelectorAll(
       '[data-color-part="' +
       part +
       '"]'
-    ).forEach(button => {
+    )
+    .forEach(button=>{
 
       button.classList.toggle(
         "active",
-        button.dataset.color.toUpperCase() ===
-        String(color).toUpperCase()
+        String(
+          button.dataset.color
+        ).toUpperCase() ===
+        String(
+          value
+        ).toUpperCase()
       );
+
     });
-  }
 
-  /* INVENTORY */
+}
 
-  function inventoryKey(){
-    return KEY.inventory + "_" + username();
-  }
+/* =========================================================
+   INVENTORY
+========================================================= */
 
-  function getInventory(){
+function inventoryKey(){
 
-    try{
+  return (
+    KEYS.inventory +
+    "_" +
+    getUsername()
+  );
 
-      const data = JSON.parse(
-        localStorage.getItem(inventoryKey()) || "[]"
+}
+
+function getInventory(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          inventoryKey()
+        ) || "[]"
       );
 
-      return Array.isArray(data)
-        ? data
-        : [];
+    return Array.isArray(data)
+      ? data
+      : [];
 
-    }catch{
-      return [];
-    }
+  }catch{
+    return [];
   }
 
-  function saveInventory(list){
+}
 
-    localStorage.setItem(
-      inventoryKey(),
-      JSON.stringify(list)
+function saveInventory(list){
+
+  localStorage.setItem(
+    inventoryKey(),
+    JSON.stringify(list)
+  );
+
+}
+
+function renderInventory(){
+
+  const container =
+    document.getElementById(
+      "inventoryGrid"
     );
+
+  if(!container){
+    return;
   }
 
-  function renderInventory(){
-
-    const container =
-      document.getElementById("inventoryGrid");
-
-    if(!container){
-      return;
-    }
-
-    const items =
-      getInventory().filter(item =>
+  const items =
+    getInventory()
+      .filter(item=>
         !item.category ||
-        item.category === state.inventory
+        item.category ===
+        state.inventory
       );
 
-    container.innerHTML = "";
+  container.innerHTML =
+    "";
 
-    if(!items.length){
+  if(!items.length){
 
-      container.innerHTML = `
-        <div class="empty" style="grid-column:1/-1;">
-          <div class="empty-art"></div>
-          <h3>No ${escapeHtml(state.inventory)} yet</h3>
-          <p>Your ${escapeHtml(state.inventory)} will appear here.</p>
-        </div>
+    container.innerHTML =
+      `
+      <div
+        class="empty"
+        style="grid-column:1/-1;">
+        <div class="empty-art"></div>
+        <h3>
+          No ${
+            escapeHtml(
+              state.inventory
+            )
+          } yet
+        </h3>
+        <p>
+          Your ${
+            escapeHtml(
+              state.inventory
+            )
+          } will appear here.
+        </p>
+      </div>
       `;
 
-      return;
-    }
+    return;
 
-    items.forEach(item => {
-
-      const card =
-        document.createElement("article");
-
-      card.className = "inventory-item";
-
-      card.innerHTML = `
-        <div class="inventory-image"></div>
-        <strong>${escapeHtml(item.name || "Item")}</strong>
-        <span style="margin-top:3px;color:var(--muted2);font-size:8px;">
-          ${escapeHtml(item.type || "RiseUp Item")}
-        </span>
-      `;
-
-      container.appendChild(card);
-    });
   }
 
-  /* MARKET */
+  items.forEach(item=>{
 
-  function getMarket(){
+    const card =
+      document.createElement(
+        "article"
+      );
 
-    if(state.market === "featured"){
-      return marketItems.slice(0,3);
-    }
+    card.className =
+      "inventory-item";
 
-    return marketItems.filter(
-      item => item.category === state.market
+    card.innerHTML =
+      `
+      <div class="inventory-image"></div>
+      <strong>
+        ${escapeHtml(
+          item.name ||
+          "Item"
+        )}
+      </strong>
+      <span>
+        ${escapeHtml(
+          item.type ||
+          "RiseUp Item"
+        )}
+      </span>
+      `;
+
+    container.appendChild(
+      card
     );
+
+  });
+
+}
+
+/* =========================================================
+   MARKETPLACE
+========================================================= */
+
+function getMarketItems(){
+
+  if(
+    state.market ===
+    "featured"
+  ){
+
+    return MARKET.slice(
+      0,
+      3
+    );
+
   }
 
-  function renderMarketplace(){
+  return MARKET.filter(
+    item =>
+      item.category ===
+      state.market
+  );
 
-    const container =
-      document.getElementById("marketGrid");
+}
 
-    if(!container){
-      return;
-    }
+function renderMarketplace(){
 
-    container.innerHTML = "";
+  const container =
+    document.getElementById(
+      "marketGrid"
+    );
 
-    getMarket().forEach(item => {
+  if(!container){
+    return;
+  }
+
+  container.innerHTML =
+    "";
+
+  getMarketItems()
+    .forEach(item=>{
 
       const index =
-        marketItems.indexOf(item);
+        MARKET.indexOf(item);
 
       const card =
-        document.createElement("article");
+        document.createElement(
+          "article"
+        );
 
-      card.className = "market-card";
+      card.className =
+        "market-card";
 
-      card.innerHTML = `
-        <div class="market-image">R</div>
+      card.innerHTML =
+        `
+        <div class="market-image">
+          R
+        </div>
 
         <div class="market-info">
 
-          <strong>${escapeHtml(item.name)}</strong>
+          <strong>
+            ${escapeHtml(
+              item.name
+            )}
+          </strong>
 
           <span class="market-type">
-            ${escapeHtml(item.type)}
+            ${escapeHtml(
+              item.type
+            )}
           </span>
 
           <div class="market-bottom">
@@ -3304,228 +4392,314 @@ p{
           </div>
 
         </div>
-      `;
+        `;
 
-      container.appendChild(card);
-    });
-
-    updateTokens();
-  }
-
-  function buyItem(index){
-
-    const item =
-      marketItems[index];
-
-    if(!item){
-      return;
-    }
-
-    const tokens =
-      getTokens();
-
-    if(tokens < item.price){
-      toast("You do not have enough Tokens.");
-      return;
-    }
-
-    setTokens(
-      tokens - item.price
-    );
-
-    const inventory =
-      getInventory();
-
-    inventory.push({
-      name:item.name,
-      type:item.type,
-      category:item.category
-    });
-
-    saveInventory(inventory);
-
-    renderInventory();
-
-    toast(
-      "Purchased " +
-      item.name +
-      "."
-    );
-  }
-
-  /* MESSAGES */
-
-  function messageKey(){
-    return KEY.messages + "_" + username();
-  }
-
-  function getMessages(){
-
-    try{
-
-      const data = JSON.parse(
-        localStorage.getItem(messageKey()) || "[]"
+      container.appendChild(
+        card
       );
 
-      return Array.isArray(data)
-        ? data
-        : [];
+    });
 
-    }catch{
-      return [];
-    }
+  updateTokenUI();
+
+}
+
+function buyItem(index){
+
+  const item =
+    MARKET[index];
+
+  if(!item){
+    return;
   }
 
-  function saveMessages(list){
+  const tokens =
+    getTokens();
 
-    localStorage.setItem(
-      messageKey(),
-      JSON.stringify(list)
+  if(
+    tokens <
+    item.price
+  ){
+
+    toast(
+      "You do not have enough Tokens."
     );
+
+    return;
   }
 
-  function renderMessages(){
+  setTokens(
+    tokens -
+    item.price
+  );
 
-    const list =
-      document.getElementById("conversationList");
+  const inventory =
+    getInventory();
 
-    const panel =
-      document.getElementById("chatPanel");
+  inventory.push({
+    name:item.name,
+    type:item.type,
+    category:item.category
+  });
 
-    if(!list || !panel){
-      return;
-    }
+  saveInventory(
+    inventory
+  );
 
-    const messages =
-      getMessages();
+  renderInventory();
 
-    list.innerHTML = "";
+  toast(
+    "Purchased " +
+    item.name +
+    "."
+  );
 
-    if(!messages.length){
+}
 
-      list.innerHTML = `
-        <div style="
-          padding:20px;
-          color:var(--muted2);
-          text-align:center;
-          font-size:9px;">
-          No conversations yet.
-        </div>
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+function messagesKey(){
+
+  return (
+    KEYS.messages +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getMessages(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          messagesKey()
+        ) || "[]"
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  }catch{
+    return [];
+  }
+
+}
+
+function saveMessages(list){
+
+  localStorage.setItem(
+    messagesKey(),
+    JSON.stringify(
+      list
+    )
+  );
+
+}
+
+function renderMessages(){
+
+  const list =
+    document.getElementById(
+      "conversationList"
+    );
+
+  const panel =
+    document.getElementById(
+      "chatPanel"
+    );
+
+  if(!list || !panel){
+    return;
+  }
+
+  const messages =
+    getMessages();
+
+  list.innerHTML =
+    "";
+
+  if(!messages.length){
+
+    list.innerHTML =
+      `
+      <div style="
+        padding:20px;
+        color:var(--muted2);
+        text-align:center;
+        font-size:9px;">
+        No conversations yet.
+      </div>
       `;
 
-      panel.innerHTML = `
-        <div class="empty"
-          style="border:0;border-radius:0;height:100%;">
-          <h3>No conversation selected</h3>
-          <p>Your conversations will appear here.</p>
-        </div>
+    panel.innerHTML =
+      `
+      <div class="empty"
+        style="height:100%;min-height:470px;border:0;border-radius:0;">
+        <h3>No conversation selected</h3>
+        <p>Your conversations will appear here.</p>
+      </div>
       `;
 
-      return;
-    }
+    return;
+  }
 
-    messages.forEach((message,index) => {
+  messages.forEach(
+    function(message,index){
 
       const button =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       button.className =
         "conversation" +
         (
-          state.selectedMessage === index
+          state.selectedMessage ===
+          index
             ? " active"
             : ""
         );
 
-      button.type = "button";
+      button.type =
+        "button";
 
-      button.innerHTML = `
+      button.innerHTML =
+        `
         <div class="friend-avatar">
-          ${escapeHtml(
-            (message.name || "U")
+          ${
+            escapeHtml(
+              (
+                message.name ||
+                "U"
+              )
               .charAt(0)
               .toUpperCase()
-          )}
+            )
+          }
         </div>
 
         <div>
+
           <strong style="font-size:9px;">
-            ${escapeHtml(message.name || "User")}
+            ${escapeHtml(
+              message.name ||
+              "User"
+            )}
           </strong>
 
           <div style="
             margin-top:3px;
             color:var(--muted2);
             font-size:8px;">
-            ${escapeHtml(message.preview || "No messages")}
+            ${escapeHtml(
+              message.preview ||
+              "No messages"
+            )}
           </div>
+
         </div>
-      `;
+        `;
 
-      button.addEventListener("click",() => {
+      button.addEventListener(
+        "click",
+        function(){
 
-        state.selectedMessage = index;
+          state.selectedMessage =
+            index;
 
-        renderMessages();
-      });
+          renderMessages();
 
-      list.appendChild(button);
-    });
-
-    if(
-      state.selectedMessage !== null &&
-      messages[state.selectedMessage]
-    ){
-      renderChat(
-        messages[state.selectedMessage]
+        }
       );
+
+      list.appendChild(
+        button
+      );
+
     }
+  );
+
+  if(
+    state.selectedMessage !==
+      null &&
+    messages[
+      state.selectedMessage
+    ]
+  ){
+
+    renderChat(
+      messages[
+        state.selectedMessage
+      ]
+    );
+
   }
 
-  function renderChat(message){
+}
 
-    const panel =
-      document.getElementById("chatPanel");
+function renderChat(message){
 
-    if(!panel){
-      return;
-    }
+  const panel =
+    document.getElementById(
+      "chatPanel"
+    );
 
-    panel.innerHTML = `
-      <div class="chat-header">
-        ${escapeHtml(message.name || "Conversation")}
-      </div>
+  if(!panel){
+    return;
+  }
 
-      <div class="chat-history">
-        ${escapeHtml(
-          message.preview ||
-          "No messages yet."
-        )}
-      </div>
+  panel.innerHTML =
+    `
+    <div class="chat-header">
+      ${escapeHtml(
+        message.name ||
+        "Conversation"
+      )}
+    </div>
 
-      <div class="chat-compose">
+    <div class="chat-history">
+      ${escapeHtml(
+        message.preview ||
+        "No messages yet."
+      )}
+    </div>
 
-        <input
-          id="chatInput"
-          type="text"
-          placeholder="Write a message..."
-          autocomplete="off">
+    <div class="chat-compose">
 
-        <button
-          class="primary"
-          id="sendChat"
-          type="button">
-          Send
-        </button>
+      <input
+        id="chatInput"
+        type="text"
+        placeholder="Write a message..."
+        autocomplete="off">
 
-      </div>
+      <button
+        class="primary"
+        id="sendChat"
+        type="button">
+        Send
+      </button>
+
+    </div>
     `;
 
-    const input =
-      document.getElementById("chatInput");
+  const input =
+    document.getElementById(
+      "chatInput"
+    );
 
-    document.getElementById("sendChat")
-      ?.addEventListener("click",() => {
+  document
+    .getElementById(
+      "sendChat"
+    )
+    ?.addEventListener(
+      "click",
+      function(){
 
         const text =
           input?.value.trim();
@@ -3534,7 +4708,8 @@ p{
           return;
         }
 
-        message.preview = text;
+        message.preview =
+          text;
 
         saveMessages(
           getMessages()
@@ -3542,388 +4717,583 @@ p{
 
         renderMessages();
 
-        toast("Message sent.");
-      });
-
-    input?.addEventListener("keydown",event => {
-
-      if(event.key === "Enter"){
-
-        document.getElementById(
-          "sendChat"
-        )?.click();
+        toast(
+          "Message sent."
+        );
 
       }
-    });
+    );
+
+  input?.addEventListener(
+    "keydown",
+    function(event){
+
+      if(
+        event.key ===
+        "Enter"
+      ){
+
+        document
+          .getElementById(
+            "sendChat"
+          )
+          ?.click();
+
+      }
+
+    }
+  );
+
+}
+
+function renderQuickMessages(){
+
+  const list =
+    document.getElementById(
+      "quickMessages"
+    );
+
+  if(!list){
+    return;
   }
 
-  function renderQuickMessages(){
+  const messages =
+    getMessages();
 
-    const list =
-      document.getElementById("quickMessages");
+  list.innerHTML =
+    "";
 
-    if(!list){
-      return;
-    }
+  if(!messages.length){
 
-    const messages =
-      getMessages();
-
-    list.innerHTML = "";
-
-    if(!messages.length){
-
-      list.innerHTML = `
-        <div class="popup-item">
-          <strong>No messages</strong>
-          <span>Your conversations will appear here.</span>
-        </div>
+    list.innerHTML =
+      `
+      <div class="popup-item">
+        <strong>No messages</strong>
+        <span>Your conversations will appear here.</span>
+      </div>
       `;
 
-      return;
-    }
+    return;
+  }
 
-    messages.slice(0,5).forEach(message => {
+  messages
+    .slice(0,5)
+    .forEach(message=>{
 
-      list.innerHTML += `
+      list.innerHTML +=
+        `
         <div class="popup-item">
-          <strong>${escapeHtml(message.name || "User")}</strong>
-          <span>${escapeHtml(message.preview || "No message")}</span>
+
+          <strong>
+            ${escapeHtml(
+              message.name ||
+              "User"
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              message.preview ||
+              "No message"
+            )}
+          </span>
+
         </div>
-      `;
+        `;
 
     });
-  }
 
-  /* NOTIFICATIONS */
+}
 
-  function notificationsKey(){
-    return KEY.notifications + "_" + username();
-  }
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
 
-  function getNotifications(){
+function notificationsKey(){
 
-    try{
+  return (
+    KEYS.notifications +
+    "_" +
+    getUsername()
+  );
 
-      const data = JSON.parse(
+}
+
+function getNotifications(){
+
+  try{
+
+    const data =
+      JSON.parse(
         localStorage.getItem(
           notificationsKey()
         ) || "[]"
       );
 
-      return Array.isArray(data)
-        ? data
-        : [];
+    return Array.isArray(data)
+      ? data
+      : [];
 
-    }catch{
-      return [];
-    }
+  }catch{
+    return [];
   }
 
-  function renderNotifications(){
+}
 
-    const list =
-      document.getElementById("notificationList");
+function renderNotifications(){
 
-    if(!list){
-      return;
-    }
+  const list =
+    document.getElementById(
+      "notificationList"
+    );
 
-    const items =
-      getNotifications();
+  if(!list){
+    return;
+  }
 
-    list.innerHTML = "";
+  const notifications =
+    getNotifications();
 
-    if(!items.length){
+  list.innerHTML =
+    "";
 
-      list.innerHTML = `
-        <div class="popup-item">
-          <strong>You're all caught up</strong>
-          <span>No new notifications.</span>
-        </div>
+  if(!notifications.length){
+
+    list.innerHTML =
+      `
+      <div class="popup-item">
+        <strong>You're all caught up</strong>
+        <span>No new notifications.</span>
+      </div>
       `;
 
-      return;
-    }
+    return;
+  }
 
-    items.forEach(item => {
+  notifications.forEach(item=>{
 
-      list.innerHTML += `
-        <div class="popup-item">
-          <strong>${escapeHtml(item.title || "Notification")}</strong>
-          <span>${escapeHtml(item.text || "")}</span>
-        </div>
+    list.innerHTML +=
+      `
+      <div class="popup-item">
+
+        <strong>
+          ${escapeHtml(
+            item.title ||
+            "Notification"
+          )}
+        </strong>
+
+        <span>
+          ${escapeHtml(
+            item.text ||
+            ""
+          )}
+        </span>
+
+      </div>
       `;
 
+  });
+
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function settingsKey(){
+
+  return (
+    KEYS.settings +
+    "_" +
+    getUsername()
+  );
+
+}
+
+function getSettings(){
+
+  try{
+
+    return {
+      reducedMotion:false,
+      ...(JSON.parse(
+        localStorage.getItem(
+          settingsKey()
+        ) || "null"
+      ) || {})
+    };
+
+  }catch{
+
+    return {
+      reducedMotion:false
+    };
+
+  }
+
+}
+
+function saveSettings(settings){
+
+  localStorage.setItem(
+    settingsKey(),
+    JSON.stringify(
+      settings
+    )
+  );
+
+}
+
+function renderSettings(){
+
+  const reduced =
+    document.getElementById(
+      "reducedMotion"
+    );
+
+  if(reduced){
+
+    reduced.checked =
+      Boolean(
+        getSettings()
+          .reducedMotion
+      );
+
+  }
+
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function showInfoModal(type){
+
+  const item =
+    INFO[type];
+
+  if(!item){
+    return;
+  }
+
+  setText(
+    "infoEyebrow",
+    item.eyebrow
+  );
+
+  setText(
+    "infoTitle",
+    item.title
+  );
+
+  setText(
+    "infoText",
+    item.text
+  );
+
+  openModal(
+    "infoModal"
+  );
+
+}
+
+function showInfo(
+  title,
+  text
+){
+
+  setText(
+    "infoEyebrow",
+    "RISEUP"
+  );
+
+  setText(
+    "infoTitle",
+    title
+  );
+
+  setText(
+    "infoText",
+    text
+  );
+
+  openModal(
+    "infoModal"
+  );
+
+}
+
+/* =========================================================
+   POPUPS
+========================================================= */
+
+function togglePopup(id){
+
+  const popup =
+    document.getElementById(
+      id
+    );
+
+  if(!popup){
+    return;
+  }
+
+  const currentlyOpen =
+    popup.classList.contains(
+      "open"
+    );
+
+  closePopups();
+
+  if(!currentlyOpen){
+
+    popup.classList.add(
+      "open"
+    );
+
+  }
+
+}
+
+function closePopups(){
+
+  document
+    .querySelectorAll(
+      ".popup.open"
+    )
+    .forEach(item=>{
+      item.classList.remove(
+        "open"
+      );
     });
-  }
 
-  /* SETTINGS */
+}
 
-  function settingsKey(){
-    return KEY.settings + "_" + username();
-  }
+/* =========================================================
+   MODALS
+========================================================= */
 
-  function getSettings(){
+function openModal(id){
 
-    try{
+  const modal =
+    document.getElementById(
+      id
+    );
 
-      return {
-        reducedMotion:false,
-        ...(JSON.parse(
-          localStorage.getItem(
-            settingsKey()
-          ) || "null"
-        ) || {})
-      };
-
-    }catch{
-      return {
-        reducedMotion:false
-      };
-    }
-  }
-
-  function saveSettings(settings){
-
-    localStorage.setItem(
-      settingsKey(),
-      JSON.stringify(settings)
+  if(modal){
+    modal.classList.remove(
+      "hidden"
     );
   }
 
-  function renderSettings(){
+}
 
-    const reduced =
-      document.getElementById("reducedMotion");
+function closeModal(id){
 
-    if(reduced){
-      reduced.checked =
-        !!getSettings().reducedMotion;
-    }
+  const modal =
+    document.getElementById(
+      id
+    );
+
+  if(modal){
+    modal.classList.add(
+      "hidden"
+    );
   }
 
-  document.addEventListener("change",event => {
+}
 
-    if(event.target.id === "reducedMotion"){
-
-      const settings =
-        getSettings();
-
-      settings.reducedMotion =
-        event.target.checked;
-
-      saveSettings(settings);
-    }
-
-  });
-
-  /* MODALS */
-
-  function openModal(id){
-    document.getElementById(id)
-      ?.classList.remove("hidden");
-  }
-
-  function closeModal(id){
-    document.getElementById(id)
-      ?.classList.add("hidden");
-  }
-
-  document.addEventListener("click",event => {
-
-    if(event.target.classList.contains("modal-backdrop")){
-
-      event.target.classList.add("hidden");
-    }
-
-  });
-
-  function showInfoModal(type){
-
-    const item =
-      info[type];
-
-    if(!item){
-      return;
-    }
-
-    setText("infoEyebrow",item[0]);
-    setText("infoTitle",item[1]);
-    setText("infoText",item[2]);
-
-    openModal("infoModal");
-  }
-
-  function showInfo(title,text){
-
-    setText("infoEyebrow","RISEUP");
-    setText("infoTitle",title);
-    setText("infoText",text);
-
-    openModal("infoModal");
-  }
-
-  /* POPUPS */
-
-  function togglePopup(id){
-
-    const target =
-      document.getElementById(id);
-
-    if(!target){
-      return;
-    }
-
-    const wasOpen =
-      target.classList.contains("open");
-
-    closePopups();
-
-    if(!wasOpen){
-      target.classList.add("open");
-    }
-  }
-
-  function closePopups(){
-
-    document
-      .querySelectorAll(".popup.open")
-      .forEach(item =>
-        item.classList.remove("open")
-      );
-  }
-
-  document.addEventListener("click",event => {
+document.addEventListener(
+  "click",
+  function(event){
 
     if(
-      !event.target.closest(".popup") &&
-      !event.target.closest("#profileButton") &&
-      !event.target.closest("#createButton") &&
-      !event.target.closest("#sidebarCreate") &&
-      !event.target.closest("#messagesButton") &&
-      !event.target.closest("#notificationsButton") &&
-      !event.target.closest("#tokenButton")
+      event.target.classList.contains(
+        "modal-backdrop"
+      )
     ){
-      closePopups();
+
+      event.target.classList.add(
+        "hidden"
+      );
+
     }
 
-  });
+  }
+);
 
-  /* LOGOUT */
+/* =========================================================
+   TABS
+========================================================= */
 
-  function logout(){
+function updateTabs(
+  selector,
+  type,
+  value
+){
 
-    localStorage.removeItem(
-      KEY.user
+  document
+    .querySelectorAll(
+      selector
+    )
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset[type] ===
+        value
+      );
+
+    });
+
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+  localStorage.removeItem(
+    KEYS.user
+  );
+
+  window.location.href =
+    "./index.html";
+
+}
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+  renderUser();
+  updateFriendCount();
+  updateTokenUI();
+
+  renderHome();
+  renderDiscover();
+  renderAvatar();
+  renderInventory();
+  renderFriends();
+  renderMessages();
+  renderMarketplace();
+  renderTokens();
+  renderNotifications();
+  renderQuickMessages();
+  renderSettings();
+
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function setText(
+  id,
+  value
+){
+
+  const element =
+    document.getElementById(
+      id
     );
 
-    window.location.href =
-      "./index.html";
-  }
-
-  /* UI */
-
-  function updateTabs(selector,value){
-
-    document.querySelectorAll(selector)
-      .forEach(button => {
-
-        const key =
-          selector === "[data-discover]"
-            ? "discover"
-            : selector === "[data-inventory]"
-              ? "inventory"
-              : "market";
-
-        button.classList.toggle(
-          "active",
-          button.dataset[key] === value
-        );
-      });
-  }
-
-  function renderAll(){
-
-    renderUser();
-    renderHome();
-    renderDiscover();
-    renderAvatar();
-    renderInventory();
-    renderFriends();
-    renderMessages();
-    renderMarketplace();
-    renderTokensPage();
-    renderNotifications();
-    renderQuickMessages();
-    renderSettings();
-  }
-
-  function show(id,visible){
-
-    const element =
-      document.getElementById(id);
-
-    if(element){
-      element.style.display =
-        visible ? "" : "none";
-    }
-  }
-
-  function setText(id,value){
-
-    const element =
-      document.getElementById(id);
-
-    if(element){
-      element.textContent =
-        value;
-    }
-  }
-
-  function safeUrl(value){
-
-    return String(value || "")
-      .replaceAll("\\","\\\\")
-      .replaceAll('"','\\"')
-      .replace(/[\r\n]/g,"");
-  }
-
-  function escapeHtml(value){
-
-    return String(value)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  let toastTimer = null;
-
-  function toast(message){
-
-    const element =
-      document.getElementById("toast");
-
-    if(!element){
-      return;
-    }
-
+  if(element){
     element.textContent =
-      message;
-
-    element.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer =
-      setTimeout(() => {
-
-        element.classList.remove("show");
-
-      },2300);
+      String(value);
   }
+
+}
+
+function show(
+  id,
+  visible
+){
+
+  const element =
+    document.getElementById(
+      id
+    );
+
+  if(element){
+
+    element.style.display =
+      visible
+        ? ""
+        : "none";
+
+  }
+
+}
+
+function safeUrl(value){
+
+  return String(value || "")
+    .replaceAll("\\","\\\\")
+    .replaceAll('"','\\"')
+    .replace(/[\r\n]/g,"");
+
+}
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+function toast(message){
+
+  const element =
+    document.getElementById(
+      "toast"
+    );
+
+  if(!element){
+    return;
+  }
+
+  element.textContent =
+    message;
+
+  element.classList.add(
+    "show"
+  );
+
+  clearTimeout(
+    toastTimer
+  );
+
+  toastTimer =
+    setTimeout(
+      function(){
+
+        element.classList.remove(
+          "show"
+        );
+
+      },
+      2300
+    );
+
+}
+
+window.RiseUpEverything = {
+  navigate,
+  openStudio,
+  openRiseCode,
+  getTokens,
+  setTokens,
+  claimMonthly
+};
 
 })();
 </script>
