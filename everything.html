@@ -1,1 +1,7151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
+  <title>RiseUp</title>
+
+  <style>
+    :root {
+      --bg: #090b0f;
+      --bg-soft: #0d1015;
+      --panel: #11151b;
+      --panel-2: #151a21;
+      --panel-3: #1a2028;
+
+      --border: #252c35;
+      --border-light: #343e4a;
+
+      --text: #f2f5f8;
+      --muted: #a6b0bb;
+      --muted-2: #6f7a87;
+
+      --blue: #4da3ff;
+      --blue-dark: #246da8;
+
+      --green: #38c878;
+      --red: #e25959;
+      --yellow: #ffd34d;
+
+      --topbar-height: 52px;
+      --sidebar-width: 238px;
+
+      --radius: 7px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 100%;
+      min-height: 100%;
+      margin: 0;
+
+      color: var(--text);
+      background: var(--bg);
+
+      font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =====================================================
+       TOP BAR
+       ===================================================== */
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+
+      height: var(--topbar-height);
+
+      z-index: 1000;
+
+      display: flex;
+      align-items: center;
+
+      background: #0d1015;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      width: var(--sidebar-width);
+      height: 100%;
+
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 0 17px;
+
+      color: white;
+      background: transparent;
+
+      cursor: pointer;
+    }
+
+    .brand-mark,
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 31px;
+      height: 31px;
+
+      border-radius: 6px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #5aafff,
+          #2372b6
+        );
+
+      font-size: 14px;
+      font-weight: 850;
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.2),
+        0 5px 18px rgba(0,0,0,.2);
+    }
+
+    .brand-text {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .top-navigation {
+      display: flex;
+      align-items: center;
+
+      gap: 2px;
+
+      flex: 1;
+    }
+
+    .top-nav-button,
+    .create-top-button {
+      height: 33px;
+
+      padding: 0 12px;
+
+      color: var(--muted);
+      background: transparent;
+
+      border-radius: 5px;
+
+      cursor: pointer;
+
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .top-nav-button:hover,
+    .top-nav-button.active {
+      color: white;
+      background: #181e25;
+    }
+
+    .create-top-button {
+      color: white;
+      background: var(--blue-dark);
+
+      border: 1px solid #347cb7;
+    }
+
+    .create-top-button:hover {
+      background: var(--blue);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+
+      gap: 6px;
+
+      padding-right: 9px;
+    }
+
+    .search-box {
+      width: 230px;
+      height: 32px;
+
+      position: relative;
+
+      display: flex;
+      align-items: center;
+    }
+
+    .search-symbol {
+      position: absolute;
+      left: 10px;
+
+      width: 12px;
+      height: 12px;
+
+      border: 1.5px solid #7b8792;
+      border-radius: 50%;
+    }
+
+    .search-symbol::after {
+      content: "";
+
+      position: absolute;
+
+      width: 5px;
+      height: 1.5px;
+
+      right: -4px;
+      bottom: -2px;
+
+      transform: rotate(45deg);
+
+      background: #7b8792;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 100%;
+
+      padding:
+        0 10px 0 31px;
+
+      color: white;
+      background: #090d12;
+
+      border: 1px solid var(--border);
+      border-radius: 5px;
+
+      outline: none;
+
+      font-size: 11px;
+    }
+
+    .search-box input:focus {
+      border-color: var(--blue);
+    }
+
+    .top-icon-button,
+    .rux-button,
+    .profile-button {
+      height: 32px;
+
+      color: var(--muted);
+      background: transparent;
+
+      border-radius: 5px;
+
+      cursor: pointer;
+    }
+
+    .top-icon-button {
+      width: 32px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .top-icon-button:hover,
+    .rux-button:hover,
+    .profile-button:hover {
+      color: white;
+      background: #181e25;
+    }
+
+    .messages-symbol {
+      width: 14px;
+      height: 10px;
+
+      position: relative;
+
+      border: 1.5px solid currentColor;
+      border-radius: 3px;
+    }
+
+    .messages-symbol::after {
+      content: "";
+
+      position: absolute;
+
+      left: 3px;
+      bottom: -4px;
+
+      width: 5px;
+      height: 5px;
+
+      border-left: 1.5px solid currentColor;
+
+      transform: skewX(-25deg);
+    }
+
+    .notification-symbol {
+      width: 12px;
+      height: 13px;
+
+      position: relative;
+
+      border: 1.5px solid currentColor;
+      border-radius: 8px 8px 4px 4px;
+
+      border-bottom-color: transparent;
+    }
+
+    .notification-symbol::after {
+      content: "";
+
+      position: absolute;
+
+      left: 3px;
+      bottom: -4px;
+
+      width: 5px;
+      height: 3px;
+
+      border-bottom: 1.5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .rux-button {
+      display: flex;
+      align-items: center;
+
+      gap: 5px;
+
+      padding: 0 8px;
+
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .rux-symbol {
+      width: 19px;
+      height: 19px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #151515;
+      background: var(--yellow);
+
+      border-radius: 50%;
+
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .profile-button {
+      width: 32px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: white;
+      background: #34404d;
+
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* =====================================================
+       APP
+       ===================================================== */
+
+    .app-body {
+      min-height: 100vh;
+
+      display: flex;
+
+      padding-top: var(--topbar-height);
+    }
+
+    /* =====================================================
+       SIDEBAR
+       ===================================================== */
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: var(--topbar-height);
+      bottom: 0;
+
+      width: var(--sidebar-width);
+
+      display: flex;
+      flex-direction: column;
+
+      background: #0d1116;
+      border-right: 1px solid var(--border);
+
+      z-index: 900;
+    }
+
+    .sidebar-main {
+      padding: 12px 9px;
+      overflow-y: auto;
+    }
+
+    .sidebar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+
+      margin: 10px 7px;
+
+      background: var(--border);
+    }
+
+    .sidebar-button {
+      width: 100%;
+      height: 38px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 0 11px;
+
+      color: var(--muted);
+      background: transparent;
+
+      border-radius: 5px;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .sidebar-button:hover {
+      color: white;
+      background: #181e25;
+    }
+
+    .sidebar-button.active {
+      color: white;
+      background: #173d61;
+    }
+
+    .sidebar-count {
+      margin-left: auto;
+      color: var(--muted-2);
+      font-size: 9px;
+    }
+
+    .sidebar-icon {
+      width: 17px;
+      height: 17px;
+
+      position: relative;
+
+      flex-shrink: 0;
+
+      color: currentColor;
+    }
+
+    .home-icon::before {
+      content: "";
+
+      position: absolute;
+
+      width: 11px;
+      height: 9px;
+
+      left: 3px;
+      top: 6px;
+
+      border: 1.5px solid currentColor;
+      border-top: 0;
+    }
+
+    .home-icon::after {
+      content: "";
+
+      position: absolute;
+
+      width: 9px;
+      height: 9px;
+
+      left: 4px;
+      top: 2px;
+
+      border-left: 1.5px solid currentColor;
+      border-top: 1.5px solid currentColor;
+
+      transform: rotate(45deg);
+    }
+
+    .discover-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .discover-icon::after {
+      content: "";
+
+      position: absolute;
+
+      width: 5px;
+      height: 1.5px;
+
+      left: 7px;
+      top: 4px;
+
+      background: currentColor;
+
+      transform: rotate(45deg);
+    }
+
+    .avatar-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .avatar-icon::before {
+      content: "";
+
+      position: absolute;
+
+      width: 5px;
+      height: 5px;
+
+      left: 5px;
+      top: 3px;
+
+      border: 1px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .avatar-icon::after {
+      content: "";
+
+      position: absolute;
+
+      width: 9px;
+      height: 4px;
+
+      left: 3px;
+      bottom: 3px;
+
+      border: 1px solid currentColor;
+      border-radius: 7px 7px 3px 3px;
+    }
+
+    .inventory-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 2px;
+    }
+
+    .inventory-icon::after {
+      content: "";
+
+      position: absolute;
+
+      left: 4px;
+      right: 4px;
+      top: 4px;
+
+      height: 1px;
+
+      background: currentColor;
+
+      box-shadow:
+        0 3px 0 currentColor,
+        0 6px 0 currentColor;
+    }
+
+    .friends-icon::before,
+    .friends-icon::after {
+      content: "";
+
+      position: absolute;
+
+      border: 1.2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .friends-icon::before {
+      width: 6px;
+      height: 6px;
+
+      left: 1px;
+      top: 2px;
+    }
+
+    .friends-icon::after {
+      width: 6px;
+      height: 6px;
+
+      right: 1px;
+      top: 2px;
+    }
+
+    .messages-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+    }
+
+    .marketplace-icon::before {
+      content: "";
+
+      position: absolute;
+
+      left: 2px;
+      top: 5px;
+
+      width: 13px;
+      height: 8px;
+
+      border: 1.5px solid currentColor;
+    }
+
+    .marketplace-icon::after {
+      content: "";
+
+      position: absolute;
+
+      left: 5px;
+      top: 2px;
+
+      width: 7px;
+      height: 5px;
+
+      border: 1.5px solid currentColor;
+      border-bottom: 0;
+
+      border-radius: 5px 5px 0 0;
+    }
+
+    .studio-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+
+      transform:
+        rotate(45deg)
+        scale(.75);
+    }
+
+    .studio-icon::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 4px;
+
+      border: 1px solid currentColor;
+    }
+
+    .code-icon::before {
+      content: "< >";
+
+      position: absolute;
+
+      inset: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .settings-icon {
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .settings-icon::after {
+      content: "";
+
+      position: absolute;
+
+      left: 5px;
+      top: 5px;
+
+      width: 4px;
+      height: 4px;
+
+      border: 1px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+
+      padding: 10px;
+
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-create {
+      width: 100%;
+      height: 39px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 8px;
+
+      color: white;
+      background: var(--blue-dark);
+
+      border: 1px solid #347bb6;
+      border-radius: 5px;
+
+      cursor: pointer;
+    }
+
+    .sidebar-create:hover {
+      background: var(--blue);
+    }
+
+    .create-plus {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* =====================================================
+       MAIN
+       ===================================================== */
+
+    .main-content {
+      width: calc(100% - var(--sidebar-width));
+      min-height:
+        calc(100vh - var(--topbar-height));
+
+      margin-left: var(--sidebar-width);
+
+      padding: 30px 38px 45px;
+
+      background:
+        radial-gradient(
+          circle at 80% 0%,
+          rgba(45, 86, 120, .1),
+          transparent 35%
+        ),
+        var(--bg);
+    }
+
+    .page {
+      display: none;
+      max-width: 1450px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .hero {
+      min-height: 180px;
+
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      padding: 26px;
+
+      margin-bottom: 30px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(40, 79, 110, .42),
+          rgba(19, 25, 33, .72)
+        );
+
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+
+      font-size: 9px;
+      font-weight: 800;
+
+      letter-spacing: 1.2px;
+    }
+
+    .hero h1,
+    .page-header h1 {
+      margin: 7px 0;
+
+      color: white;
+
+      font-size: 31px;
+      line-height: 1.05;
+      letter-spacing: -.7px;
+    }
+
+    .hero p,
+    .page-header p {
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .hero-create,
+    .primary-button {
+      min-height: 34px;
+
+      padding: 0 14px;
+
+      color: white;
+      background: var(--blue-dark);
+
+      border: 1px solid #347db9;
+      border-radius: 5px;
+
+      cursor: pointer;
+
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .hero-create:hover,
+    .primary-button:hover {
+      background: var(--blue);
+    }
+
+    .content-section {
+      margin-bottom: 34px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      margin-bottom: 13px;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 3px;
+
+      font-size: 17px;
+    }
+
+    .section-heading p {
+      margin: 0;
+
+      color: var(--muted-2);
+
+      font-size: 10px;
+    }
+
+    .section-action {
+      padding: 6px 0;
+
+      color: var(--blue);
+      background: transparent;
+
+      cursor: pointer;
+
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .section-action:hover {
+      color: white;
+    }
+
+    /* =====================================================
+       GAMES
+       ===================================================== */
+
+    .games-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(190px, 1fr)
+        );
+
+      gap: 14px;
+    }
+
+    .large-grid {
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(210px, 1fr)
+        );
+    }
+
+    .game-card {
+      overflow: hidden;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 7px;
+
+      cursor: pointer;
+
+      transition:
+        transform .15s ease,
+        border-color .15s ease,
+        background .15s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-2px);
+
+      background: var(--panel-2);
+
+      border-color: #3b4754;
+    }
+
+    .game-thumbnail {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(
+          135deg,
+          #1e4b6b,
+          #12202c
+        );
+    }
+
+    .game-thumbnail::after {
+      content: "R";
+
+      color: rgba(255,255,255,.17);
+
+      font-size: 30px;
+      font-weight: 850;
+    }
+
+    .game-info {
+      padding: 10px;
+    }
+
+    .game-title {
+      margin: 0 0 4px;
+
+      overflow: hidden;
+
+      color: white;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .game-creator {
+      color: var(--muted-2);
+
+      overflow: hidden;
+
+      font-size: 9px;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* =====================================================
+       EMPTY
+       ===================================================== */
+
+    .empty-state {
+      min-height: 170px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      padding: 30px;
+
+      background: var(--panel);
+
+      border: 1px dashed var(--border-light);
+      border-radius: 8px;
+
+      text-align: center;
+    }
+
+    .empty-art {
+      width: 42px;
+      height: 42px;
+
+      margin-bottom: 9px;
+
+      border-radius: 9px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #1c4f77,
+          #142230
+        );
+    }
+
+    .empty-state h3 {
+      margin: 0 0 5px;
+
+      font-size: 13px;
+    }
+
+    .empty-state p {
+      margin: 0 0 13px;
+
+      color: var(--muted-2);
+
+      font-size: 10px;
+    }
+
+    /* =====================================================
+       DISCOVER / MARKET FILTERS
+       ===================================================== */
+
+    .filter-bar,
+    .inventory-tabs,
+    .marketplace-categories {
+      display: flex;
+      gap: 5px;
+
+      margin-bottom: 17px;
+    }
+
+    .filter-button,
+    .inventory-tab,
+    .market-category {
+      height: 31px;
+
+      padding: 0 11px;
+
+      color: var(--muted);
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 5px;
+
+      cursor: pointer;
+
+      font-size: 10px;
+      font-weight: 650;
+    }
+
+    .filter-button:hover,
+    .filter-button.active,
+    .inventory-tab:hover,
+    .inventory-tab.active,
+    .market-category:hover,
+    .market-category.active {
+      color: white;
+
+      background: #1a2530;
+
+      border-color: #365065;
+    }
+
+    /* =====================================================
+       AVATAR PAGE
+       ===================================================== */
+
+    .avatar-page {
+      display: grid;
+
+      grid-template-columns:
+        minmax(280px, 1fr)
+        minmax(280px, 1fr);
+
+      gap: 18px;
+    }
+
+    .avatar-preview-card,
+    .avatar-settings-card,
+    .settings-card {
+      padding: 20px;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .avatar-preview-card {
+      min-height: 430px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-preview {
+      width: 190px;
+      height: 265px;
+
+      position: relative;
+    }
+
+    .avatar-head {
+      position: absolute;
+
+      width: 98px;
+      height: 98px;
+
+      left: 46px;
+      top: 8px;
+
+      border-radius: 50%;
+
+      background: #ffe047;
+    }
+
+    .avatar-eye {
+      position: absolute;
+
+      top: 38px;
+
+      width: 9px;
+      height: 9px;
+
+      background: #111;
+
+      border-radius: 50%;
+    }
+
+    .avatar-eye.left {
+      left: 29px;
+    }
+
+    .avatar-eye.right {
+      right: 29px;
+    }
+
+    .avatar-smile {
+      position: absolute;
+
+      left: 31px;
+      right: 31px;
+      bottom: 25px;
+
+      height: 13px;
+
+      border-bottom:
+        3px solid #111;
+
+      border-radius: 50%;
+    }
+
+    .avatar-body {
+      position: absolute;
+
+      left: 51px;
+      top: 105px;
+
+      width: 88px;
+      height: 89px;
+
+      border-radius: 31px;
+
+      background: #249bff;
+    }
+
+    .avatar-arms span,
+    .avatar-legs span {
+      position: absolute;
+      display: block;
+    }
+
+    .avatar-arms span {
+      width: 25px;
+      height: 72px;
+
+      top: 112px;
+
+      border-radius: 16px;
+
+      background: #ffe047;
+    }
+
+    .avatar-arms span:first-child {
+      left: 27px;
+    }
+
+    .avatar-arms span:last-child {
+      right: 27px;
+    }
+
+    .avatar-legs span {
+      width: 31px;
+      height: 70px;
+
+      top: 187px;
+
+      border-radius: 15px;
+
+      background: #00a82d;
+    }
+
+    .avatar-legs span:first-child {
+      left: 52px;
+    }
+
+    .avatar-legs span:last-child {
+      right: 52px;
+    }
+
+    .avatar-preview-card h2 {
+      margin: 7px 0 0;
+
+      font-size: 15px;
+    }
+
+    .avatar-settings-card h2 {
+      margin: 0 0 20px;
+
+      font-size: 15px;
+    }
+
+    .setting-row,
+    .settings-line,
+    .toggle-row {
+      min-height: 49px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border-top: 1px solid var(--border);
+
+      color: var(--muted);
+
+      font-size: 10px;
+    }
+
+    .setting-row:first-of-type,
+    .settings-line:first-of-type {
+      border-top: 0;
+    }
+
+    .choice-button {
+      height: 28px;
+
+      padding: 0 10px;
+
+      color: var(--muted);
+
+      background: var(--panel-3);
+
+      border: 1px solid var(--border);
+      border-radius: 4px;
+
+      cursor: pointer;
+
+      font-size: 9px;
+    }
+
+    .choice-button.active {
+      color: white;
+
+      border-color: var(--blue);
+
+      background: #183b59;
+    }
+
+    /* =====================================================
+       INVENTORY
+       ===================================================== */
+
+    .inventory-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(190px, 1fr)
+        );
+
+      gap: 13px;
+    }
+
+    .inventory-item {
+      min-height: 150px;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: flex-end;
+
+      padding: 13px;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 7px;
+    }
+
+    .inventory-preview {
+      flex: 1;
+
+      margin-bottom: 10px;
+
+      border-radius: 5px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #172f44,
+          #10171e
+        );
+    }
+
+    .inventory-item strong {
+      font-size: 11px;
+    }
+
+    .inventory-item span {
+      margin-top: 3px;
+
+      color: var(--muted-2);
+
+      font-size: 9px;
+    }
+
+    /* =====================================================
+       FRIENDS
+       ===================================================== */
+
+    .friends-toolbar {
+      display: flex;
+      gap: 7px;
+
+      margin-bottom: 17px;
+    }
+
+    .friends-toolbar input {
+      width: 300px;
+      height: 34px;
+
+      padding: 0 10px;
+
+      color: white;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 5px;
+
+      outline: none;
+
+      font-size: 10px;
+    }
+
+    .friends-toolbar input:focus {
+      border-color: var(--blue);
+    }
+
+    .friends-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(180px, 1fr)
+        );
+
+      gap: 10px;
+    }
+
+    .friend-card {
+      min-height: 74px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 10px;
+
+      color: var(--text);
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 7px;
+
+      cursor: pointer;
+    }
+
+    .friend-card:hover {
+      background: var(--panel-2);
+      border-color: var(--border-light);
+    }
+
+    .friend-avatar {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      flex-shrink: 0;
+
+      color: white;
+      background: #354453;
+
+      border-radius: 50%;
+
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .friend-name {
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    /* =====================================================
+       MESSAGES
+       ===================================================== */
+
+    .messages-page {
+      min-height: 470px;
+
+      display: grid;
+
+      grid-template-columns:
+        280px
+        minmax(0,1fr);
+
+      overflow: hidden;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .conversation-list {
+      overflow-y: auto;
+
+      border-right: 1px solid var(--border);
+    }
+
+    .conversation {
+      min-height: 62px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 9px 11px;
+
+      color: var(--muted);
+
+      border-bottom: 1px solid var(--border);
+
+      cursor: pointer;
+    }
+
+    .conversation:hover,
+    .conversation.active {
+      color: white;
+      background: #17202a;
+    }
+
+    .message-panel {
+      min-width: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .message-panel-empty {
+      padding: 25px;
+
+      text-align: center;
+    }
+
+    .message-panel-empty h2 {
+      margin: 0 0 6px;
+
+      font-size: 14px;
+    }
+
+    .message-panel-empty p {
+      margin: 0;
+
+      color: var(--muted-2);
+
+      font-size: 10px;
+    }
+
+    /* =====================================================
+       MARKETPLACE
+       ===================================================== */
+
+    .marketplace-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .market-balance {
+      min-width: 115px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 7px;
+
+      padding: 9px 11px;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .market-balance span {
+      color: var(--muted-2);
+
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .market-balance strong {
+      font-size: 12px;
+    }
+
+    .marketplace-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(215px,1fr)
+        );
+
+      gap: 14px;
+    }
+
+    .market-item {
+      overflow: hidden;
+
+      background: var(--panel);
+
+      border: 1px solid var(--border);
+      border-radius: 7px;
+    }
+
+    .market-image {
+      aspect-ratio: 1 / .8;
+
+      background:
+        linear-gradient(
+          135deg,
+          #1b4565,
+          #101a22
+        );
+    }
+
+    .market-information {
+      padding: 11px;
+    }
+
+    .market-information strong {
+      display: block;
+
+      margin-bottom: 4px;
+
+      font-size: 11px;
+    }
+
+    .market-information span {
+      color: var(--muted-2);
+
+      font-size: 9px;
+    }
+
+    .market-price {
+      display: flex;
+      align-items: center;
+
+      justify-content: space-between;
+
+      margin-top: 10px;
+    }
+
+    .market-price strong {
+      color: var(--yellow);
+
+      margin: 0;
+    }
+
+    .buy-button {
+      height: 27px;
+
+      padding: 0 9px;
+
+      color: white;
+      background: var(--blue-dark);
+
+      border: 1px solid #347ab4;
+      border-radius: 4px;
+
+      cursor: pointer;
+
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .buy-button:hover {
+      background: var(--blue);
+    }
+
+    /* =====================================================
+       SETTINGS
+       ===================================================== */
+
+    .settings-page {
+      max-width: 760px;
+
+      display: grid;
+
+      gap: 14px;
+    }
+
+    .settings-card h2 {
+      margin: 0 0 10px;
+
+      font-size: 13px;
+    }
+
+    .settings-line {
+      gap: 10px;
+    }
+
+    .settings-line div {
+      display: flex;
+      flex-direction: column;
+
+      gap: 4px;
+    }
+
+    .settings-line strong {
+      color: white;
+
+      font-size: 10px;
+    }
+
+    .settings-line span {
+      color: var(--muted-2);
+
+      font-size: 9px;
+    }
+
+    .toggle-row {
+      cursor: pointer;
+    }
+
+    .toggle-row input {
+      accent-color: var(--blue);
+    }
+
+    .danger-card {
+      border-color:
+        rgba(226,89,89,.35);
+    }
+
+    .danger-button {
+      height: 32px;
+
+      padding: 0 12px;
+
+      color: #ffb1b1;
+
+      background:
+        rgba(226,89,89,.12);
+
+      border:
+        1px solid rgba(226,89,89,.28);
+
+      border-radius: 5px;
+
+      cursor: pointer;
+
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    .site-footer {
+      max-width: 1450px;
+
+      margin: 60px auto 0;
+      padding-top: 25px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 25px;
+
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+    }
+
+    .footer-logo {
+      width: 27px;
+      height: 27px;
+
+      font-size: 11px;
+    }
+
+    .footer-brand strong,
+    .footer-brand span {
+      display: block;
+    }
+
+    .footer-brand strong {
+      font-size: 11px;
+    }
+
+    .footer-brand span {
+      margin-top: 2px;
+
+      color: var(--muted-2);
+
+      font-size: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 14px;
+    }
+
+    .footer-links button {
+      color: var(--muted-2);
+
+      background: transparent;
+
+      cursor: pointer;
+
+      font-size: 9px;
+    }
+
+    .footer-links button:hover {
+      color: white;
+    }
+
+    .footer-copy {
+      color: var(--muted-2);
+
+      font-size: 8px;
+    }
+
+    /* =====================================================
+       PROFILE / CREATE / POPOVERS
+       ===================================================== */
+
+    .profile-menu,
+    .create-menu,
+    .popover-panel {
+      position: fixed;
+
+      z-index: 2000;
+
+      background: #151a21;
+
+      border: 1px solid var(--border-light);
+      border-radius: 7px;
+
+      box-shadow:
+        0 18px 45px rgba(0,0,0,.38);
+    }
+
+    .profile-menu {
+      top: 58px;
+      right: 12px;
+
+      width: 210px;
+
+      display: none;
+
+      padding: 6px;
+    }
+
+    .profile-menu.open,
+    .create-menu.open,
+    .popover-panel.open {
+      display: block;
+    }
+
+    .profile-menu-header {
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 9px;
+
+      margin-bottom: 4px;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-menu-avatar {
+      width: 34px;
+      height: 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: white;
+      background: #34404d;
+
+      border-radius: 50%;
+
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .profile-menu-header strong,
+    .profile-menu-header span {
+      display: block;
+    }
+
+    .profile-menu-header strong {
+      font-size: 10px;
+    }
+
+    .profile-menu-header span {
+      margin-top: 3px;
+
+      color: var(--muted-2);
+
+      font-size: 8px;
+    }
+
+    .profile-menu > button,
+    .create-menu > button {
+      width: 100%;
+      min-height: 33px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 0 9px;
+
+      color: var(--muted);
+      background: transparent;
+
+      border-radius: 4px;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      font-size: 10px;
+    }
+
+    .profile-menu > button:hover,
+    .create-menu > button:hover {
+      color: white;
+      background: #202832;
+    }
+
+    .profile-menu-divider {
+      height: 1px;
+
+      margin: 5px 3px;
+
+      background: var(--border);
+    }
+
+    .profile-menu .profile-danger {
+      color: #ed8b8b;
+    }
+
+    .create-menu {
+      top: 58px;
+      left: 430px;
+
+      width: 230px;
+
+      display: none;
+
+      padding: 7px;
+    }
+
+    .menu-title {
+      padding: 8px 9px;
+
+      color: var(--muted-2);
+
+      font-size: 9px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: .7px;
+    }
+
+    .create-menu > button {
+      min-height: 52px;
+    }
+
+    .create-menu > button span:last-child {
+      display: flex;
+      flex-direction: column;
+
+      gap: 3px;
+    }
+
+    .create-menu small {
+      color: var(--muted-2);
+
+      font-size: 8px;
+    }
+
+    .menu-icon {
+      width: 26px;
+      height: 26px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: var(--blue);
+
+      background: #172536;
+      border-radius: 5px;
+
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .studio-menu-icon::before {
+      content: "3D";
+    }
+
+    .code-menu-icon::before {
+      content: "</>";
+    }
+
+    .popover-panel {
+      display: none;
+
+      width: 300px;
+
+      padding: 8px;
+    }
+
+    #notificationsPanel {
+      top: 58px;
+      right: 87px;
+    }
+
+    #quickMessagesPanel {
+      top: 58px;
+      right: 126px;
+    }
+
+    .rux-panel {
+      top: 58px;
+      right: 48px;
+
+      width: 180px;
+
+      display: none;
+
+      flex-direction: column;
+
+      gap: 6px;
+
+      padding: 14px;
+    }
+
+    .rux-panel.open {
+      display: flex;
+    }
+
+    .rux-panel-symbol {
+      width: 36px;
+      height: 36px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #151515;
+      background: var(--yellow);
+
+      border-radius: 50%;
+
+      font-weight: 900;
+    }
+
+    .rux-panel > strong {
+      font-size: 11px;
+    }
+
+    #ruxPanelAmount {
+      color: white;
+
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .rux-panel button {
+      height: 30px;
+
+      color: white;
+      background: var(--blue-dark);
+
+      border: 1px solid #347ab4;
+      border-radius: 4px;
+
+      cursor: pointer;
+
+      font-size: 9px;
+    }
+
+    .popover-header {
+      height: 31px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 5px;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .popover-header strong {
+      font-size: 10px;
+    }
+
+    .popover-header button {
+      color: var(--blue);
+      background: transparent;
+
+      cursor: pointer;
+
+      font-size: 9px;
+    }
+
+    .popover-list {
+      max-height: 240px;
+
+      overflow-y: auto;
+    }
+
+    .notification-item,
+    .quick-message {
+      padding: 10px 7px;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+    .notification-item:last-child,
+    .quick-message:last-child {
+      border-bottom: 0;
+    }
+
+    .notification-item strong,
+    .quick-message strong {
+      display: block;
+
+      margin-bottom: 4px;
+
+      font-size: 10px;
+    }
+
+    .notification-item span,
+    .quick-message span {
+      color: var(--muted-2);
+
+      font-size: 9px;
+    }
+
+    /* =====================================================
+       MODALS
+       ===================================================== */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+
+      z-index: 3000;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      background:
+        rgba(0,0,0,.65);
+
+      backdrop-filter: blur(5px);
+    }
+
+    .modal {
+      width: min(430px, 100%);
+
+      position: relative;
+
+      padding: 20px;
+
+      background: #14191f;
+
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+
+      box-shadow:
+        0 22px 65px rgba(0,0,0,.45);
+    }
+
+    .modal-close {
+      position: absolute;
+
+      top: 9px;
+      right: 9px;
+
+      width: 27px;
+      height: 27px;
+
+      color: var(--muted);
+
+      background: transparent;
+
+      border-radius: 4px;
+
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: white;
+      background: #20272f;
+    }
+
+    .modal h2 {
+      margin: 5px 0 7px;
+
+      font-size: 17px;
+    }
+
+    .modal p {
+      margin: 0 0 15px;
+
+      color: var(--muted);
+
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .modal > input {
+      width: 100%;
+      height: 36px;
+
+      padding: 0 10px;
+
+      color: white;
+      background: #0b0f14;
+
+      border: 1px solid var(--border);
+      border-radius: 5px;
+
+      outline: none;
+
+      font-size: 10px;
+    }
+
+    .modal > input:focus {
+      border-color: var(--blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+
+      gap: 6px;
+
+      margin-top: 15px;
+    }
+
+    .modal-actions > button:not(.primary-button) {
+      height: 33px;
+
+      padding: 0 11px;
+
+      color: var(--muted);
+
+      background: var(--panel-3);
+
+      border: 1px solid var(--border);
+      border-radius: 4px;
+
+      cursor: pointer;
+
+      font-size: 10px;
+    }
+
+    /* =====================================================
+       TOAST
+       ===================================================== */
+
+    .toast {
+      position: fixed;
+
+      left: 50%;
+      bottom: 20px;
+
+      z-index: 4000;
+
+      transform:
+        translate(-50%,15px);
+
+      padding: 10px 14px;
+
+      color: white;
+
+      background: #171d24;
+
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      box-shadow:
+        0 13px 35px rgba(0,0,0,.35);
+
+      font-size: 10px;
+
+      transition:
+        opacity .18s ease,
+        transform .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+
+      transform:
+        translate(-50%,0);
+    }
+
+    /* =====================================================
+       SCROLLBARS
+       ===================================================== */
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color:
+        #303944
+        transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: #303944;
+      border-radius: 10px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: #46515a;
+    }
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @media (max-width: 1100px) {
+      :root {
+        --sidebar-width: 205px;
+      }
+
+      .search-box {
+        width: 180px;
+      }
+
+      .main-content {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    }
+
+    @media (max-width: 850px) {
+      :root {
+        --sidebar-width: 70px;
+      }
+
+      .brand {
+        width: 70px;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .brand-text {
+        display: none;
+      }
+
+      .sidebar-button {
+        justify-content: center;
+        padding: 0;
+      }
+
+      .sidebar-button
+      span:not(.sidebar-icon):not(.sidebar-count) {
+        display: none;
+      }
+
+      .sidebar-count {
+        display: none;
+      }
+
+      .sidebar-create strong {
+        display: none;
+      }
+
+      .sidebar-create {
+        gap: 0;
+      }
+
+      .top-navigation {
+        display: none;
+      }
+
+      .search-box {
+        width: 150px;
+      }
+
+      .avatar-page {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .main-content {
+        padding:
+          20px
+          14px
+          35px;
+      }
+
+      .top-actions {
+        gap: 2px;
+      }
+
+      .search-box {
+        display: none;
+      }
+
+      .top-icon-button {
+        display: none;
+      }
+
+      .hero {
+        min-height: 210px;
+
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .hero h1,
+      .page-header h1 {
+        font-size: 25px;
+      }
+
+      .games-grid,
+      .large-grid,
+      .inventory-grid,
+      .marketplace-grid,
+      .friends-grid {
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0,1fr)
+          );
+      }
+
+      .messages-page {
+        grid-template-columns: 1fr;
+      }
+
+      .message-panel {
+        display: none;
+      }
+
+      .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- =====================================================
+       TOP BAR
+       ===================================================== -->
+
+  <header class="topbar">
+
+    <button
+      id="brandButton"
+      class="brand"
+      type="button"
+    >
+      <span class="brand-mark">R</span>
+      <span class="brand-text">RiseUp</span>
+    </button>
+
+    <nav class="top-navigation">
+
+      <button
+        class="top-nav-button active"
+        data-page="home"
+        type="button"
+      >
+        Home
+      </button>
+
+      <button
+        class="top-nav-button"
+        data-page="discover"
+        type="button"
+      >
+        Discover
+      </button>
+
+      <button
+        class="top-nav-button"
+        data-page="marketplace"
+        type="button"
+      >
+        Marketplace
+      </button>
+
+      <button
+        id="createButton"
+        class="create-top-button"
+        type="button"
+      >
+        Create
+      </button>
+
+    </nav>
+
+    <div class="top-actions">
+
+      <label class="search-box">
+        <span
+          class="search-symbol"
+          aria-hidden="true"
+        ></span>
+
+        <input
+          id="globalSearch"
+          type="search"
+          autocomplete="off"
+          placeholder="Search RiseUp"
+        >
+      </label>
+
+      <button
+        id="messagesTopButton"
+        class="top-icon-button"
+        type="button"
+        aria-label="Messages"
+      >
+        <span class="messages-symbol"></span>
+      </button>
+
+      <button
+        id="notificationsTopButton"
+        class="top-icon-button"
+        type="button"
+        aria-label="Notifications"
+      >
+        <span class="notification-symbol"></span>
+      </button>
+
+      <button
+        id="ruxButton"
+        class="rux-button"
+        type="button"
+      >
+        <span class="rux-symbol">R</span>
+        <span id="ruxAmount">0</span>
+      </button>
+
+      <button
+        id="profileButton"
+        class="profile-button"
+        type="button"
+        aria-label="Profile"
+      >
+        <span id="profileLetter">R</span>
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- =====================================================
+       APP BODY
+       ===================================================== -->
+
+  <div class="app-body">
+
+    <aside class="sidebar">
+
+      <div class="sidebar-main">
+
+        <div class="sidebar-group">
+
+          <button
+            class="sidebar-button active"
+            data-page="home"
+            type="button"
+          >
+            <span class="sidebar-icon home-icon"></span>
+            <span>Home</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="discover"
+            type="button"
+          >
+            <span class="sidebar-icon discover-icon"></span>
+            <span>Discover</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="avatar"
+            type="button"
+          >
+            <span class="sidebar-icon avatar-icon"></span>
+            <span>Avatar</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="inventory"
+            type="button"
+          >
+            <span class="sidebar-icon inventory-icon"></span>
+            <span>Inventory</span>
+          </button>
+
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-group">
+
+          <button
+            class="sidebar-button"
+            data-page="friends"
+            type="button"
+          >
+            <span class="sidebar-icon friends-icon"></span>
+            <span>Friends</span>
+
+            <span
+              id="friendsCount"
+              class="sidebar-count"
+            >
+              0
+            </span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="messages"
+            type="button"
+          >
+            <span class="sidebar-icon messages-icon"></span>
+            <span>Messages</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="marketplace"
+            type="button"
+          >
+            <span class="sidebar-icon marketplace-icon"></span>
+            <span>Marketplace</span>
+          </button>
+
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-group">
+
+          <button
+            id="studioButton"
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon studio-icon"></span>
+            <span>Studio</span>
+          </button>
+
+          <button
+            id="riseCodeButton"
+            class="sidebar-button"
+            type="button"
+          >
+            <span class="sidebar-icon code-icon"></span>
+            <span>RiseCode</span>
+          </button>
+
+          <button
+            class="sidebar-button"
+            data-page="settings"
+            type="button"
+          >
+            <span class="sidebar-icon settings-icon"></span>
+            <span>Settings</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="sidebar-bottom">
+
+        <button
+          id="sidebarCreate"
+          class="sidebar-create"
+          type="button"
+        >
+          <span class="create-plus">+</span>
+          <strong>Create</strong>
+        </button>
+
+      </div>
+
+    </aside>
+
+    <!-- ===================================================
+         MAIN
+         =================================================== -->
+
+    <main class="main-content">
+
+      <!-- HOME -->
+
+      <section
+        id="page-home"
+        class="page active"
+        data-page-content="home"
+      >
+
+        <section class="hero">
+
+          <div>
+            <span class="eyebrow">
+              RISEUP
+            </span>
+
+            <h1>
+              Welcome back,
+              <span id="welcomeName">
+                Creator
+              </span>
+            </h1>
+
+            <p>
+              Play experiences, create worlds,
+              and explore RiseUp.
+            </p>
+          </div>
+
+          <button
+            class="hero-create"
+            data-action="create"
+            type="button"
+          >
+            Create a Game
+          </button>
+
+        </section>
+
+        <section class="content-section">
+
+          <div class="section-heading">
+
+            <div>
+              <h2>Friends</h2>
+
+              <p>
+                See who's around.
+              </p>
+            </div>
+
+            <button
+              class="section-action"
+              data-page-action="friends"
+              type="button"
+            >
+              View All
+            </button>
+
+          </div>
+
+          <div
+            id="friendsGrid"
+            class="friends-grid"
+          ></div>
+
+        </section>
+
+        <section class="content-section">
+
+          <div class="section-heading">
+
+            <div>
+              <h2>Continue Playing</h2>
+
+              <p>
+                Jump back into your experiences.
+              </p>
+            </div>
+
+            <button
+              class="section-action"
+              data-page-action="discover"
+              type="button"
+            >
+              View All
+            </button>
+
+          </div>
+
+          <div
+            id="continueGames"
+            class="games-grid"
+          ></div>
+
+          <div
+            id="continueEmpty"
+            class="empty-state"
+          >
+            <div class="empty-art"></div>
+
+            <h3>
+              No games to continue
+            </h3>
+
+            <p>
+              Play an experience and it will
+              appear here.
+            </p>
+          </div>
+
+        </section>
+
+        <section class="content-section">
+
+          <div class="section-heading">
+
+            <div>
+              <h2>
+                Recommended For You
+              </h2>
+
+              <p>
+                Experiences from the RiseUp community.
+              </p>
+            </div>
+
+            <button
+              class="section-action"
+              data-page-action="discover"
+              type="button"
+            >
+              View All
+            </button>
+
+          </div>
+
+          <div
+            id="recommendedGames"
+            class="games-grid"
+          ></div>
+
+          <div
+            id="recommendedEmpty"
+            class="empty-state"
+          >
+            <div class="empty-art"></div>
+
+            <h3>
+              No experiences yet
+            </h3>
+
+            <p>
+              Be the first creator to make a game.
+            </p>
+
+            <button
+              class="primary-button"
+              data-action="create"
+              type="button"
+            >
+              Create a Game
+            </button>
+          </div>
+
+        </section>
+
+      </section>
+
+      <!-- DISCOVER -->
+
+      <section
+        id="page-discover"
+        class="page"
+        data-page-content="discover"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            EXPLORE
+          </span>
+
+          <h1>
+            Discover
+          </h1>
+
+          <p>
+            Find experiences made by the RiseUp community.
+          </p>
+
+        </div>
+
+        <div class="filter-bar">
+
+          <button
+            class="filter-button active"
+            data-filter="all"
+            type="button"
+          >
+            All
+          </button>
+
+          <button
+            class="filter-button"
+            data-filter="recent"
+            type="button"
+          >
+            Recent
+          </button>
+
+          <button
+            class="filter-button"
+            data-filter="mine"
+            type="button"
+          >
+            My Games
+          </button>
+
+        </div>
+
+        <div
+          id="discoverGames"
+          class="games-grid large-grid"
+        ></div>
+
+        <div
+          id="discoverEmpty"
+          class="empty-state"
+        >
+          <div class="empty-art"></div>
+
+          <h3>
+            No games yet
+          </h3>
+
+          <p>
+            Be the first creator to make a game.
+          </p>
+
+          <button
+            class="primary-button"
+            data-action="create"
+            type="button"
+          >
+            Create a Game
+          </button>
+        </div>
+
+      </section>
+
+      <!-- AVATAR -->
+
+      <section
+        id="page-avatar"
+        class="page"
+        data-page-content="avatar"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            CHARACTER
+          </span>
+
+          <h1>
+            Avatar
+          </h1>
+
+          <p>
+            Customize your RiseUp character.
+          </p>
+
+        </div>
+
+        <div class="avatar-page">
+
+          <div class="avatar-preview-card">
+
+            <div
+              id="avatarPreview"
+              class="avatar-preview"
+            >
+
+              <div class="avatar-head">
+
+                <span
+                  class="avatar-eye left"
+                ></span>
+
+                <span
+                  class="avatar-eye right"
+                ></span>
+
+                <span
+                  class="avatar-smile"
+                ></span>
+
+              </div>
+
+              <div class="avatar-body"></div>
+
+              <div class="avatar-arms">
+                <span></span>
+                <span></span>
+              </div>
+
+              <div class="avatar-legs">
+                <span></span>
+                <span></span>
+              </div>
+
+            </div>
+
+            <h2
+              id="avatarPreviewName"
+            >
+              Creator
+            </h2>
+
+          </div>
+
+          <div class="avatar-settings-card">
+
+            <h2>
+              Appearance
+            </h2>
+
+            <div class="setting-row">
+
+              <span>
+                Head
+              </span>
+
+              <button
+                class="choice-button active"
+                data-avatar-color="#FFE047"
+                type="button"
+              >
+                Yellow
+              </button>
+
+            </div>
+
+            <div class="setting-row">
+
+              <span>
+                Body
+              </span>
+
+              <button
+                class="choice-button active"
+                data-avatar-body="#249BFF"
+                type="button"
+              >
+                Blue
+              </button>
+
+            </div>
+
+            <div class="setting-row">
+
+              <span>
+                Legs
+              </span>
+
+              <button
+                class="choice-button active"
+                data-avatar-legs="#00A82D"
+                type="button"
+              >
+                Green
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- INVENTORY -->
+
+      <section
+        id="page-inventory"
+        class="page"
+        data-page-content="inventory"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            COLLECTION
+          </span>
+
+          <h1>
+            Inventory
+          </h1>
+
+          <p>
+            Your items and creator assets.
+          </p>
+
+        </div>
+
+        <div class="inventory-tabs">
+
+          <button
+            class="inventory-tab active"
+            data-inventory-tab="items"
+            type="button"
+          >
+            Items
+          </button>
+
+          <button
+            class="inventory-tab"
+            data-inventory-tab="models"
+            type="button"
+          >
+            Models
+          </button>
+
+          <button
+            class="inventory-tab"
+            data-inventory-tab="passes"
+            type="button"
+          >
+            Game Passes
+          </button>
+
+        </div>
+
+        <div
+          id="inventoryContent"
+          class="inventory-grid"
+        ></div>
+
+      </section>
+
+      <!-- FRIENDS -->
+
+      <section
+        id="page-friends"
+        class="page"
+        data-page-content="friends"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            SOCIAL
+          </span>
+
+          <h1>
+            Friends
+          </h1>
+
+          <p>
+            Connect with people on RiseUp.
+          </p>
+
+        </div>
+
+        <div class="friends-toolbar">
+
+          <input
+            id="friendSearch"
+            type="search"
+            autocomplete="off"
+            placeholder="Search users..."
+          >
+
+          <button
+            id="addFriendButton"
+            class="primary-button"
+            type="button"
+          >
+            Add Friend
+          </button>
+
+        </div>
+
+        <div
+          id="allFriendsGrid"
+          class="friends-grid"
+        ></div>
+
+        <div
+          id="friendsEmpty"
+          class="empty-state"
+        >
+          <div class="empty-art"></div>
+
+          <h3>
+            No friends yet
+          </h3>
+
+          <p>
+            Add friends to start building your community.
+          </p>
+
+          <button
+            id="emptyAddFriend"
+            class="primary-button"
+            type="button"
+          >
+            Add Friend
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- MESSAGES -->
+
+      <section
+        id="page-messages"
+        class="page"
+        data-page-content="messages"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            SOCIAL
+          </span>
+
+          <h1>
+            Messages
+          </h1>
+
+          <p>
+            Your conversations.
+          </p>
+
+        </div>
+
+        <div class="messages-page">
+
+          <div
+            id="conversationList"
+            class="conversation-list"
+          ></div>
+
+          <div
+            id="messagePanel"
+            class="message-panel"
+          >
+
+            <div
+              class="message-panel-empty"
+            >
+
+              <h2>
+                No conversation selected
+              </h2>
+
+              <p>
+                Select a conversation to start messaging.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- MARKETPLACE -->
+
+      <section
+        id="page-marketplace"
+        class="page"
+        data-page-content="marketplace"
+      >
+
+        <div
+          class="page-header marketplace-header"
+        >
+
+          <div>
+
+            <span class="eyebrow">
+              RISEUP MARKETPLACE
+            </span>
+
+            <h1>
+              Marketplace
+            </h1>
+
+            <p>
+              Discover items, assets, and creator content.
+            </p>
+
+          </div>
+
+          <div class="market-balance">
+
+            <span>
+              RUX
+            </span>
+
+            <strong id="marketRux">
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+        <div class="marketplace-categories">
+
+          <button
+            class="market-category active"
+            data-market-category="featured"
+            type="button"
+          >
+            Featured
+          </button>
+
+          <button
+            class="market-category"
+            data-market-category="avatar"
+            type="button"
+          >
+            Avatar
+          </button>
+
+          <button
+            class="market-category"
+            data-market-category="models"
+            type="button"
+          >
+            Models
+          </button>
+
+          <button
+            class="market-category"
+            data-market-category="effects"
+            type="button"
+          >
+            Effects
+          </button>
+
+        </div>
+
+        <div
+          id="marketplaceGrid"
+          class="marketplace-grid"
+        ></div>
+
+      </section>
+
+      <!-- SETTINGS -->
+
+      <section
+        id="page-settings"
+        class="page"
+        data-page-content="settings"
+      >
+
+        <div class="page-header">
+
+          <span class="eyebrow">
+            PREFERENCES
+          </span>
+
+          <h1>
+            Settings
+          </h1>
+
+          <p>
+            Manage your RiseUp experience.
+          </p>
+
+        </div>
+
+        <div class="settings-page">
+
+          <section class="settings-card">
+
+            <h2>
+              Account
+            </h2>
+
+            <div class="settings-line">
+
+              <div>
+                <strong>
+                  Username
+                </strong>
+
+                <span id="settingsUsername">
+                  Creator
+                </span>
+              </div>
+
+            </div>
+
+            <div class="settings-line">
+
+              <div>
+                <strong>
+                  RUX
+                </strong>
+
+                <span id="settingsRux">
+                  0
+                </span>
+              </div>
+
+            </div>
+
+          </section>
+
+          <section class="settings-card">
+
+            <h2>
+              Preferences
+            </h2>
+
+            <label class="toggle-row">
+
+              <span>
+                Reduced motion
+              </span>
+
+              <input
+                id="reducedMotion"
+                type="checkbox"
+              >
+
+            </label>
+
+            <label class="toggle-row">
+
+              <span>
+                Confirm before deleting
+              </span>
+
+              <input
+                id="confirmDelete"
+                type="checkbox"
+                checked
+              >
+
+            </label>
+
+          </section>
+
+          <section class="settings-card danger-card">
+
+            <h2>
+              Account Actions
+            </h2>
+
+            <button
+              id="logoutButton"
+              class="danger-button"
+              type="button"
+            >
+              Log Out
+            </button>
+
+          </section>
+
+        </div>
+
+      </section>
+
+      <!-- =================================================
+           FOOTER
+           ================================================= -->
+
+      <footer class="site-footer">
+
+        <div class="footer-brand">
+
+          <div class="footer-logo">
+            R
+          </div>
+
+          <div>
+            <strong>
+              RiseUp
+            </strong>
+
+            <span>
+              Create. Play. Rise.
+            </span>
+          </div>
+
+        </div>
+
+        <nav class="footer-links">
+
+          <button
+            data-footer="about"
+            type="button"
+          >
+            About
+          </button>
+
+          <button
+            data-footer="careers"
+            type="button"
+          >
+            Careers
+          </button>
+
+          <button
+            data-footer="help"
+            type="button"
+          >
+            Help
+          </button>
+
+          <button
+            data-footer="terms"
+            type="button"
+          >
+            Terms
+          </button>
+
+          <button
+            data-footer="privacy"
+            type="button"
+          >
+            Privacy
+          </button>
+
+        </nav>
+
+        <span class="footer-copy">
+          © 2026 RiseUp
+        </span>
+
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- =====================================================
+       PROFILE MENU
+       ===================================================== -->
+
+  <div
+    id="profileMenu"
+    class="profile-menu"
+  >
+
+    <div class="profile-menu-header">
+
+      <div
+        id="profileMenuAvatar"
+        class="profile-menu-avatar"
+      >
+        R
+      </div>
+
+      <div>
+
+        <strong id="profileMenuName">
+          Creator
+        </strong>
+
+        <span id="profileMenuUsername">
+          @creator
+        </span>
+
+      </div>
+
+    </div>
+
+    <button
+      data-profile-page="avatar"
+      type="button"
+    >
+      Avatar
+    </button>
+
+    <button
+      data-profile-page="inventory"
+      type="button"
+    >
+      Inventory
+    </button>
+
+    <button
+      data-profile-page="friends"
+      type="button"
+    >
+      Friends
+    </button>
+
+    <button
+      data-profile-page="settings"
+      type="button"
+    >
+      Settings
+    </button>
+
+    <div class="profile-menu-divider"></div>
+
+    <button
+      id="profileStudio"
+      type="button"
+    >
+      Studio
+    </button>
+
+    <button
+      id="profileRiseCode"
+      type="button"
+    >
+      RiseCode
+    </button>
+
+    <button
+      id="profileLogout"
+      class="profile-danger"
+      type="button"
+    >
+      Log Out
+    </button>
+
+  </div>
+
+  <!-- =====================================================
+       CREATE MENU
+       ===================================================== -->
+
+  <div
+    id="createMenu"
+    class="create-menu"
+  >
+
+    <div class="menu-title">
+      Create
+    </div>
+
+    <button
+      id="openStudioCreate"
+      type="button"
+    >
+      <span class="menu-icon studio-menu-icon"></span>
+
+      <span>
+        <strong>
+          RiseUp Studio
+        </strong>
+
+        <small>
+          Build a 3D game
+        </small>
+      </span>
+    </button>
+
+    <button
+      id="openCodeCreate"
+      type="button"
+    >
+      <span class="menu-icon code-menu-icon"></span>
+
+      <span>
+        <strong>
+          RiseCode
+        </strong>
+
+        <small>
+          Code your game
+        </small>
+      </span>
+    </button>
+
+  </div>
+
+  <!-- =====================================================
+       NOTIFICATIONS
+       ===================================================== -->
+
+  <div
+    id="notificationsPanel"
+    class="popover-panel"
+  >
+
+    <div class="popover-header">
+
+      <strong>
+        Notifications
+      </strong>
+
+      <button
+        id="clearNotifications"
+        type="button"
+      >
+        Clear
+      </button>
+
+    </div>
+
+    <div
+      id="notificationsList"
+      class="popover-list"
+    ></div>
+
+  </div>
+
+  <!-- =====================================================
+       QUICK MESSAGES
+       ===================================================== -->
+
+  <div
+    id="quickMessagesPanel"
+    class="popover-panel"
+  >
+
+    <div class="popover-header">
+
+      <strong>
+        Messages
+      </strong>
+
+      <button
+        id="openMessages"
+        type="button"
+      >
+        Open
+      </button>
+
+    </div>
+
+    <div
+      id="quickMessagesList"
+      class="popover-list"
+    ></div>
+
+  </div>
+
+  <!-- =====================================================
+       RUX
+       ===================================================== -->
+
+  <div
+    id="ruxPanel"
+    class="rux-panel popover-panel"
+  >
+
+    <div class="rux-panel-symbol">
+      R
+    </div>
+
+    <strong>
+      RUX Balance
+    </strong>
+
+    <span id="ruxPanelAmount">
+      0
+    </span>
+
+    <button
+      id="ruxMarketplace"
+      type="button"
+    >
+      Open Marketplace
+    </button>
+
+  </div>
+
+  <!-- =====================================================
+       FRIEND MODAL
+       ===================================================== -->
+
+  <div
+    id="friendModal"
+    class="modal-backdrop hidden"
+  >
+
+    <div class="modal">
+
+      <button
+        class="modal-close"
+        data-close-modal="friendModal"
+        type="button"
+      >
+        X
+      </button>
+
+      <h2>
+        Add Friend
+      </h2>
+
+      <p>
+        Enter a RiseUp username.
+      </p>
+
+      <input
+        id="friendUsernameInput"
+        type="text"
+        autocomplete="off"
+        placeholder="Username"
+      >
+
+      <div class="modal-actions">
+
+        <button
+          data-close-modal="friendModal"
+          type="button"
+        >
+          Cancel
+        </button>
+
+        <button
+          id="confirmAddFriend"
+          class="primary-button"
+          type="button"
+        >
+          Add Friend
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =====================================================
+       INFO MODAL
+       ===================================================== -->
+
+  <div
+    id="infoModal"
+    class="modal-backdrop hidden"
+  >
+
+    <div class="modal">
+
+      <button
+        class="modal-close"
+        data-close-modal="infoModal"
+        type="button"
+      >
+        X
+      </button>
+
+      <span
+        id="infoModalEyebrow"
+        class="eyebrow"
+      >
+        RISEUP
+      </span>
+
+      <h2 id="infoModalTitle">
+        RiseUp
+      </h2>
+
+      <p id="infoModalText">
+        Welcome to RiseUp.
+      </p>
+
+      <div class="modal-actions">
+
+        <button
+          class="primary-button"
+          data-close-modal="infoModal"
+          type="button"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /*
+   * =========================================================
+   * RISEUP EVERYTHING
+   * One-file app shell
+   * =========================================================
+   */
+
+  const USER_KEY = "riseup_currentUser";
+  const GAMES_KEY = "riseup_games";
+  const FRIENDS_KEY = "riseup_friends";
+  const INVENTORY_KEY = "riseup_inventory";
+  const NOTIFICATIONS_KEY = "riseup_notifications";
+  const MESSAGES_KEY = "riseup_messages";
+  const AVATAR_KEY = "riseup_avatar";
+  const SETTINGS_KEY = "riseup_settings";
+
+  const state = {
+    user: getUser(),
+
+    page: "home",
+
+    search: "",
+
+    discoverFilter: "all",
+
+    inventoryTab: "items",
+
+    marketplaceCategory: "featured",
+
+    games: readGames(),
+
+    friends: readFriends(),
+
+    inventory: readUserArray(
+      INVENTORY_KEY
+    ),
+
+    notifications: readUserArray(
+      NOTIFICATIONS_KEY
+    ),
+
+    messages: readUserArray(
+      MESSAGES_KEY
+    ),
+
+    avatar: readAvatar(),
+
+    settings: readSettings(),
+
+    rux: getRux()
+  };
+
+  const els = {};
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init
+  );
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+
+  function init() {
+    cacheElements();
+
+    bindNavigation();
+    bindTopbar();
+    bindProfile();
+    bindCreateMenu();
+    bindFooter();
+    bindSearch();
+    bindDiscover();
+    bindInventory();
+    bindMarketplace();
+    bindFriends();
+    bindAvatar();
+    bindSettings();
+    bindModals();
+
+    renderUser();
+    renderAll();
+
+    navigate("home");
+  }
+
+  /* =========================================================
+     CACHE
+     ========================================================= */
+
+  function cacheElements() {
+    els.pages =
+      document.querySelectorAll(
+        ".page"
+      );
+
+    els.topNav =
+      document.querySelectorAll(
+        ".top-nav-button"
+      );
+
+    els.sidebar =
+      document.querySelectorAll(
+        ".sidebar-button[data-page]"
+      );
+
+    els.welcomeName =
+      document.getElementById(
+        "welcomeName"
+      );
+
+    els.profileLetter =
+      document.getElementById(
+        "profileLetter"
+      );
+
+    els.profileMenu =
+      document.getElementById(
+        "profileMenu"
+      );
+
+    els.profileMenuAvatar =
+      document.getElementById(
+        "profileMenuAvatar"
+      );
+
+    els.profileMenuName =
+      document.getElementById(
+        "profileMenuName"
+      );
+
+    els.profileMenuUsername =
+      document.getElementById(
+        "profileMenuUsername"
+      );
+
+    els.ruxAmount =
+      document.getElementById(
+        "ruxAmount"
+      );
+
+    els.ruxPanel =
+      document.getElementById(
+        "ruxPanel"
+      );
+
+    els.ruxPanelAmount =
+      document.getElementById(
+        "ruxPanelAmount"
+      );
+
+    els.marketRux =
+      document.getElementById(
+        "marketRux"
+      );
+
+    els.settingsRux =
+      document.getElementById(
+        "settingsRux"
+      );
+
+    els.settingsUsername =
+      document.getElementById(
+        "settingsUsername"
+      );
+
+    els.friendsCount =
+      document.getElementById(
+        "friendsCount"
+      );
+
+    els.globalSearch =
+      document.getElementById(
+        "globalSearch"
+      );
+
+    els.friendsGrid =
+      document.getElementById(
+        "friendsGrid"
+      );
+
+    els.allFriendsGrid =
+      document.getElementById(
+        "allFriendsGrid"
+      );
+
+    els.friendsEmpty =
+      document.getElementById(
+        "friendsEmpty"
+      );
+
+    els.continueGames =
+      document.getElementById(
+        "continueGames"
+      );
+
+    els.continueEmpty =
+      document.getElementById(
+        "continueEmpty"
+      );
+
+    els.recommendedGames =
+      document.getElementById(
+        "recommendedGames"
+      );
+
+    els.recommendedEmpty =
+      document.getElementById(
+        "recommendedEmpty"
+      );
+
+    els.discoverGames =
+      document.getElementById(
+        "discoverGames"
+      );
+
+    els.discoverEmpty =
+      document.getElementById(
+        "discoverEmpty"
+      );
+
+    els.inventoryContent =
+      document.getElementById(
+        "inventoryContent"
+      );
+
+    els.marketplaceGrid =
+      document.getElementById(
+        "marketplaceGrid"
+      );
+
+    els.conversationList =
+      document.getElementById(
+        "conversationList"
+      );
+
+    els.messagePanel =
+      document.getElementById(
+        "messagePanel"
+      );
+
+    els.notificationsPanel =
+      document.getElementById(
+        "notificationsPanel"
+      );
+
+    els.notificationsList =
+      document.getElementById(
+        "notificationsList"
+      );
+
+    els.quickMessagesPanel =
+      document.getElementById(
+        "quickMessagesPanel"
+      );
+
+    els.quickMessagesList =
+      document.getElementById(
+        "quickMessagesList"
+      );
+
+    els.createMenu =
+      document.getElementById(
+        "createMenu"
+      );
+
+    els.friendModal =
+      document.getElementById(
+        "friendModal"
+      );
+
+    els.infoModal =
+      document.getElementById(
+        "infoModal"
+      );
+
+    els.toast =
+      document.getElementById(
+        "toast"
+      );
+
+    els.avatarHead =
+      document.querySelector(
+        ".avatar-head"
+      );
+
+    els.avatarBody =
+      document.querySelector(
+        ".avatar-body"
+      );
+
+    els.avatarArms =
+      document.querySelectorAll(
+        ".avatar-arms span"
+      );
+
+    els.avatarLegs =
+      document.querySelectorAll(
+        ".avatar-legs span"
+      );
+  }
+
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
+  function bindNavigation() {
+    els.topNav.forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () =>
+            navigate(
+              button.dataset.page
+            )
+        );
+      }
+    );
+
+    els.sidebar.forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () =>
+            navigate(
+              button.dataset.page
+            )
+        );
+      }
+    );
+
+    document
+      .querySelectorAll(
+        "[data-page-action]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () =>
+              navigate(
+                button.dataset.pageAction
+              )
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "brandButton"
+      )
+      ?.addEventListener(
+        "click",
+        () =>
+          navigate("home")
+      );
+
+    document
+      .querySelectorAll(
+        "[data-profile-page]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              closePopovers();
+
+              navigate(
+                button.dataset.profilePage
+              );
+            }
+          );
+        }
+      );
+  }
+
+  function navigate(
+    page
+  ) {
+    const valid = [
+      "home",
+      "discover",
+      "avatar",
+      "inventory",
+      "friends",
+      "messages",
+      "marketplace",
+      "settings"
+    ];
+
+    if (
+      !valid.includes(page)
+    ) {
+      page = "home";
+    }
+
+    state.page =
+      page;
+
+    els.pages.forEach(
+      (section) => {
+        section.classList.toggle(
+          "active",
+          section.dataset.pageContent ===
+            page
+        );
+      }
+    );
+
+    els.topNav.forEach(
+      (button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.page ===
+            page
+        );
+      }
+    );
+
+    els.sidebar.forEach(
+      (button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.page ===
+            page
+        );
+      }
+    );
+
+    closePopovers();
+
+    renderCurrentPage();
+
+    window.scrollTo({
+      top: 0,
+      behavior:
+        state.settings.reducedMotion
+          ? "auto"
+          : "smooth"
+    });
+  }
+
+  /* =========================================================
+     TOPBAR
+     ========================================================= */
+
+  function bindTopbar() {
+    document
+      .getElementById(
+        "profileButton"
+      )
+      ?.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation();
+
+          closeOtherPopovers(
+            "profile"
+          );
+
+          els.profileMenu.classList.toggle(
+            "open"
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "messagesTopButton"
+      )
+      ?.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation();
+
+          closeOtherPopovers(
+            "messages"
+          );
+
+          els.quickMessagesPanel.classList.toggle(
+            "open"
+          );
+
+          renderQuickMessages();
+        }
+      );
+
+    document
+      .getElementById(
+        "notificationsTopButton"
+      )
+      ?.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation();
+
+          closeOtherPopovers(
+            "notifications"
+          );
+
+          els.notificationsPanel.classList.toggle(
+            "open"
+          );
+
+          renderNotifications();
+        }
+      );
+
+    document
+      .getElementById(
+        "ruxButton"
+      )
+      ?.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation();
+
+          closeOtherPopovers(
+            "rux"
+          );
+
+          els.ruxPanel.classList.toggle(
+            "open"
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "ruxMarketplace"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          closePopovers();
+          navigate(
+            "marketplace"
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "openMessages"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          closePopovers();
+          navigate(
+            "messages"
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "clearNotifications"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          state.notifications =
+            [];
+
+          saveUserArray(
+            NOTIFICATIONS_KEY,
+            state.notifications
+          );
+
+          renderNotifications();
+
+          toast(
+            "Notifications cleared."
+          );
+        }
+      );
+
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (
+          !event.target.closest(
+            ".profile-menu"
+          ) &&
+          !event.target.closest(
+            "#profileButton"
+          ) &&
+          !event.target.closest(
+            ".create-menu"
+          ) &&
+          !event.target.closest(
+            "#createButton"
+          ) &&
+          !event.target.closest(
+            "#sidebarCreate"
+          ) &&
+          !event.target.closest(
+            ".popover-panel"
+          ) &&
+          !event.target.closest(
+            ".top-icon-button"
+          ) &&
+          !event.target.closest(
+            "#ruxButton"
+          )
+        ) {
+          closePopovers();
+        }
+      }
+    );
+  }
+
+  /* =========================================================
+     PROFILE
+     ========================================================= */
+
+  function bindProfile() {
+    document
+      .getElementById(
+        "profileStudio"
+      )
+      ?.addEventListener(
+        "click",
+        openStudio
+      );
+
+    document
+      .getElementById(
+        "profileRiseCode"
+      )
+      ?.addEventListener(
+        "click",
+        openRiseCode
+      );
+
+    document
+      .getElementById(
+        "profileLogout"
+      )
+      ?.addEventListener(
+        "click",
+        logout
+      );
+
+    document
+      .getElementById(
+        "logoutButton"
+      )
+      ?.addEventListener(
+        "click",
+        logout
+      );
+  }
+
+  /* =========================================================
+     CREATE
+     ========================================================= */
+
+  function bindCreateMenu() {
+    [
+      "createButton",
+      "sidebarCreate"
+    ].forEach(
+      (id) => {
+        document
+          .getElementById(id)
+          ?.addEventListener(
+            "click",
+            (event) => {
+              event.stopPropagation();
+
+              closeOtherPopovers(
+                "create"
+              );
+
+              els.createMenu.classList.toggle(
+                "open"
+              );
+            }
+          );
+      }
+    );
+
+    document
+      .querySelectorAll(
+        '[data-action="create"]'
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            openStudio
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "openStudioCreate"
+      )
+      ?.addEventListener(
+        "click",
+        openStudio
+      );
+
+    document
+      .getElementById(
+        "openCodeCreate"
+      )
+      ?.addEventListener(
+        "click",
+        openRiseCode
+      );
+
+    document
+      .getElementById(
+        "studioButton"
+      )
+      ?.addEventListener(
+        "click",
+        openStudio
+      );
+
+    document
+      .getElementById(
+        "riseCodeButton"
+      )
+      ?.addEventListener(
+        "click",
+        openRiseCode
+      );
+  }
+
+  function openStudio() {
+    window.location.assign(
+      "./studio.html"
+    );
+  }
+
+  function openRiseCode() {
+    window.location.assign(
+      "./code.html"
+    );
+  }
+
+  /* =========================================================
+     SEARCH
+     ========================================================= */
+
+  function bindSearch() {
+    els.globalSearch?.addEventListener(
+      "input",
+      () => {
+        state.search =
+          els.globalSearch.value
+            .trim()
+            .toLowerCase();
+
+        if (
+          state.search &&
+          state.page !== "discover"
+        ) {
+          navigate(
+            "discover"
+          );
+        } else {
+          renderCurrentPage();
+        }
+      }
+    );
+
+    els.globalSearch?.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Escape"
+        ) {
+          els.globalSearch.value =
+            "";
+
+          state.search =
+            "";
+
+          renderCurrentPage();
+
+          els.globalSearch.blur();
+        }
+      }
+    );
+  }
+
+  /* =========================================================
+     DISCOVER
+     ========================================================= */
+
+  function bindDiscover() {
+    document
+      .querySelectorAll(
+        ".filter-button"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.discoverFilter =
+                button.dataset.filter;
+
+              document
+                .querySelectorAll(
+                  ".filter-button"
+                )
+                .forEach(
+                  (item) =>
+                    item.classList.toggle(
+                      "active",
+                      item === button
+                    )
+                );
+
+              renderDiscover();
+            }
+          );
+        }
+      );
+  }
+
+  /* =========================================================
+     INVENTORY
+     ========================================================= */
+
+  function bindInventory() {
+    document
+      .querySelectorAll(
+        ".inventory-tab"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.inventoryTab =
+                button.dataset.inventoryTab;
+
+              document
+                .querySelectorAll(
+                  ".inventory-tab"
+                )
+                .forEach(
+                  (item) =>
+                    item.classList.toggle(
+                      "active",
+                      item === button
+                    )
+                );
+
+              renderInventory();
+            }
+          );
+        }
+      );
+  }
+
+  /* =========================================================
+     MARKETPLACE
+     ========================================================= */
+
+  function bindMarketplace() {
+    document
+      .querySelectorAll(
+        ".market-category"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.marketplaceCategory =
+                button.dataset.marketCategory;
+
+              document
+                .querySelectorAll(
+                  ".market-category"
+                )
+                .forEach(
+                  (item) =>
+                    item.classList.toggle(
+                      "active",
+                      item === button
+                    )
+                );
+
+              renderMarketplace();
+            }
+          );
+        }
+      );
+  }
+
+  /* =========================================================
+     FRIENDS
+     ========================================================= */
+
+  function bindFriends() {
+    document
+      .getElementById(
+        "addFriendButton"
+      )
+      ?.addEventListener(
+        "click",
+        openFriendModal
+      );
+
+    document
+      .getElementById(
+        "emptyAddFriend"
+      )
+      ?.addEventListener(
+        "click",
+        openFriendModal
+      );
+
+    document
+      .getElementById(
+        "confirmAddFriend"
+      )
+      ?.addEventListener(
+        "click",
+        addFriend
+      );
+
+    document
+      .getElementById(
+        "friendUsernameInput"
+      )
+      ?.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key ===
+            "Enter"
+          ) {
+            addFriend();
+          }
+        }
+      );
+
+    document
+      .getElementById(
+        "friendSearch"
+      )
+      ?.addEventListener(
+        "input",
+        renderFriendsPage
+      );
+  }
+
+  function openFriendModal() {
+    els.friendModal.classList.remove(
+      "hidden"
+    );
+
+    document
+      .getElementById(
+        "friendUsernameInput"
+      )
+      ?.focus();
+  }
+
+  function addFriend() {
+    const input =
+      document.getElementById(
+        "friendUsernameInput"
+      );
+
+    const name =
+      input?.value.trim();
+
+    if (!name) {
+      toast(
+        "Enter a username.",
+        "error"
+      );
+
+      return;
+    }
+
+    const exists =
+      state.friends.some(
+        (friend) =>
+          friend.name.toLowerCase() ===
+          name.toLowerCase()
+      );
+
+    if (exists) {
+      toast(
+        "That friend is already added.",
+        "error"
+      );
+
+      return;
+    }
+
+    state.friends.push({
+      name
+    });
+
+    saveUserArray(
+      FRIENDS_KEY,
+      state.friends
+    );
+
+    if (input) {
+      input.value = "";
+    }
+
+    closeModal(
+      "friendModal"
+    );
+
+    renderFriendsPage();
+
+    toast(
+      `${name} added to friends.`,
+      "success"
+    );
+  }
+
+  /* =========================================================
+     AVATAR
+     ========================================================= */
+
+  function bindAvatar() {
+    document
+      .querySelectorAll(
+        "[data-avatar-color]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.avatar.head =
+                button.dataset.avatarColor;
+
+              saveAvatar();
+              renderAvatar();
+            }
+          );
+        }
+      );
+
+    document
+      .querySelectorAll(
+        "[data-avatar-body]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.avatar.body =
+                button.dataset.avatarBody;
+
+              saveAvatar();
+              renderAvatar();
+            }
+          );
+        }
+      );
+
+    document
+      .querySelectorAll(
+        "[data-avatar-legs]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              state.avatar.legs =
+                button.dataset.avatarLegs;
+
+              saveAvatar();
+              renderAvatar();
+            }
+          );
+        }
+      );
+  }
+
+  function renderAvatar() {
+    if (
+      els.avatarHead
+    ) {
+      els.avatarHead.style.background =
+        state.avatar.head;
+    }
+
+    if (
+      els.avatarBody
+    ) {
+      els.avatarBody.style.background =
+        state.avatar.body;
+    }
+
+    els.avatarArms?.forEach(
+      (arm) => {
+        arm.style.background =
+          state.avatar.head;
+      }
+    );
+
+    els.avatarLegs?.forEach(
+      (leg) => {
+        leg.style.background =
+          state.avatar.legs;
+      }
+    );
+
+    const name =
+      getDisplayName();
+
+    document
+      .getElementById(
+        "avatarPreviewName"
+      )
+      ?.replaceChildren(
+        document.createTextNode(
+          name
+        )
+      );
+  }
+
+  /* =========================================================
+     SETTINGS
+     ========================================================= */
+
+  function bindSettings() {
+    document
+      .getElementById(
+        "reducedMotion"
+      )
+      ?.addEventListener(
+        "change",
+        (event) => {
+          state.settings.reducedMotion =
+            event.target.checked;
+
+          saveSettings();
+        }
+      );
+
+    document
+      .getElementById(
+        "confirmDelete"
+      )
+      ?.addEventListener(
+        "change",
+        (event) => {
+          state.settings.confirmDelete =
+            event.target.checked;
+
+          saveSettings();
+        }
+      );
+  }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+
+  function bindFooter() {
+    const content = {
+      about: [
+        "About RiseUp",
+        "RiseUp is a creator-focused platform for making, sharing, and playing interactive experiences.",
+        "ABOUT"
+      ],
+
+      careers: [
+        "Careers",
+        "RiseUp careers will be available as the platform grows.",
+        "CAREERS"
+      ],
+
+      help: [
+        "Help",
+        "Use RiseUp Studio, RiseCode, and Rise AI to build and troubleshoot your projects.",
+        "HELP"
+      ],
+
+      terms: [
+        "Terms",
+        "RiseUp terms are part of the platform's community and creator systems.",
+        "TERMS"
+      ],
+
+      privacy: [
+        "Privacy",
+        "RiseUp keeps account information and public experience content as separate systems.",
+        "PRIVACY"
+      ]
+    };
+
+    document
+      .querySelectorAll(
+        "[data-footer]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              const item =
+                content[
+                  button.dataset.footer
+                ];
+
+              if (!item) {
+                return;
+              }
+
+              document
+                .getElementById(
+                  "infoModalEyebrow"
+                )
+                .textContent =
+                item[2];
+
+              document
+                .getElementById(
+                  "infoModalTitle"
+                )
+                .textContent =
+                item[0];
+
+              document
+                .getElementById(
+                  "infoModalText"
+                )
+                .textContent =
+                item[1];
+
+              els.infoModal.classList.remove(
+                "hidden"
+              );
+            }
+          );
+        }
+      );
+  }
+
+  /* =========================================================
+     MODALS
+     ========================================================= */
+
+  function bindModals() {
+    document
+      .querySelectorAll(
+        "[data-close-modal]"
+      )
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () =>
+              closeModal(
+                button.dataset.closeModal
+              )
+          );
+        }
+      );
+
+    document
+      .querySelectorAll(
+        ".modal-backdrop"
+      )
+      .forEach(
+        (modal) => {
+          modal.addEventListener(
+            "click",
+            (event) => {
+              if (
+                event.target ===
+                modal
+              ) {
+                modal.classList.add(
+                  "hidden"
+                );
+              }
+            }
+          );
+        }
+      );
+  }
+
+  function closeModal(
+    id
+  ) {
+    document
+      .getElementById(
+        id
+      )
+      ?.classList.add(
+        "hidden"
+      );
+  }
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
+
+  function renderAll() {
+    renderUser();
+    renderHome();
+    renderDiscover();
+    renderFriendsPage();
+    renderInventory();
+    renderMarketplace();
+    renderMessages();
+    renderNotifications();
+    renderQuickMessages();
+    renderAvatar();
+  }
+
+  function renderCurrentPage() {
+    switch (
+      state.page
+    ) {
+      case "home":
+        renderHome();
+        break;
+
+      case "discover":
+        renderDiscover();
+        break;
+
+      case "avatar":
+        renderAvatar();
+        break;
+
+      case "inventory":
+        renderInventory();
+        break;
+
+      case "friends":
+        renderFriendsPage();
+        break;
+
+      case "messages":
+        renderMessages();
+        break;
+
+      case "marketplace":
+        renderMarketplace();
+        break;
+
+      case "settings":
+        renderSettings();
+        break;
+    }
+  }
+
+  /* =========================================================
+     USER
+     ========================================================= */
+
+  function renderUser() {
+    const name =
+      getDisplayName();
+
+    const username =
+      getUsername();
+
+    const letter =
+      name
+        .charAt(0)
+        .toUpperCase() ||
+      "R";
+
+    if (
+      els.welcomeName
+    ) {
+      els.welcomeName.textContent =
+        name;
+    }
+
+    if (
+      els.profileLetter
+    ) {
+      els.profileLetter.textContent =
+        letter;
+    }
+
+    if (
+      els.profileMenuAvatar
+    ) {
+      els.profileMenuAvatar.textContent =
+        letter;
+    }
+
+    if (
+      els.profileMenuName
+    ) {
+      els.profileMenuName.textContent =
+        name;
+    }
+
+    if (
+      els.profileMenuUsername
+    ) {
+      els.profileMenuUsername.textContent =
+        `@${username}`;
+    }
+
+    if (
+      els.ruxAmount
+    ) {
+      els.ruxAmount.textContent =
+        formatNumber(
+          state.rux
+        );
+    }
+
+    if (
+      els.ruxPanelAmount
+    ) {
+      els.ruxPanelAmount.textContent =
+        formatNumber(
+          state.rux
+        );
+    }
+
+    if (
+      els.marketRux
+    ) {
+      els.marketRux.textContent =
+        formatNumber(
+          state.rux
+        );
+    }
+
+    if (
+      els.settingsRux
+    ) {
+      els.settingsRux.textContent =
+        formatNumber(
+          state.rux
+        );
+    }
+
+    if (
+      els.settingsUsername
+    ) {
+      els.settingsUsername.textContent =
+        username;
+    }
+
+    if (
+      els.friendsCount
+    ) {
+      els.friendsCount.textContent =
+        String(
+          state.friends.length
+        );
+    }
+
+    const reduced =
+      document.getElementById(
+        "reducedMotion"
+      );
+
+    if (reduced) {
+      reduced.checked =
+        Boolean(
+          state.settings.reducedMotion
+        );
+    }
+
+    const confirmDelete =
+      document.getElementById(
+        "confirmDelete"
+      );
+
+    if (confirmDelete) {
+      confirmDelete.checked =
+        state.settings.confirmDelete !==
+        false;
+    }
+  }
+
+  /* =========================================================
+     HOME
+     ========================================================= */
+
+  function renderHome() {
+    const filtered =
+      filterGames();
+
+    const current =
+      getUsername().toLowerCase();
+
+    const continueGames =
+      filtered.filter(
+        (game) =>
+          String(
+            game.owner
+          ).toLowerCase() ===
+          current ||
+          String(
+            game.creator
+          ).toLowerCase() ===
+          current
+      );
+
+    const recommended =
+      filtered.slice(
+        0,
+        8
+      );
+
+    renderGameGrid(
+      els.continueGames,
+      continueGames
+    );
+
+    renderGameGrid(
+      els.recommendedGames,
+      recommended
+    );
+
+    toggleEmpty(
+      els.continueEmpty,
+      continueGames.length === 0
+    );
+
+    toggleEmpty(
+      els.recommendedEmpty,
+      recommended.length === 0
+    );
+
+    renderFriendsPreview();
+  }
+
+  function renderFriendsPreview() {
+    if (
+      !els.friendsGrid
+    ) {
+      return;
+    }
+
+    els.friendsGrid.innerHTML =
+      "";
+
+    state.friends
+      .slice(
+        0,
+        8
+      )
+      .forEach(
+        (friend) => {
+          els.friendsGrid.appendChild(
+            createFriendCard(
+              friend
+            )
+          );
+        }
+      );
+
+    if (
+      !state.friends.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "empty-state";
+
+      empty.style.minHeight =
+        "100px";
+
+      empty.innerHTML =
+        `
+          <h3>No friends yet</h3>
+          <p>Add friends to see them here.</p>
+        `;
+
+      els.friendsGrid.appendChild(
+        empty
+      );
+    }
+  }
+
+  /* =========================================================
+     DISCOVER
+     ========================================================= */
+
+  function renderDiscover() {
+    let games =
+      filterGames();
+
+    const current =
+      getUsername().toLowerCase();
+
+    if (
+      state.discoverFilter ===
+      "recent"
+    ) {
+      games =
+        games.sort(
+          (a, b) =>
+            new Date(
+              b.updatedAt ||
+                0
+            ) -
+            new Date(
+              a.updatedAt ||
+                0
+            )
+        );
+    }
+
+    if (
+      state.discoverFilter ===
+      "mine"
+    ) {
+      games =
+        games.filter(
+          (game) =>
+            String(
+              game.owner
+            ).toLowerCase() ===
+              current ||
+            String(
+              game.creator
+            ).toLowerCase() ===
+              current
+        );
+    }
+
+    renderGameGrid(
+      els.discoverGames,
+      games
+    );
+
+    toggleEmpty(
+      els.discoverEmpty,
+      games.length === 0
+    );
+  }
+
+  /* =========================================================
+     GAMES
+     ========================================================= */
+
+  function filterGames() {
+    if (
+      !state.search
+    ) {
+      return [
+        ...state.games
+      ];
+    }
+
+    return state.games.filter(
+      (game) => {
+        const text = [
+          game.name,
+          game.creator,
+          game.description
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return text.includes(
+          state.search
+        );
+      }
+    );
+  }
+
+  function renderGameGrid(
+    container,
+    games
+  ) {
+    if (
+      !container
+    ) {
+      return;
+    }
+
+    container.innerHTML =
+      "";
+
+    games.forEach(
+      (game) => {
+        container.appendChild(
+          createGameCard(
+            game
+          )
+        );
+      }
+    );
+  }
+
+  function createGameCard(
+    game
+  ) {
+    const card =
+      document.createElement(
+        "article"
+      );
+
+    card.className =
+      "game-card";
+
+    card.tabIndex =
+      0;
+
+    const thumbnail =
+      document.createElement(
+        "div"
+      );
+
+    thumbnail.className =
+      "game-thumbnail";
+
+    if (
+      game.thumbnail
+    ) {
+      thumbnail.style.backgroundImage =
+        `url("${safeCssUrl(
+          game.thumbnail
+        )}")`;
+
+      thumbnail.style.backgroundSize =
+        "cover";
+
+      thumbnail.style.backgroundPosition =
+        "center";
+    }
+
+    const info =
+      document.createElement(
+        "div"
+      );
+
+    info.className =
+      "game-info";
+
+    const title =
+      document.createElement(
+        "h3"
+      );
+
+    title.className =
+      "game-title";
+
+    title.textContent =
+      game.name;
+
+    const creator =
+      document.createElement(
+        "div"
+      );
+
+    creator.className =
+      "game-creator";
+
+    creator.textContent =
+      `By ${game.creator}`;
+
+    info.appendChild(
+      title
+    );
+
+    info.appendChild(
+      creator
+    );
+
+    card.appendChild(
+      thumbnail
+    );
+
+    card.appendChild(
+      info
+    );
+
+    card.addEventListener(
+      "click",
+      () =>
+        openGame(
+          game
+        )
+    );
+
+    card.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key ===
+            "Enter" ||
+          event.key ===
+            " "
+        ) {
+          event.preventDefault();
+
+          openGame(
+            game
+          );
+        }
+      }
+    );
+
+    return card;
+  }
+
+  function openGame(
+    game
+  ) {
+    localStorage.setItem(
+      "riseup_play_game_id",
+      game.id
+    );
+
+    localStorage.setItem(
+      "riseup_last_game_id",
+      game.id
+    );
+
+    /*
+     * Current project flow:
+     * Opening an experience sends the creator
+     * to Studio so the project can be opened there.
+     */
+
+    openStudio();
+  }
+
+  /* =========================================================
+     FRIENDS PAGE
+     ========================================================= */
+
+  function renderFriendsPage() {
+    if (
+      !els.allFriendsGrid
+    ) {
+      return;
+    }
+
+    const search =
+      (
+        document.getElementById(
+          "friendSearch"
+        )?.value ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    const friends =
+      state.friends.filter(
+        (friend) =>
+          !search ||
+          friend.name
+            .toLowerCase()
+            .includes(
+              search
+            )
+      );
+
+    els.allFriendsGrid.innerHTML =
+      "";
+
+    friends.forEach(
+      (friend) => {
+        els.allFriendsGrid.appendChild(
+          createFriendCard(
+            friend
+          )
+        );
+      }
+    );
+
+    toggleEmpty(
+      els.friendsEmpty,
+      friends.length === 0
+    );
+  }
+
+  function createFriendCard(
+    friend
+  ) {
+    const card =
+      document.createElement(
+        "div"
+      );
+
+    card.className =
+      "friend-card";
+
+    const avatar =
+      document.createElement(
+        "div"
+      );
+
+    avatar.className =
+      "friend-avatar";
+
+    avatar.textContent =
+      friend.name
+        .charAt(0)
+        .toUpperCase();
+
+    const name =
+      document.createElement(
+        "span"
+      );
+
+    name.className =
+      "friend-name";
+
+    name.textContent =
+      friend.name;
+
+    card.appendChild(
+      avatar
+    );
+
+    card.appendChild(
+      name
+    );
+
+    card.addEventListener(
+      "click",
+      () => {
+        toast(
+          `Selected ${friend.name}.`,
+          "success"
+        );
+      }
+    );
+
+    return card;
+  }
+
+  /* =========================================================
+     INVENTORY
+     ========================================================= */
+
+  function renderInventory() {
+    if (
+      !els.inventoryContent
+    ) {
+      return;
+    }
+
+    const items =
+      state.inventory.filter(
+        (item) =>
+          !item.category ||
+          item.category ===
+            state.inventoryTab
+      );
+
+    els.inventoryContent.innerHTML =
+      "";
+
+    if (
+      !items.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "empty-state";
+
+      empty.style.gridColumn =
+        "1 / -1";
+
+      empty.innerHTML =
+        `
+          <div class="empty-art"></div>
+          <h3>No ${state.inventoryTab} yet</h3>
+          <p>Your ${state.inventoryTab} will appear here.</p>
+        `;
+
+      els.inventoryContent.appendChild(
+        empty
+      );
+
+      return;
+    }
+
+    items.forEach(
+      (item) => {
+        const card =
+          document.createElement(
+            "div"
+          );
+
+        card.className =
+          "inventory-item";
+
+        card.innerHTML =
+          `
+            <div class="inventory-preview"></div>
+            <strong>${escapeHtml(
+              item.name ||
+                "Item"
+            )}</strong>
+            <span>${escapeHtml(
+              item.type ||
+                "RiseUp Item"
+            )}</span>
+          `;
+
+        els.inventoryContent.appendChild(
+          card
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     MARKETPLACE
+     ========================================================= */
+
+  function renderMarketplace() {
+    if (
+      !els.marketplaceGrid
+    ) {
+      return;
+    }
+
+    const items =
+      getMarketplaceItems(
+        state.marketplaceCategory
+      );
+
+    els.marketplaceGrid.innerHTML =
+      "";
+
+    items.forEach(
+      (item) => {
+        const card =
+          document.createElement(
+            "article"
+          );
+
+        card.className =
+          "market-item";
+
+        card.innerHTML =
+          `
+            <div class="market-image"></div>
+
+            <div class="market-information">
+
+              <strong>
+                ${escapeHtml(
+                  item.name
+                )}
+              </strong>
+
+              <span>
+                ${escapeHtml(
+                  item.type
+                )}
+              </span>
+
+              <div class="market-price">
+
+                <strong>
+                  ${item.price} RUX
+                </strong>
+
+                <button
+                  class="buy-button"
+                  type="button"
+                >
+                  Buy
+                </button>
+
+              </div>
+
+            </div>
+          `;
+
+        card
+          .querySelector(
+            ".buy-button"
+          )
+          .addEventListener(
+            "click",
+            () =>
+              buyMarketplaceItem(
+                item
+              )
+          );
+
+        els.marketplaceGrid.appendChild(
+          card
+        );
+      }
+    );
+  }
+
+  function getMarketplaceItems(
+    category
+  ) {
+    const items = [
+      {
+        name:
+          "Classic Block Pack",
+        type:
+          "Models",
+        category:
+          "models",
+        price:
+          25
+      },
+
+      {
+        name:
+          "Modern Avatar Bundle",
+        type:
+          "Avatar",
+        category:
+          "avatar",
+        price:
+          75
+      },
+
+      {
+        name:
+          "City Environment",
+        type:
+          "Models",
+        category:
+          "models",
+        price:
+          120
+      },
+
+      {
+        name:
+          "Energy Effect Pack",
+        type:
+          "Effects",
+        category:
+          "effects",
+        price:
+          50
+      },
+
+      {
+        name:
+          "Creator Starter Pack",
+        type:
+          "Featured",
+        category:
+          "featured",
+        price:
+          100
+      }
+    ];
+
+    if (
+      category ===
+      "featured"
+    ) {
+      return items.slice(
+        0,
+        3
+      );
+    }
+
+    return items.filter(
+      (item) =>
+        item.category ===
+        category
+    );
+  }
+
+  function buyMarketplaceItem(
+    item
+  ) {
+    const price =
+      Number(
+        item.price
+      );
+
+    if (
+      state.rux <
+      price
+    ) {
+      toast(
+        "You do not have enough RUX.",
+        "error"
+      );
+
+      return;
+    }
+
+    state.rux -=
+      price;
+
+    saveRux();
+
+    state.inventory.push({
+      name:
+        item.name,
+      type:
+        item.type,
+      category:
+        item.category
+    });
+
+    saveUserArray(
+      INVENTORY_KEY,
+      state.inventory
+    );
+
+    renderUser();
+    renderInventory();
+
+    toast(
+      `Purchased ${item.name}.`,
+      "success"
+    );
+  }
+
+  /* =========================================================
+     MESSAGES
+     ========================================================= */
+
+  function renderMessages() {
+    if (
+      !els.conversationList
+    ) {
+      return;
+    }
+
+    els.conversationList.innerHTML =
+      "";
+
+    if (
+      !state.messages.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.style.cssText =
+        "padding:20px;color:#6f7a87;font-size:10px;text-align:center;";
+
+      empty.textContent =
+        "No conversations yet.";
+
+      els.conversationList.appendChild(
+        empty
+      );
+
+      return;
+    }
+
+    state.messages.forEach(
+      (message, index) => {
+        const row =
+          document.createElement(
+            "div"
+          );
+
+        row.className =
+          "conversation";
+
+        row.innerHTML =
+          `
+            <div class="friend-avatar">
+              ${escapeHtml(
+                (
+                  message.name ||
+                  "U"
+                )
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </div>
+
+            <div>
+              <strong>
+                ${escapeHtml(
+                  message.name ||
+                    "User"
+                )}
+              </strong>
+
+              <div
+                style="
+                  margin-top:3px;
+                  color:#6f7a87;
+                  font-size:8px;
+                "
+              >
+                ${escapeHtml(
+                  message.preview ||
+                    "No messages yet."
+                )}
+              </div>
+            </div>
+          `;
+
+        row.addEventListener(
+          "click",
+          () =>
+            openConversation(
+              index
+            )
+        );
+
+        els.conversationList.appendChild(
+          row
+        );
+      }
+    );
+  }
+
+  function openConversation(
+    index
+  ) {
+    const conversation =
+      state.messages[index];
+
+    if (
+      !conversation ||
+      !els.messagePanel
+    ) {
+      return;
+    }
+
+    els.messagePanel.innerHTML =
+      `
+        <div
+          style="
+            width:100%;
+            height:100%;
+            display:flex;
+            flex-direction:column;
+          "
+        >
+
+          <div
+            style="
+              padding:12px;
+              border-bottom:1px solid var(--border);
+            "
+          >
+            <strong>
+              ${escapeHtml(
+                conversation.name ||
+                  "Conversation"
+              )}
+            </strong>
+          </div>
+
+          <div
+            style="
+              flex:1;
+              padding:15px;
+              color:var(--muted);
+              font-size:10px;
+            "
+          >
+            ${
+              escapeHtml(
+                conversation.preview ||
+                  "No messages yet."
+              )
+            }
+          </div>
+
+          <div
+            style="
+              display:flex;
+              gap:5px;
+              padding:8px;
+              border-top:1px solid var(--border);
+            "
+          >
+
+            <input
+              id="messageInput"
+              type="text"
+              placeholder="Write a message..."
+              style="
+                flex:1;
+                height:32px;
+                padding:0 9px;
+                color:white;
+                background:#090d12;
+                border:1px solid var(--border);
+                border-radius:4px;
+                outline:none;
+              "
+            >
+
+            <button
+              id="sendMessageButton"
+              class="primary-button"
+              type="button"
+            >
+              Send
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+    document
+      .getElementById(
+        "sendMessageButton"
+      )
+      ?.addEventListener(
+        "click",
+        () =>
+          sendMessage(
+            conversation
+          )
+      );
+
+    document
+      .getElementById(
+        "messageInput"
+      )
+      ?.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key ===
+            "Enter"
+          ) {
+            sendMessage(
+              conversation
+            );
+          }
+        }
+      );
+  }
+
+  function sendMessage(
+    conversation
+  ) {
+    const input =
+      document.getElementById(
+        "messageInput"
+      );
+
+    const message =
+      input?.value.trim();
+
+    if (!message) {
+      return;
+    }
+
+    conversation.preview =
+      message;
+
+    saveUserArray(
+      MESSAGES_KEY,
+      state.messages
+    );
+
+    if (input) {
+      input.value = "";
+    }
+
+    renderMessages();
+
+    toast(
+      "Message sent.",
+      "success"
+    );
+  }
+
+  function renderQuickMessages() {
+    if (
+      !els.quickMessagesList
+    ) {
+      return;
+    }
+
+    els.quickMessagesList.innerHTML =
+      "";
+
+    if (
+      !state.messages.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "quick-message";
+
+      empty.innerHTML =
+        `
+          <strong>
+            No messages
+          </strong>
+
+          <span>
+            Your conversations will appear here.
+          </span>
+        `;
+
+      els.quickMessagesList.appendChild(
+        empty
+      );
+
+      return;
+    }
+
+    state.messages
+      .slice(
+        0,
+        5
+      )
+      .forEach(
+        (message) => {
+          const item =
+            document.createElement(
+              "div"
+            );
+
+          item.className =
+            "quick-message";
+
+          item.innerHTML =
+            `
+              <strong>
+                ${escapeHtml(
+                  message.name ||
+                    "User"
+                )}
+              </strong>
+
+              <span>
+                ${escapeHtml(
+                  message.preview ||
+                    "No message"
+                )}
+              </span>
+            `;
+
+          els.quickMessagesList.appendChild(
+            item
+          );
+        }
+      );
+  }
+
+  /* =========================================================
+     NOTIFICATIONS
+     ========================================================= */
+
+  function renderNotifications() {
+    if (
+      !els.notificationsList
+    ) {
+      return;
+    }
+
+    els.notificationsList.innerHTML =
+      "";
+
+    if (
+      !state.notifications.length
+    ) {
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "notification-item";
+
+      empty.innerHTML =
+        `
+          <strong>
+            You're all caught up
+          </strong>
+
+          <span>
+            No new notifications.
+          </span>
+        `;
+
+      els.notificationsList.appendChild(
+        empty
+      );
+
+      return;
+    }
+
+    state.notifications.forEach(
+      (notification) => {
+        const item =
+          document.createElement(
+            "div"
+          );
+
+        item.className =
+          "notification-item";
+
+        item.innerHTML =
+          `
+            <strong>
+              ${escapeHtml(
+                notification.title ||
+                  "Notification"
+              )}
+            </strong>
+
+            <span>
+              ${escapeHtml(
+                notification.text ||
+                  ""
+              )}
+            </span>
+          `;
+
+        els.notificationsList.appendChild(
+          item
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     SETTINGS
+     ========================================================= */
+
+  function renderSettings() {
+    renderUser();
+  }
+
+  /* =========================================================
+     USER DATA
+     ========================================================= */
+
+  function getUser() {
+    try {
+      const raw =
+        localStorage.getItem(
+          USER_KEY
+        );
+
+      if (!raw) {
+        return "Creator";
+      }
+
+      try {
+        return JSON.parse(
+          raw
+        );
+      } catch {
+        return raw;
+      }
+    } catch {
+      return "Creator";
+    }
+  }
+
+  function getDisplayName() {
+    if (
+      !state.user
+    ) {
+      return "Creator";
+    }
+
+    if (
+      typeof state.user ===
+      "string"
+    ) {
+      return state.user;
+    }
+
+    return (
+      state.user.displayName ||
+      state.user.username ||
+      state.user.name ||
+      state.user.user ||
+      "Creator"
+    );
+  }
+
+  function getUsername() {
+    if (
+      !state.user
+    ) {
+      return "Creator";
+    }
+
+    if (
+      typeof state.user ===
+      "string"
+    ) {
+      return state.user;
+    }
+
+    return (
+      state.user.username ||
+      state.user.name ||
+      state.user.user ||
+      state.user.displayName ||
+      "Creator"
+    );
+  }
+
+  function getRux() {
+    if (
+      !state.user ||
+      typeof state.user ===
+      "string"
+    ) {
+      return 0;
+    }
+
+    const value =
+      state.user.rux ??
+      state.user.RUX ??
+      state.user.balance ??
+      0;
+
+    const number =
+      Number(value);
+
+    return Number.isFinite(
+      number
+    )
+      ? number
+      : 0;
+  }
+
+  function saveRux() {
+    if (
+      !state.user ||
+      typeof state.user ===
+      "string"
+    ) {
+      return;
+    }
+
+    state.user.rux =
+      state.rux;
+
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(
+        state.user
+      )
+    );
+  }
+
+  /* =========================================================
+     LOCAL STORAGE
+     ========================================================= */
+
+  function readGames() {
+    try {
+      const data =
+        JSON.parse(
+          localStorage.getItem(
+            GAMES_KEY
+          ) ||
+          "[]"
+        );
+
+      return Array.isArray(
+        data
+      )
+        ? data.map(
+            normalizeGame
+          )
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function normalizeGame(
+    game,
+    index
+  ) {
+    if (
+      !game ||
+      typeof game !==
+        "object"
+    ) {
+      return {
+        id:
+          `game-${index}`,
+        name:
+          "Untitled Experience",
+        creator:
+          "Unknown Creator",
+        owner:
+          "",
+        description:
+          "",
+        updatedAt:
+          null
+      };
+    }
+
+    return {
+      id:
+        String(
+          game.id ??
+          game.gameId ??
+          `game-${index}`
+        ),
+
+      name:
+        String(
+          game.name ||
+          game.title ||
+          "Untitled Experience"
+        ),
+
+      creator:
+        String(
+          game.creator ||
+          game.creatorName ||
+          game.owner ||
+          "Unknown Creator"
+        ),
+
+      owner:
+        String(
+          game.owner ||
+          game.projectOwner ||
+          game.creator ||
+          ""
+        ),
+
+      description:
+        String(
+          game.description ||
+          ""
+        ),
+
+      thumbnail:
+        String(
+          game.thumbnail ||
+          game.image ||
+          ""
+        ),
+
+      updatedAt:
+        game.updatedAt ||
+        game.createdAt ||
+        null
+    };
+  }
+
+  function readFriends() {
+    return readUserArray(
+      FRIENDS_KEY
+    ).map(
+      (friend) => {
+        if (
+          typeof friend ===
+          "string"
+        ) {
+          return {
+            name: friend
+          };
+        }
+
+        return {
+          name:
+            friend.displayName ||
+            friend.username ||
+            friend.name ||
+            "Friend"
+        };
+      }
+    );
+  }
+
+  function readUserArray(
+    key
+  ) {
+    const username =
+      getUsername();
+
+    const keys = [
+      `${key}_${username}`,
+      key
+    ];
+
+    for (
+      const storageKey of keys
+    ) {
+      try {
+        const data =
+          JSON.parse(
+            localStorage.getItem(
+              storageKey
+            ) ||
+            "[]"
+          );
+
+        if (
+          Array.isArray(
+            data
+          )
+        ) {
+          return data;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return [];
+  }
+
+  function saveUserArray(
+    key,
+    data
+  ) {
+    localStorage.setItem(
+      `${key}_${getUsername()}`,
+      JSON.stringify(
+        data
+      )
+    );
+  }
+
+  function readArray(
+    key
+  ) {
+    try {
+      const data =
+        JSON.parse(
+          localStorage.getItem(
+            key
+          ) ||
+          "[]"
+        );
+
+      return Array.isArray(
+        data
+      )
+        ? data
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function readAvatar() {
+    const fallback = {
+      head: "#FFE047",
+      body: "#249BFF",
+      legs: "#00A82D"
+    };
+
+    try {
+      const data =
+        JSON.parse(
+          localStorage.getItem(
+            `${AVATAR_KEY}_${getUsername()}`
+          ) ||
+          "null"
+        );
+
+      return {
+        ...fallback,
+        ...(data || {})
+      };
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveAvatar() {
+    localStorage.setItem(
+      `${AVATAR_KEY}_${getUsername()}`,
+      JSON.stringify(
+        state.avatar
+      )
+    );
+  }
+
+  function readSettings() {
+    const fallback = {
+      reducedMotion:
+        false,
+
+      confirmDelete:
+        true
+    };
+
+    try {
+      const data =
+        JSON.parse(
+          localStorage.getItem(
+            `${SETTINGS_KEY}_${getUsername()}`
+          ) ||
+          "null"
+        );
+
+      return {
+        ...fallback,
+        ...(data || {})
+      };
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveSettings() {
+    localStorage.setItem(
+      `${SETTINGS_KEY}_${getUsername()}`,
+      JSON.stringify(
+        state.settings
+      )
+    );
+  }
+
+  /* =========================================================
+     LOGOUT
+     ========================================================= */
+
+  function logout() {
+    localStorage.removeItem(
+      USER_KEY
+    );
+
+    window.location.assign(
+      "./index.html"
+    );
+  }
+
+  /* =========================================================
+     POPOVERS
+     ========================================================= */
+
+  function closeOtherPopovers(
+    type
+  ) {
+    if (
+      type !== "profile"
+    ) {
+      els.profileMenu?.classList.remove(
+        "open"
+      );
+    }
+
+    if (
+      type !== "create"
+    ) {
+      els.createMenu?.classList.remove(
+        "open"
+      );
+    }
+
+    if (
+      type !== "notifications"
+    ) {
+      els.notificationsPanel?.classList.remove(
+        "open"
+      );
+    }
+
+    if (
+      type !== "messages"
+    ) {
+      els.quickMessagesPanel?.classList.remove(
+        "open"
+      );
+    }
+
+    if (
+      type !== "rux"
+    ) {
+      els.ruxPanel?.classList.remove(
+        "open"
+      );
+    }
+  }
+
+  function closePopovers() {
+    els.profileMenu?.classList.remove(
+      "open"
+    );
+
+    els.createMenu?.classList.remove(
+      "open"
+    );
+
+    els.notificationsPanel?.classList.remove(
+      "open"
+    );
+
+    els.quickMessagesPanel?.classList.remove(
+      "open"
+    );
+
+    els.ruxPanel?.classList.remove(
+      "open"
+    );
+  }
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+
+  function toggleEmpty(
+    element,
+    show
+  ) {
+    if (!element) {
+      return;
+    }
+
+    element.style.display =
+      show
+        ? ""
+        : "none";
+  }
+
+  function formatNumber(
+    value
+  ) {
+    return new Intl.NumberFormat(
+      "en-US"
+    ).format(
+      Number(value) || 0
+    );
+  }
+
+  function escapeHtml(
+    value
+  ) {
+    return String(
+      value
+    )
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+  }
+
+  function safeCssUrl(
+    value
+  ) {
+    return String(
+      value || ""
+    )
+      .replaceAll(
+        "\\",
+        "\\\\"
+      )
+      .replaceAll(
+        '"',
+        '\\"'
+      )
+      .replace(
+        /[\r\n]/g,
+        ""
+      );
+  }
+
+  window.RiseUpEverything = {
+    state,
+
+    navigate,
+
+    openStudio,
+
+    openRiseCode,
+
+    renderAll
+  };
+})();
+</script>
+
+</body>
+</html>
