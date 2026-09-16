@@ -19,6 +19,9 @@
 
   document.addEventListener("DOMContentLoaded", init);
 
+  /* =========================================================
+     INIT
+     ========================================================= */
   function init() {
     cacheElements();
 
@@ -33,6 +36,14 @@
     renderFriends();
     renderGames();
     updateRux();
+
+    // Restore section from hash if present
+    const hash = (location.hash || "").replace("#", "").toLowerCase();
+    if (hash && hash !== "home") {
+      handleSidebar(hash);
+    } else {
+      goHome();
+    }
   }
 
   function cacheElements() {
@@ -65,73 +76,102 @@
     els.logoutButton = document.getElementById("logoutButton");
   }
 
+  /* =========================================================
+     EVENT BINDING
+     ========================================================= */
   function bindEvents() {
-    document.querySelectorAll(".top-nav-item[data-page]").forEach(button => {
-      button.addEventListener("click", () => {
-        const page = button.dataset.page;
-        if (page === "home") goHome();
-        if (page === "discover") goToDiscover();
-        if (page === "marketplace") openEverything("marketplace");
-        setActiveTopNav(button);
+    // Top navigation
+    document.querySelectorAll(".top-nav-item[data-page]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const page = btn.dataset.page;
+        navigateTo(page);
       });
     });
 
-    document.querySelectorAll(".side-item[data-section]").forEach(button => {
-      button.addEventListener("click", () => {
-        handleSidebar(button.dataset.section);
-        setActiveSide(button);
+    // Sidebar navigation
+    document.querySelectorAll(".side-item[data-section]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const section = btn.dataset.section;
+        navigateTo(section);
       });
     });
 
-    els.brandButton?.addEventListener("click", goHome);
+    // Brand / logo → Home
+    els.brandButton?.addEventListener("click", () => navigateTo("home"));
 
+    // Search
     els.searchInput?.addEventListener("input", () => {
       state.query = els.searchInput.value.trim().toLowerCase();
       renderGames();
       if (state.query) {
         setActiveTopNav(document.querySelector('.top-nav-item[data-page="discover"]'));
+        setActiveSide(document.querySelector('.side-item[data-section="discover"]'));
       }
     });
 
-    els.searchInput?.addEventListener("keydown", event => {
-      if (event.key === "Enter") goToDiscover();
-      if (event.key === "Escape") {
+    els.searchInput?.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        navigateTo("discover");
+      }
+      if (e.key === "Escape") {
         els.searchInput.value = "";
         state.query = "";
         renderGames();
         els.searchInput.blur();
+        navigateTo("home");
       }
     });
 
-    els.avatarButton?.addEventListener("click", event => {
-      event.stopPropagation();
+    // Profile menu
+    els.avatarButton?.addEventListener("click", e => {
+      e.stopPropagation();
       toggleProfileMenu();
     });
 
-    els.ruxButton?.addEventListener("click", () => openEverything("tokens"));
-    els.messagesButton?.addEventListener("click", () => openEverything("messages"));
-    els.notificationsButton?.addEventListener("click", () => openEverything("notifications"));
-    els.settingsButton?.addEventListener("click", () => openEverything("settings"));
+    // Quick actions
+    els.ruxButton?.addEventListener("click", () => openSecondary("tokens"));
+    els.messagesButton?.addEventListener("click", () => openSecondary("messages"));
+    els.notificationsButton?.addEventListener("click", () => openSecondary("notifications"));
+    els.settingsButton?.addEventListener("click", () => openSecondary("settings"));
 
+    // Section view-all buttons
     els.viewFriends?.addEventListener("click", () => {
-      if (els.friendsSection) scrollToElement(els.friendsSection);
-      if (!state.friends.length) showToast("You do not have any friends yet.");
+      if (els.friendsSection) scrollTo(els.friendsSection);
+      if (!state.friends.length) showToast("You don't have any friends yet.");
     });
 
-    els.continueAll?.addEventListener("click", goToDiscover);
-    els.recommendedAll?.addEventListener("click", goToDiscover);
+    els.continueAll?.addEventListener("click", () => navigateTo("discover"));
+    els.recommendedAll?.addEventListener("click", () => navigateTo("discover"));
 
+    // Logout
     els.logoutButton?.addEventListener("click", logout);
 
-    document.addEventListener("click", event => {
-      if (els.profileMenu && !els.profileMenu.contains(event.target) && event.target !== els.avatarButton) {
+    // Close profile menu when clicking outside
+    document.addEventListener("click", e => {
+      if (
+        els.profileMenu &&
+        !els.profileMenu.contains(e.target) &&
+        e.target !== els.avatarButton
+      ) {
         closeProfileMenu();
       }
     });
 
-    document.getElementById("emptyCreate")?.addEventListener("click", () => saveLastAction("studio"));
-    document.getElementById("allCreate")?.addEventListener("click", () => saveLastAction("studio"));
+    // Create buttons
+    document.getElementById("emptyCreate")?.addEventListener("click", () => {
+      saveLastAction("studio");
+    });
+    document.getElementById("allCreate")?.addEventListener("click", () => {
+      saveLastAction("studio");
+    });
 
+    // Browser back / forward
+    window.addEventListener("popstate", () => {
+      const hash = (location.hash || "").replace("#", "").toLowerCase() || "home";
+      navigateTo(hash, false);
+    });
+
+    // Cross-tab sync
     window.addEventListener("storage", () => {
       loadData();
       renderUser();
@@ -141,45 +181,87 @@
     });
   }
 
-  function handleSidebar(section) {
+  /* =========================================================
+     CORE NAVIGATION
+     ========================================================= */
+  function navigateTo(target, push = true) {
     closeProfileMenu();
-    state.activeSection = section;
-    switch (section) {
-      case "home": goHome(); break;
-      case "discover": goToDiscover(); break;
-      case "avatar": openEverything("avatar"); break;
-      case "inventory": openEverything("inventory"); break;
-      case "friends": openEverything("friends"); break;
-      case "messages": openEverything("messages"); break;
-      case "marketplace": openEverything("marketplace"); break;
-      case "settings": openEverything("settings"); break;
-      default: goHome(); break;
+
+    const page = (target || "home").toLowerCase();
+
+    // Secondary pages live on everything.html
+    const secondary = [
+      "avatar", "inventory", "friends", "messages",
+      "marketplace", "tokens", "settings", "notifications"
+    ];
+
+    if (secondary.includes(page)) {
+      openSecondary(page);
+      return;
+    }
+
+    // Home / Discover stay on this page
+    state.activeSection = page;
+
+    if (page === "home") {
+      goHome(push);
+    } else if (page === "discover") {
+      goToDiscover(push);
+    } else {
+      goHome(push);
     }
   }
 
-  function goHome() {
+  function goHome(push = true) {
     state.activeSection = "home";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    state.query = "";
+    if (els.searchInput) els.searchInput.value = "";
+
+    window.scrollTo({
+      top: 0,
+      behavior: getSettings().reducedMotion ? "auto" : "smooth"
+    });
+
     setActiveTopNav(document.querySelector('.top-nav-item[data-page="home"]'));
     setActiveSide(document.querySelector('.side-item[data-section="home"]'));
-    closeProfileMenu();
+
+    if (push) {
+      history.pushState({ page: "home" }, "", "#home");
+    }
+
+    renderGames();
   }
 
-  function goToDiscover() {
+  function goToDiscover(push = true) {
     state.activeSection = "discover";
+
     setActiveTopNav(document.querySelector('.top-nav-item[data-page="discover"]'));
     setActiveSide(document.querySelector('.side-item[data-section="discover"]'));
+
     if (els.allGamesSection) {
-      els.allGamesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollTo(els.allGamesSection);
     }
+
+    if (push) {
+      history.pushState({ page: "discover" }, "", "#discover");
+    }
+
     renderGames();
-    closeProfileMenu();
   }
 
-  function openEverything(page) {
+  function openSecondary(page) {
+    // Keep current page state, then leave
+    saveLastAction(page);
     window.location.href = "everything.html#" + encodeURIComponent(page);
   }
 
+  function handleSidebar(section) {
+    navigateTo(section);
+  }
+
+  /* =========================================================
+     ACTIVE STATE HELPERS
+     ========================================================= */
   function setActiveTopNav(button) {
     document.querySelectorAll(".top-nav-item").forEach(item => {
       item.classList.toggle("active", item === button);
@@ -192,6 +274,9 @@
     });
   }
 
+  /* =========================================================
+     USER / TOKENS / FRIENDS / GAMES (same as before)
+     ========================================================= */
   function getCurrentUser() {
     try {
       const raw = localStorage.getItem(USER_KEY);
@@ -243,8 +328,9 @@
   }
 
   function updateRux() {
-    const amount = getTokens();
-    if (els.ruxAmount) els.ruxAmount.textContent = formatNumber(amount);
+    if (els.ruxAmount) {
+      els.ruxAmount.textContent = formatNumber(getTokens());
+    }
   }
 
   function friendsKey() {
@@ -257,10 +343,10 @@
       if (!raw) return [];
       const data = JSON.parse(raw);
       if (!Array.isArray(data)) return [];
-      return data.map(friend => {
-        if (typeof friend === "string") return { name: friend };
-        if (friend && typeof friend === "object") {
-          return { name: friend.name || friend.username || friend.displayName || "Friend" };
+      return data.map(f => {
+        if (typeof f === "string") return { name: f };
+        if (f && typeof f === "object") {
+          return { name: f.name || f.username || f.displayName || "Friend" };
         }
         return null;
       }).filter(Boolean);
@@ -271,7 +357,10 @@
     if (!els.friendsRow) return;
     els.friendsRow.replaceChildren();
     state.friends = loadFriends();
-    if (els.friendsCount) els.friendsCount.textContent = String(state.friends.length);
+
+    if (els.friendsCount) {
+      els.friendsCount.textContent = String(state.friends.length);
+    }
 
     if (!state.friends.length) {
       const empty = document.createElement("div");
@@ -288,19 +377,24 @@
 
     const list = document.createElement("div");
     list.className = "friend-list";
+
     state.friends.forEach(friend => {
       const card = document.createElement("div");
       card.className = "friend-card";
+
       const avatar = document.createElement("div");
       avatar.className = "friend-avatar";
       avatar.textContent = friend.name.charAt(0).toUpperCase() || "F";
+
       const name = document.createElement("span");
       name.className = "friend-name";
       name.textContent = friend.name;
+
       card.appendChild(avatar);
       card.appendChild(name);
       list.appendChild(card);
     });
+
     els.friendsRow.appendChild(list);
   }
 
@@ -345,11 +439,13 @@
     const games = getFilteredGames();
     const current = getUsername().toLowerCase();
 
-    const continueGames = games.filter(game => {
-      const owner = game.owner.toLowerCase();
-      const creator = game.creator.toLowerCase();
-      return owner === current || creator === current;
-    }).slice(0, 8);
+    const continueGames = games
+      .filter(g => {
+        const owner = g.owner.toLowerCase();
+        const creator = g.creator.toLowerCase();
+        return owner === current || creator === current;
+      })
+      .slice(0, 8);
 
     const recommended = games.slice(0, 8);
 
@@ -372,11 +468,13 @@
   function renderGameGrid(container, games) {
     if (!container) return;
     container.replaceChildren();
+
     games.forEach(game => {
       const card = document.createElement("div");
       card.className = "game-card";
       card.addEventListener("click", () => {
         showToast("Opening " + game.name);
+        // Future: window.location.href = "player.html?id=" + game.id;
       });
 
       const thumb = document.createElement("div");
@@ -406,25 +504,25 @@
     });
   }
 
+  /* =========================================================
+     UI HELPERS
+     ========================================================= */
   function toggleProfileMenu() {
-    if (!els.profileMenu) return;
-    els.profileMenu.classList.toggle("open");
+    els.profileMenu?.classList.toggle("open");
   }
 
   function closeProfileMenu() {
-    if (els.profileMenu) els.profileMenu.classList.remove("open");
+    els.profileMenu?.classList.remove("open");
   }
 
   function logout() {
-    try {
-      localStorage.removeItem(USER_KEY);
-    } catch {}
+    try { localStorage.removeItem(USER_KEY); } catch {}
     window.location.href = "index.html";
   }
 
-  function showToast(message) {
+  function showToast(msg) {
     if (!els.toast) return;
-    els.toast.textContent = message;
+    els.toast.textContent = msg;
     els.toast.classList.add("show");
     clearTimeout(showToast._t);
     showToast._t = setTimeout(() => {
@@ -432,9 +530,12 @@
     }, 2600);
   }
 
-  function scrollToElement(el) {
+  function scrollTo(el) {
     if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.scrollIntoView({
+      behavior: getSettings().reducedMotion ? "auto" : "smooth",
+      block: "start"
+    });
   }
 
   function formatNumber(n) {
@@ -442,9 +543,7 @@
   }
 
   function saveLastAction(action) {
-    try {
-      localStorage.setItem("riseup_lastAction", action);
-    } catch {}
+    try { localStorage.setItem("riseup_lastAction", action); } catch {}
   }
 
   function getSettings() {
