@@ -1,4 +1,4 @@
-/* RiseUp Home - Modern dark Roblox-inspired theme */
+/* RiseUp Home – Dark theme + Tokn currency */
 
 * {
   box-sizing: border-box;
@@ -42,25 +42,16 @@ html, body {
   color: var(--text);
 }
 
-body {
-  overflow-x: hidden;
-}
+body { overflow-x: hidden; }
 
-button, input, a {
-  font: inherit;
-}
-
+button, input, a { font: inherit; }
 button {
   border: 0;
   cursor: pointer;
   background: transparent;
   color: inherit;
 }
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
+a { text-decoration: none; color: inherit; }
 
 button:focus-visible,
 input:focus-visible {
@@ -88,9 +79,6 @@ input:focus-visible {
   gap: 10px;
   min-width: 130px;
   padding: 0 4px;
-  background: transparent;
-  color: var(--text);
-  text-align: left;
 }
 
 .logo {
@@ -127,17 +115,11 @@ input:focus-visible {
   color: var(--muted);
   font-size: 14px;
   font-weight: 650;
-  border-radius: 0;
   transition: color 0.15s;
 }
 
-.top-nav-item:hover {
-  color: var(--text);
-}
-
-.top-nav-item.active {
-  color: var(--text);
-}
+.top-nav-item:hover { color: var(--text); }
+.top-nav-item.active { color: var(--text); }
 
 .top-nav-item.active::after {
   content: "";
@@ -200,9 +182,7 @@ input:focus-visible {
   font-size: 13px;
 }
 
-.search input::placeholder {
-  color: var(--muted2);
-}
+.search input::placeholder { color: var(--muted2); }
 
 .search-icon {
   width: 14px;
@@ -292,7 +272,8 @@ input:focus-visible {
   background: currentColor;
 }
 
-.rux {
+/* ===== Tokn currency ===== */
+.tokn {
   height: 36px;
   display: flex;
   align-items: center;
@@ -305,11 +286,9 @@ input:focus-visible {
   transition: background 0.15s;
 }
 
-.rux:hover {
-  background: var(--surface-hover);
-}
+.tokn:hover { background: var(--surface-hover); }
 
-.rux-mark {
+.tokn-mark {
   width: 20px;
   height: 20px;
   display: grid;
@@ -334,9 +313,7 @@ input:focus-visible {
   transition: outline 0.15s;
 }
 
-.avatar:hover {
-  outline: 2px solid var(--accent);
-}
+.avatar:hover { outline: 2px solid var(--accent); }
 
 /* ========== PROFILE MENU ========== */
 .profile-menu {
@@ -353,9 +330,7 @@ input:focus-visible {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.profile-menu.open {
-  display: block;
-}
+.profile-menu.open { display: block; }
 
 .profile-menu-name {
   padding: 10px 12px 8px;
@@ -377,17 +352,9 @@ input:focus-visible {
   font-weight: 600;
 }
 
-.profile-menu button:hover {
-  background: var(--surface-hover);
-}
-
-.profile-menu .danger {
-  color: #ff6b6b;
-}
-
-.profile-menu .danger:hover {
-  background: rgba(255, 107, 107, 0.1);
-}
+.profile-menu button:hover { background: var(--surface-hover); }
+.profile-menu .danger { color: #ff6b6b; }
+.profile-menu .danger:hover { background: rgba(255, 107, 107, 0.1); }
 
 /* ========== SIDEBAR ========== */
 .app {
@@ -451,10 +418,8 @@ input:focus-visible {
 .home-icon::before {
   content: "";
   position: absolute;
-  left: 3px;
-  top: 8px;
-  width: 13px;
-  height: 10px;
+  left: 3px; top: 8px;
+  width: 13px; height: 10px;
   border: 1.7px solid currentColor;
   border-top: 0;
 }
@@ -462,10 +427,8 @@ input:focus-visible {
 .home-icon::after {
   content: "";
   position: absolute;
-  left: 4px;
-  top: 3px;
-  width: 11px;
-  height: 11px;
+  left: 4px; top: 3px;
+  width: 11px; height: 11px;
   border-left: 1.7px solid currentColor;
   border-top: 1.7px solid currentColor;
   transform: rotate(45deg);
@@ -479,10 +442,8 @@ input:focus-visible {
 .compass-icon::after {
   content: "";
   position: absolute;
-  left: 6px;
-  top: 4px;
-  width: 6px;
-  height: 9px;
+  left: 6px; top: 4px;
+  width: 6px; height: 9px;
   border-left: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(30deg);
@@ -491,10 +452,8 @@ input:focus-visible {
 .user-icon::before {
   content: "";
   position: absolute;
-  left: 6px;
-  top: 1px;
-  width: 7px;
-  height: 7px;
+  left: 6px; top: 1px;
+  width: 7px; height: 7px;
   border: 1.7px solid currentColor;
   border-radius: 50%;
 }
@@ -502,17 +461,14 @@ input:focus-visible {
 .user-icon::after {
   content: "";
   position: absolute;
-  left: 3px;
-  bottom: 1px;
-  width: 14px;
-  height: 8px;
+  left: 3px; bottom: 1px;
+  width: 14px; height: 8px;
   border: 1.7px solid currentColor;
   border-radius: 8px 8px 3px 3px;
 }
 
 .inventory-icon {
-  width: 16px;
-  height: 14px;
+  width: 16px; height: 14px;
   margin-left: 1px;
   border: 1.7px solid currentColor;
   border-radius: 3px;
@@ -521,9 +477,7 @@ input:focus-visible {
 .inventory-icon::after {
   content: "";
   position: absolute;
-  left: 3px;
-  right: 3px;
-  top: 4px;
+  left: 3px; right: 3px; top: 4px;
   height: 2px;
   background: currentColor;
 }
@@ -533,8 +487,7 @@ input:focus-visible {
   content: "";
   position: absolute;
   top: 2px;
-  width: 7px;
-  height: 7px;
+  width: 7px; height: 7px;
   border: 1.7px solid currentColor;
   border-radius: 50%;
 }
@@ -543,15 +496,13 @@ input:focus-visible {
 .friends-icon::after { right: 2px; }
 
 .message-side-icon {
-  width: 17px;
-  height: 13px;
+  width: 17px; height: 13px;
   border: 1.7px solid currentColor;
   border-radius: 3px;
 }
 
 .shop-icon {
-  width: 16px;
-  height: 14px;
+  width: 16px; height: 14px;
   margin-top: 3px;
   border: 1.7px solid currentColor;
   border-radius: 3px;
@@ -560,18 +511,15 @@ input:focus-visible {
 .shop-icon::before {
   content: "";
   position: absolute;
-  left: 3px;
-  top: -5px;
-  width: 8px;
-  height: 5px;
+  left: 3px; top: -5px;
+  width: 8px; height: 5px;
   border: 1.7px solid currentColor;
   border-bottom: 0;
   border-radius: 4px 4px 0 0;
 }
 
 .cube-icon {
-  width: 15px;
-  height: 15px;
+  width: 15px; height: 15px;
   margin-left: 1px;
   border: 1.7px solid currentColor;
   transform: rotate(30deg) skewY(-8deg);
@@ -585,10 +533,8 @@ input:focus-visible {
 .settings-icon::after {
   content: "";
   position: absolute;
-  left: 5px;
-  top: 5px;
-  width: 6px;
-  height: 6px;
+  left: 5px; top: 5px;
+  width: 6px; height: 6px;
   border: 1.5px solid currentColor;
   border-radius: 50%;
 }
@@ -624,14 +570,8 @@ input:focus-visible {
   transition: background 0.15s, transform 0.1s;
 }
 
-.create-button:hover {
-  background: var(--accent-dark);
-}
-
-.create-button:active {
-  transform: scale(0.98);
-}
-
+.create-button:hover { background: var(--accent-dark); }
+.create-button:active { transform: scale(0.98); }
 .create-button span {
   font-size: 20px;
   line-height: 1;
@@ -646,9 +586,7 @@ input:focus-visible {
   padding: 28px 36px 70px;
 }
 
-.welcome {
-  margin-bottom: 8px;
-}
+.welcome { margin-bottom: 8px; }
 
 .eyebrow {
   color: var(--accent);
@@ -658,7 +596,7 @@ input:focus-visible {
 }
 
 .welcome h1 {
-  margin: 6px 0 6px;
+  margin: 6px 0;
   font-size: 28px;
   line-height: 1.2;
   letter-spacing: -0.6px;
@@ -687,7 +625,6 @@ input:focus-visible {
   margin: 0;
   font-size: 18px;
   font-weight: 750;
-  letter-spacing: -0.2px;
 }
 
 .view-button {
@@ -696,14 +633,10 @@ input:focus-visible {
   font-weight: 700;
 }
 
-.view-button:hover {
-  text-decoration: underline;
-}
+.view-button:hover { text-decoration: underline; }
 
 /* Friends */
-.friends-row {
-  min-height: 80px;
-}
+.friends-row { min-height: 80px; }
 
 .friend-list {
   display: flex;
@@ -769,11 +702,7 @@ input:focus-visible {
   border: 1px dashed var(--border-light);
 }
 
-.friends-empty strong {
-  display: block;
-  font-size: 13px;
-}
-
+.friends-empty strong { display: block; font-size: 13px; }
 .friends-empty span {
   display: block;
   margin-top: 3px;
@@ -781,7 +710,7 @@ input:focus-visible {
   font-size: 12px;
 }
 
-/* Games grid */
+/* Games */
 .games-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -823,9 +752,7 @@ input:focus-visible {
   transform: rotate(28deg);
 }
 
-.game-info {
-  padding: 10px 12px 12px;
-}
+.game-info { padding: 10px 12px 12px; }
 
 .game-title {
   margin: 0;
@@ -872,11 +799,7 @@ input:focus-visible {
   transform: rotate(28deg);
 }
 
-.section-empty h3 {
-  margin: 0;
-  font-size: 15px;
-}
-
+.section-empty h3 { margin: 0; font-size: 15px; }
 .section-empty p {
   margin: 6px 0 16px;
   color: var(--muted);
@@ -896,9 +819,7 @@ input:focus-visible {
   transition: background 0.15s;
 }
 
-.primary-button:hover {
-  background: var(--accent-dark);
-}
+.primary-button:hover { background: var(--accent-dark); }
 
 /* Toast */
 .toast {
@@ -925,9 +846,7 @@ input:focus-visible {
   transform: translate(-50%, 0);
 }
 
-[hidden] {
-  display: none !important;
-}
+[hidden] { display: none !important; }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1200px) {
@@ -951,13 +870,4 @@ input:focus-visible {
   .topbar { gap: 8px; padding: 0 10px; }
   .brand-name { display: none; }
   .search { flex: 1; width: auto; }
-  .rux, #messagesButton, #notificationsButton { display: none; }
-  .content { padding: 20px 14px 50px; }
-  .welcome h1 { font-size: 22px; }
-  .games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-}
-
-@media (max-width: 480px) {
-  :root { --sidebar-width: 60px; }
-  .games-grid { grid-template-columns: 1fr; }
-}
+  .tokn, #messagesButton, #notificationsButton 
