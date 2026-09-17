@@ -1,51 +1,22 @@
-:root {
-  --text: #ffffff;
-  --muted: #aeb8c3;
-  --blue: #4da3ff;
-  --green: #35c978;
-  --hud: rgba(8, 12, 17, 0.78);
-  --border: rgba(255, 255, 255, 0.12);
-}
-
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html,
-body {
+html, body {
   width: 100%;
   height: 100%;
-  margin: 0;
   overflow: hidden;
-}
-
-body {
-  background: #8eb8dc;
-  color: var(--text);
-
-  font-family:
-    Inter,
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  user-select: none;
+  background: #0a0e14;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  color: #f0f4f8;
 }
 
 #game {
-  position: fixed;
-  inset: 0;
-
-  overflow: hidden;
-
-  background:
-    linear-gradient(
-      180deg,
-      #76a9d3 0%,
-      #b8d6ea 54%,
-      #819b78 54.2%,
-      #4e634d 100%
-    );
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 #viewport {
@@ -55,228 +26,186 @@ body {
 
 #viewport canvas {
   display: block;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
 }
 
+/* HUD */
 #hud {
   position: absolute;
   inset: 0;
-
   pointer-events: none;
+  z-index: 10;
 }
 
-.brand-panel,
-.status-panel,
-.controls-panel {
+.top-bar {
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  background: linear-gradient(to bottom, rgba(10,14,20,0.85), transparent);
+  pointer-events: auto;
+}
 
-  background: var(--hud);
-
-  border: 1px solid var(--border);
+#backButton {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
   border-radius: 7px;
-
-  backdrop-filter: blur(10px);
-
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.18);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.brand-panel {
-  top: 15px;
-  left: 15px;
+#backButton:hover {
+  background: rgba(255,255,255,0.18);
+}
 
+.game-info {
   display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  padding: 8px 11px;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.brand-panel strong {
-  color: var(--blue);
-
+.game-info strong {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
-.brand-panel span {
-  color: var(--muted);
-
-  font-size: 9px;
+.game-info span {
+  font-size: 11px;
+  color: #8b97a8;
 }
 
-.status-panel {
-  top: 15px;
-  right: 15px;
-
+.tokn-display {
+  margin-left: auto;
   display: flex;
   align-items: center;
-
-  gap: 10px;
-
-  padding: 8px 10px;
-
-  font-family:
-    "SFMono-Regular",
-    Consolas,
-    monospace;
-
-  font-size: 9px;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 7px;
+  background: rgba(0,0,0,0.35);
+  font-size: 13px;
+  font-weight: 700;
 }
 
-#fpsCounter {
-  color: var(--green);
+.tokn-mark {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f5c518;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 900;
 }
 
-#stateCounter {
-  color: var(--muted);
-}
-
+/* Crosshair */
 .crosshair {
   position: absolute;
-
-  left: 50%;
   top: 50%;
-
-  width: 17px;
-  height: 17px;
-
-  transform:
-    translate(-50%, -50%);
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .crosshair::before,
 .crosshair::after {
   content: "";
-
   position: absolute;
-
-  background: rgba(255, 255, 255, 0.9);
-
-  box-shadow:
-    0 0 4px rgba(0, 0, 0, 0.45);
+  background: rgba(255,255,255,0.7);
 }
 
 .crosshair::before {
-  left: 8px;
-  top: 1px;
-
-  width: 1px;
-  height: 15px;
+  left: 50%;
+  top: -6px;
+  width: 2px;
+  height: 6px;
+  transform: translateX(-50%);
 }
 
 .crosshair::after {
-  left: 1px;
-  top: 8px;
-
-  width: 15px;
-  height: 1px;
-}
-
-.controls-panel {
   left: 50%;
-  bottom: 16px;
+  bottom: -6px;
+  width: 2px;
+  height: 6px;
+  transform: translateX(-50%);
+}
 
-  transform:
-    translateX(-50%);
-
+/* Status */
+.status-panel {
+  position: absolute;
+  top: 56px;
+  right: 14px;
   display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 8px 11px;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #8b97a8;
+  text-align: right;
 }
 
-.controls-panel div {
+/* Controls hint */
+.controls-hint {
+  position: absolute;
+  bottom: 18px;
+  left: 14px;
   display: flex;
-  align-items: center;
-
-  gap: 5px;
+  gap: 16px;
+  font-size: 11px;
+  color: #8b97a8;
 }
 
-.controls-panel strong {
-  color: #ffffff;
-
-  font-family:
-    "SFMono-Regular",
-    Consolas,
-    monospace;
-
-  font-size: 8px;
+.controls-hint strong {
+  color: #f0f4f8;
+  margin-right: 4px;
 }
 
-.controls-panel span {
-  color: var(--muted);
-
-  font-size: 8px;
-}
-
+/* Loading */
 .loading-screen {
   position: absolute;
   inset: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background: #8eb8dc;
-
-  transition:
-    opacity 0.35s ease;
+  background: #0a0e14;
+  z-index: 20;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
 }
 
 .loading-screen.hidden {
   opacity: 0;
-  visibility: hidden;
+  pointer-events: none;
 }
 
 .loading-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  gap: 6px;
-
-  padding: 18px 24px;
-
-  background: rgba(8, 12, 17, 0.84);
-
-  border: 1px solid var(--border);
-  border-radius: 7px;
-
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.25);
-
-  backdrop-filter: blur(10px);
+  gap: 8px;
 }
 
 .loading-box strong {
-  color: var(--blue);
-
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .loading-box span {
-  color: var(--muted);
-
-  font-size: 10px;
-}
-
-@media (max-width: 650px) {
-  .controls-panel {
-    gap: 7px;
-    padding: 7px;
-  }
-
-  .controls-panel div {
-    gap: 3px;
-  }
-
-  .controls-panel span {
-    display: none;
-  }
+  font-size: 13px;
+  color: #8b97a8;
 }
