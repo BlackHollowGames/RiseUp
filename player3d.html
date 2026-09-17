@@ -3,70 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>RiseUp Player</title>
-
+  <title>RiseUp 3D Player</title>
   <link rel="stylesheet" href="player3d.css">
-
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 </head>
-
 <body>
   <main id="game">
-
     <div id="viewport"></div>
 
     <div id="hud">
-
-      <div class="brand-panel">
-        <strong>RiseUp</strong>
-        <span>Player 3D</span>
-      </div>
-
-      <div class="status-panel">
-        <span id="fpsCounter">60 FPS</span>
-        <span id="stateCounter">Idle</span>
+      <div class="top-bar">
+        <button id="backButton" type="button">← Back</button>
+        <div class="game-info">
+          <strong id="gameTitle">RiseUp 3D</strong>
+          <span id="gameCreator"></span>
+        </div>
+        <div class="tokn-display">
+          <span class="tokn-mark">T</span>
+          <span id="toknAmount">0</span>
+        </div>
       </div>
 
       <div class="crosshair"></div>
 
-      <div class="controls-panel">
-        <div>
-          <strong>W A S D</strong>
-          <span>Move</span>
-        </div>
-
-        <div>
-          <strong>SHIFT</strong>
-          <span>Run</span>
-        </div>
-
-        <div>
-          <strong>SPACE</strong>
-          <span>Jump</span>
-        </div>
-
-        <div>
-          <strong>MOUSE</strong>
-          <span>Look</span>
-        </div>
+      <div class="status-panel">
+        <span id="fpsCounter">60 FPS</span>
+        <span id="stateCounter">Ready</span>
       </div>
 
-      <div
-        id="loading"
-        class="loading-screen"
-      >
+      <div class="controls-hint">
+        <div><strong>WASD</strong> Move</div>
+        <div><strong>Mouse</strong> Look</div>
+        <div><strong>Space</strong> Jump</div>
+        <div><strong>Shift</strong> Run</div>
+      </div>
+
+      <div id="loading" class="loading-screen">
         <div class="loading-box">
           <strong>RiseUp</strong>
           <span>Loading 3D world...</span>
         </div>
       </div>
-
     </div>
-
   </main>
 
-  <script src="character3d.js"></script>
   <script src="player3d.js"></script>
 </body>
 </html>
