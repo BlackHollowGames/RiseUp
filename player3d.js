@@ -4,7 +4,6 @@
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game");
 
-  // DOM
   const viewport = document.getElementById("viewport");
   const loading = document.getElementById("loading");
   const fpsCounter = document.getElementById("fpsCounter");
@@ -13,24 +12,32 @@
   const gameCreator = document.getElementById("gameCreator");
   const toknAmount = document.getElementById("toknAmount");
 
-  // Three.js
-  let scene, camera, renderer, clock;
-  let player, velocity, direction;
-  let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+  let scene, camera, renderer;
+  let player;
+  let velocity = new THREE.Vector3();
+  let direction = new THREE.Vector3();
+
+  let moveForward = false;
+  let moveBackward = false;
+  let moveLeft = false;
+  let moveRight = false;
   let canJump = false;
   let isLocked = false;
+  let isRunning = false;
 
-  const objects = [];
+  const keys = {};
+  const PLAYER_HEIGHT = 1.7;
+  const PLAYER_SPEED = 7;
+  const JUMP_FORCE = 9;
+  const GRAVITY = 22;
+
   let prevTime = performance.now();
   let frames = 0;
-  let lastFpsUpdate = 0;
+  let lastFps = 0;
 
-  // Player settings
-  const PLAYER_HEIGHT = 1.7;
-  const PLAYER_SPEED = 8;
-  const PLAYER_RUN_MULTIPLIER = 1.7;
-  const JUMP_VELOCITY = 8;
-  const GRAVITY = 20;
+  function hideLoading() {
+    if (loading) loading.classList.add("hidden");
+  }
 
   function getGames() {
     try {
@@ -41,13 +48,13 @@
   }
 
   function init() {
-    // Load game info
+    // Game info
     const games = getGames();
     const game = games.find(g => String(g.id) === String(gameId));
 
     if (game) {
       if (gameTitle) gameTitle.textContent = game.name || "RiseUp 3D";
-      if (gameCreator) gameCreator.textContent = game.creator ? `By ${game.creator}` : "";
+      if (gameCreator) gameCreator.textContent = game.creator ? "By " + game.creator : "";
     } else {
       if (gameTitle) gameTitle.textContent = "Demo World";
     }
@@ -58,14 +65,22 @@
       toknAmount.textContent = amount.toLocaleString();
     }
 
+    // Check if Three.js loaded
+    if (typeof THREE === "undefined") {
+      if (loading) {
+        loading.innerHTML = "<div class='loading-box'><strong>Error</strong><span>Three.js failed to load</span></div>";
+      }
+      return;
+    }
+
     // Scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x87ceeb, 20, 80);
+    scene.fog = new THREE.Fog(0x87ceeb, 25, 90);
 
     // Camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, PLAYER_HEIGHT, 5);
+    camera.position.set(0, PLAYER_HEIGHT, 8);
 
     // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -75,51 +90,41 @@
     viewport.appendChild(renderer.domElement);
 
     // Lights
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.7);
-    hemi.position.set(0, 50, 0);
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.75);
+    hemi.position.set(0, 40, 0);
     scene.add(hemi);
 
-    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-    dir.position.set(30, 40, 20);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.85);
+    dir.position.set(25, 35, 15);
     dir.castShadow = true;
-    dir.shadow.mapSize.set(2048, 2048);
-    dir.shadow.camera.near = 0.5;
-    dir.shadow.camera.far = 120;
-    dir.shadow.camera.left = -40;
-    dir.shadow.camera.right = 40;
-    dir.shadow.camera.top = 40;
-    dir.shadow.camera.bottom = -40;
     scene.add(dir);
 
     // Ground
-    const groundGeo = new THREE.PlaneGeometry(200, 200);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x3a7d44 });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(200, 200),
+      new THREE.MeshStandardMaterial({ color: 0x3a7d44 })
+    );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
-    objects.push(ground);
 
-    // Simple platforms / obstacles
-    createBox(0, 0.5, -8, 4, 1, 4, 0x8b5a2b);
-    createBox(-6, 1, -12, 3, 2, 3, 0x6b4423);
-    createBox(6, 1.5, -15, 5, 3, 2, 0x5c4033);
-    createBox(0, 2, -22, 8, 1, 3, 0x4a3728);
-    createBox(-10, 0.5, -5, 2, 1, 2, 0x228b22);
-    createBox(10, 0.5, -5, 2, 1, 2, 0x228b22);
+    // Platforms
+    createBox(0, 0.5, -10, 5, 1, 5, 0x8b5a2b);
+    createBox(-7, 1.2, -16, 3, 2.4, 3, 0x6b4423);
+    createBox(7, 1.8, -18, 4, 3.6, 2, 0x5c4033);
+    createBox(0, 2.5, -26, 10, 1, 4, 0x4a3728);
+    createBox(-12, 0.5, -6, 2.5, 1, 2.5, 0x228b22);
+    createBox(12, 0.5, -6, 2.5, 1, 2.5, 0x228b22);
 
-    // Player collision body (invisible)
-    const playerGeo = new THREE.BoxGeometry(0.6, PLAYER_HEIGHT, 0.6);
-    const playerMat = new THREE.MeshBasicMaterial({ visible: false });
-    player = new THREE.Mesh(playerGeo, playerMat);
-    player.position.set(0, PLAYER_HEIGHT / 2, 5);
+    // Invisible player body
+    player = new THREE.Mesh(
+      new THREE.BoxGeometry(0.6, PLAYER_HEIGHT, 0.6),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    player.position.set(0, PLAYER_HEIGHT / 2, 8);
     scene.add(player);
 
-    velocity = new THREE.Vector3();
-    direction = new THREE.Vector3();
-    clock = new THREE.Clock();
-
-    // Pointer lock
+    // Events
     renderer.domElement.addEventListener("click", () => {
       renderer.domElement.requestPointerLock();
     });
@@ -140,59 +145,57 @@
       window.location.href = "home.html";
     });
 
-    // Hide loading
-    setTimeout(() => {
-      if (loading) loading.classList.add("hidden");
-    }, 600);
+    // Hide loading after short delay
+    setTimeout(hideLoading, 500);
 
+    // Start loop
     animate();
   }
 
   function createBox(x, y, z, w, h, d, color) {
-    const geo = new THREE.BoxGeometry(w, h, d);
-    const mat = new THREE.MeshStandardMaterial({ color });
-    const mesh = new THREE.Mesh(geo, mat);
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshStandardMaterial({ color })
+    );
     mesh.position.set(x, y, z);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     scene.add(mesh);
-    objects.push(mesh);
   }
 
-  function onMouseMove(event) {
+  function onMouseMove(e) {
     if (!isLocked) return;
-
-    const movementX = event.movementX || 0;
-    const movementY = event.movementY || 0;
-
-    // Rotate camera (yaw + pitch)
     camera.rotation.order = "YXZ";
-    camera.rotation.y -= movementX * 0.002;
-    camera.rotation.x -= movementY * 0.002;
-    camera.rotation.x = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, camera.rotation.x));
+    camera.rotation.y -= e.movementX * 0.002;
+    camera.rotation.x -= e.movementY * 0.002;
+    camera.rotation.x = Math.max(-1.4, Math.min(1.4, camera.rotation.x));
   }
 
-  function onKeyDown(event) {
-    switch (event.code) {
+  function onKeyDown(e) {
+    keys[e.code] = true;
+    switch (e.code) {
       case "KeyW": case "ArrowUp": moveForward = true; break;
       case "KeyS": case "ArrowDown": moveBackward = true; break;
       case "KeyA": case "ArrowLeft": moveLeft = true; break;
       case "KeyD": case "ArrowRight": moveRight = true; break;
+      case "ShiftLeft": case "ShiftRight": isRunning = true; break;
       case "Space":
         if (canJump) {
-          velocity.y = JUMP_VELOCITY;
+          velocity.y = JUMP_FORCE;
           canJump = false;
         }
         break;
     }
   }
 
-  function onKeyUp(event) {
-    switch (event.code) {
+  function onKeyUp(e) {
+    keys[e.code] = false;
+    switch (e.code) {
       case "KeyW": case "ArrowUp": moveForward = false; break;
       case "KeyS": case "ArrowDown": moveBackward = false; break;
       case "KeyA": case "ArrowLeft": moveLeft = false; break;
       case "KeyD": case "ArrowRight": moveRight = false; break;
+      case "ShiftLeft": case "ShiftRight": isRunning = false; break;
     }
   }
 
@@ -206,77 +209,66 @@
     requestAnimationFrame(animate);
 
     const time = performance.now();
-    const delta = Math.min((time - prevTime) / 1000, 0.1);
+    const delta = Math.min((time - prevTime) / 1000, 0.05);
     prevTime = time;
 
-    // FPS counter
+    // FPS
     frames++;
-    if (time - lastFpsUpdate > 500) {
-      if (fpsCounter) fpsCounter.textContent = Math.round(frames * 1000 / (time - lastFpsUpdate)) + " FPS";
+    if (time - lastFps > 500) {
+      if (fpsCounter) fpsCounter.textContent = Math.round((frames * 1000) / (time - lastFps)) + " FPS";
       frames = 0;
-      lastFpsUpdate = time;
+      lastFps = time;
     }
 
     if (isLocked) {
       // Gravity
       velocity.y -= GRAVITY * delta;
 
-      // Movement direction relative to camera
+      // Direction
       direction.z = Number(moveForward) - Number(moveBackward);
       direction.x = Number(moveRight) - Number(moveLeft);
       direction.normalize();
 
-      const speed = (event => {
-        // Check shift for run – we need a simple flag
-        return PLAYER_SPEED;
-      })() * (document.body.dataset.running === "1" ? PLAYER_RUN_MULTIPLIER : 1);
+      const speed = isRunning ? PLAYER_SPEED * 1.7 : PLAYER_SPEED;
 
-      // Simple shift run detection via key state
-      const running = keys["ShiftLeft"] || keys["ShiftRight"];
-      const finalSpeed = running ? PLAYER_SPEED * PLAYER_RUN_MULTIPLIER : PLAYER_SPEED;
+      let moveX = 0;
+      let moveZ = 0;
 
-      if (moveForward || moveBackward) {
-        velocity.z = -direction.z * finalSpeed;
-      } else {
-        velocity.z = 0;
-      }
+      if (moveForward || moveBackward) moveZ = -direction.z * speed;
+      if (moveLeft || moveRight) moveX = -direction.x * speed;
 
-      if (moveLeft || moveRight) {
-        velocity.x = -direction.x * finalSpeed;
-      } else {
-        velocity.x = 0;
-      }
-
-      // Apply rotation to movement
+      // Rotate movement by camera yaw
       const angle = camera.rotation.y;
-      const vx = velocity.x * Math.cos(angle) - velocity.z * Math.sin(angle);
-      const vz = velocity.x * Math.sin(angle) + velocity.z * Math.cos(angle);
+      const vx = moveX * Math.cos(angle) - moveZ * Math.sin(angle);
+      const vz = moveX * Math.sin(angle) + moveZ * Math.cos(angle);
 
       player.position.x += vx * delta;
       player.position.z += vz * delta;
       player.position.y += velocity.y * delta;
 
-      // Ground collision
+      // Ground
       if (player.position.y < PLAYER_HEIGHT / 2) {
         velocity.y = 0;
         player.position.y = PLAYER_HEIGHT / 2;
         canJump = true;
       }
 
-      // Sync camera to player
+      // Camera follows player
       camera.position.x = player.position.x;
-      camera.position.y = player.position.y + PLAYER_HEIGHT / 2 - 0.2;
+      camera.position.y = player.position.y + 0.6;
       camera.position.z = player.position.z;
     }
 
     renderer.render(scene, camera);
   }
 
-  // Track shift keys
-  const keys = {};
-  window.addEventListener("keydown", e => { keys[e.code] = true; });
-  window.addEventListener("keyup", e => { keys[e.code] = false; });
-
   // Start
-  init();
+  try {
+    init();
+  } catch (err) {
+    console.error(err);
+    if (loading) {
+      loading.innerHTML = "<div class='loading-box'><strong>Error</strong><span>Could not start 3D world</span></div>";
+    }
+  }
 })();
