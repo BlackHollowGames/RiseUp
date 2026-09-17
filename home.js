@@ -345,7 +345,7 @@
       owner: String(game.projectOwner || game.owner || game.creator || game.creatorName || game.username || ""),
       description: String(game.description || ""),
       thumbnail: String(game.thumbnail || game.thumbnailUrl || game.image || ""),
-      mode: String(game.mode || "2d").toLowerCase(), // "2d" or "3d"
+      mode: String(game.mode || "2d").toLowerCase(),
       createdAt: game.createdAt || null,
       updatedAt: game.updatedAt || game.createdAt || null
     };
@@ -365,8 +365,8 @@
 
     const continueGames = games
       .filter(g => {
-        const owner = g.owner.toLowerCase();
-        const creator = g.creator.toLowerCase();
+        const owner = (g.owner || "").toLowerCase();
+        const creator = (g.creator || "").toLowerCase();
         return owner === current || creator === current;
       })
       .slice(0, 8);
@@ -392,93 +392,3 @@
   function renderGameGrid(container, games) {
     if (!container) return;
     container.replaceChildren();
-
-    games.forEach(game => {
-      const card = document.createElement("div");
-      card.className = "game-card";
-
-      // Open the correct player
-      card.addEventListener("click", () => {
-        const mode = (game.mode || "2d").toLowerCase();
-        if (mode === "3d") {
-          window.location.href = "player3d.html?game=" + encodeURIComponent(game.id);
-        } else {
-          window.location.href = "player.html?game=" + encodeURIComponent(game.id);
-        }
-      });
-
-      const thumb = document.createElement("div");
-      thumb.className = "game-thumbnail";
-      if (game.thumbnail) {
-        thumb.style.backgroundImage = `url(${game.thumbnail})`;
-        thumb.style.backgroundSize = "cover";
-        thumb.style.backgroundPosition = "center";
-      }
-
-      const info = document.createElement("div");
-      info.className = "game-info";
-
-      const title = document.createElement("h3");
-      title.className = "game-title";
-      title.textContent = game.name;
-
-      const creator = document.createElement("div");
-      creator.className = "game-creator";
-      creator.textContent = "by " + game.creator;
-
-      info.appendChild(title);
-      info.appendChild(creator);
-      card.appendChild(thumb);
-      card.appendChild(info);
-      container.appendChild(card);
-    });
-  }
-
-  function toggleProfileMenu() {
-    els.profileMenu?.classList.toggle("open");
-  }
-
-  function closeProfileMenu() {
-    els.profileMenu?.classList.remove("open");
-  }
-
-  function logout() {
-    try { localStorage.removeItem(USER_KEY); } catch {}
-    window.location.href = "index.html";
-  }
-
-  function showToast(msg) {
-    if (!els.toast) return;
-    els.toast.textContent = msg;
-    els.toast.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => {
-      els.toast.classList.remove("show");
-    }, 2600);
-  }
-
-  function scrollTo(el) {
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function formatNumber(n) {
-    return Number(n).toLocaleString();
-  }
-
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  function saveLastAction(action) {
-    try { localStorage.setItem("riseup_lastAction", action); } catch {}
-  }
-
-  function getSettings() {
-    try {
-      const raw = localStorage.getItem(SETTINGS_PREFIX + getUsername());
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return { reducedMotion: false };
-  }
-})();
