@@ -1,101 +1,290 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiseUp Code</title>
-  <link rel="stylesheet" href="code.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>RiseUp Code</title>
+
+<link rel="stylesheet" href="code.css">
+```
+
 </head>
 
 <body>
 
+<div class="code-app">
+
+```
 <header class="code-topbar">
 
-  <div class="brand">
-    RiseUp <b>Code</b>
-  </div>
+    <button class="brand" id="homeButton" type="button">
+        <span class="brand-mark">R</span>
+        <span>RiseUp</span>
+        <strong>Code</strong>
+    </button>
 
-  <input id="fileName" value="Game.rise">
+    <div class="topbar-divider"></div>
 
-  <div class="code-actions">
-    <button id="backStudio">Studio</button>
-    <button id="newFile">New File</button>
-    <button id="saveCode">Save</button>
-    <button id="runCode" class="run-button">▶ Run</button>
-  </div>
+    <div class="project-title">
+        <span class="project-status"></span>
+        <span id="projectName">Untitled Project</span>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <button class="top-button" id="studioButton" type="button">
+        Studio
+    </button>
+
+    <button class="top-button" id="newFileButton" type="button">
+        New File
+    </button>
+
+    <button class="top-button primary" id="saveButton" type="button">
+        Save
+    </button>
 
 </header>
 
-<div class="code-layout">
+<main class="workspace">
 
-  <aside class="files-panel">
+    <aside class="file-sidebar">
 
-    <div class="panel-title">
-      <strong>CODE</strong>
+        <div class="sidebar-heading">
+            <span>PROJECT</span>
+
+            <button
+                id="addFileButton"
+                class="sidebar-add"
+                type="button"
+                aria-label="Add file"
+            >
+                +
+            </button>
+        </div>
+
+        <div id="fileList" class="file-list"></div>
+
+        <div class="sidebar-bottom">
+
+            <div class="runtime-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>RiseCode</strong>
+                    <span id="runtimeVersion">Runtime Ready</span>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+    <section class="editor-area">
+
+        <div class="editor-tabs" id="editorTabs"></div>
+
+        <div class="editor-toolbar">
+
+            <div class="breadcrumbs">
+                <span>Project</span>
+                <span>/</span>
+                <strong id="currentFileName">index.rise</strong>
+            </div>
+
+            <div class="editor-tools">
+
+                <button
+                    id="runButton"
+                    class="tool-button run"
+                    type="button"
+                >
+                    Run
+                </button>
+
+                <button
+                    id="formatButton"
+                    class="tool-button"
+                    type="button"
+                >
+                    Format
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="editor">
+
+            <div class="line-numbers" id="lineNumbers"></div>
+
+            <textarea
+                id="codeEditor"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                aria-label="RiseCode editor"
+            ></textarea>
+
+        </div>
+
+        <div class="editor-status">
+
+            <span id="cursorPosition">Ln 1, Col 1</span>
+
+            <span id="syntaxStatus">RiseCode</span>
+
+            <span id="saveStatus">Ready</span>
+
+        </div>
+
+    </section>
+
+    <aside class="inspector">
+
+        <div class="inspector-header">
+            <span>RISECODE</span>
+            <strong>Assistant</strong>
+        </div>
+
+        <div class="assistant-card">
+
+            <div class="assistant-icon">
+                R
+            </div>
+
+            <h3>Build with RiseCode</h3>
+
+            <p>
+                Write code for your RiseUp game, control objects,
+                create systems, and build gameplay.
+            </p>
+
+        </div>
+
+        <div class="quick-title">
+            Try asking me to...
+        </div>
+
+        <div class="quick-list">
+
+            <button class="quick-command" data-command="game">
+                Create a game system
+            </button>
+
+            <button class="quick-command" data-command="weapon">
+                Make a weapon
+            </button>
+
+            <button class="quick-command" data-command="npc">
+                Build an NPC
+            </button>
+
+            <button class="quick-command" data-command="ui">
+                Create UI
+            </button>
+
+            <button class="quick-command" data-command="debug">
+                Debug RiseCode
+            </button>
+
+            <button class="quick-command" data-command="multiplayer">
+                Make a multiplayer system
+            </button>
+
+        </div>
+
+        <div class="reference">
+
+            <div class="reference-title">
+                Quick Reference
+            </div>
+
+            <div class="reference-row">
+                <code>player.walk.speed</code>
+                <span>Player movement</span>
+            </div>
+
+            <div class="reference-row">
+                <code>add.mesh.cube()</code>
+                <span>Create a cube</span>
+            </div>
+
+            <div class="reference-row">
+                <code>add.mesh.wedge()</code>
+                <span>Create a wedge</span>
+            </div>
+
+            <div class="reference-row">
+                <code>map.name</code>
+                <span>Set map name</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+</main>
+
+<div id="newFileModal" class="modal hidden">
+
+    <div class="modal-backdrop"></div>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2>New RiseCode File</h2>
+
+            <button id="closeModalButton" type="button">
+                ×
+            </button>
+        </div>
+
+        <label for="newFileName">
+            File name
+        </label>
+
+        <input
+            id="newFileName"
+            type="text"
+            value="script.rise"
+            autocomplete="off"
+        >
+
+        <div class="modal-actions">
+
+            <button
+                id="cancelFileButton"
+                class="top-button"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                id="createFileButton"
+                class="top-button primary"
+                type="button"
+            >
+                Create
+            </button>
+
+        </div>
+
     </div>
 
-    <div id="fileList"></div>
-
-  </aside>
-
-  <main class="editor-area">
-
-    <div class="editor-header">
-      <span id="currentFile">Game.rise</span>
-      <span id="codeStatus">Ready</span>
-    </div>
-
-    <div class="editor">
-      <div id="lineNumbers" class="line-numbers">1</div>
-
-      <textarea
-        id="codeEditor"
-        spellcheck="false"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-      ></textarea>
-    </div>
-
-  </main>
-
-  <aside class="help-panel">
-
-    <h3>RiseCode</h3>
-
-    <p>Simple code for RiseUp games.</p>
-
-    <div class="example">
-      <code>player.walk.speed = 5;</code>
-    </div>
-
-    <div class="example">
-      <code>player.jump.power = 10;</code>
-    </div>
-
-    <div class="example">
-      <code>player.health = 100;</code>
-    </div>
-
-    <div class="example">
-      <code>when player.touches(coin)</code>
-      <code>&nbsp;&nbsp;&nbsp;&nbsp;player.rux += coin.value;</code>
-      <code>&nbsp;&nbsp;&nbsp;&nbsp;coin.remove();</code>
-      <code>end;</code>
-    </div>
-
-    <div class="example">
-      <code>&lt;command&gt;Ban.@username&lt;/command&gt;</code>
-    </div>
-
-  </aside>
+</div>
+```
 
 </div>
 
-<div id="codeToast"></div>
-
 <script src="risecode.js"></script>
+
 <script src="risecode-runtime.js"></script>
+
 <script src="code.js"></script>
 
 </body>

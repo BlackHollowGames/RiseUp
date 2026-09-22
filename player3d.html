@@ -1,52 +1,214 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiseUp 3D Player</title>
-  <link rel="stylesheet" href="player3d.css">
-  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090b0f">
+    <title>RiseUp — Avatar</title>
+    <link rel="stylesheet" href="player3d.css">
 </head>
+
 <body>
-  <main id="game">
-    <div id="viewport"></div>
+    <div class="avatar-app">
 
-    <div id="hud">
-      <div class="top-bar">
-        <button id="backButton" type="button">← Back</button>
-        <div class="game-info">
-          <strong id="gameTitle">RiseUp 3D</strong>
-          <span id="gameCreator"></span>
+```
+    <header class="avatar-topbar">
+        <button class="brand-button" id="homeButton" type="button" aria-label="Return to RiseUp home">
+            <span class="brand-mark">R</span>
+            <span>RiseUp</span>
+        </button>
+
+        <div class="page-title">
+            <span>Avatar</span>
         </div>
-        <div class="tokn-display">
-          <span class="tokn-mark">T</span>
-          <span id="toknAmount">0</span>
+
+        <div class="top-actions">
+            <button class="tok-button" id="tokButton" type="button">
+                <span class="tok-symbol">T</span>
+                <span id="tokAmount">0</span>
+            </button>
+
+            <button class="save-button" id="saveButton" type="button">
+                Save Avatar
+            </button>
         </div>
-      </div>
+    </header>
 
-      <div class="crosshair"></div>
+    <main class="avatar-layout">
 
-      <div class="status-panel">
-        <span id="fpsCounter">60 FPS</span>
-        <span id="stateCounter">Ready</span>
-      </div>
+        <section class="preview-panel">
+            <div class="preview-header">
+                <div>
+                    <p class="eyebrow">AVATAR PREVIEW</p>
+                    <h1 id="avatarName">Your Avatar</h1>
+                </div>
 
-      <div class="controls-hint">
-        <div><strong>WASD</strong> Move</div>
-        <div><strong>Mouse</strong> Look</div>
-        <div><strong>Space</strong> Jump</div>
-        <div><strong>Shift</strong> Run</div>
-      </div>
+                <div class="preview-controls">
+                    <button id="resetViewButton" type="button" title="Reset camera view">
+                        Reset View
+                    </button>
+                </div>
+            </div>
 
-      <div id="loading" class="loading-screen">
-        <div class="loading-box">
-          <strong>RiseUp</strong>
-          <span>Loading 3D world...</span>
-        </div>
-      </div>
+            <div class="avatar-stage" id="avatarStage">
+                <div class="stage-grid"></div>
+                <div class="stage-glow"></div>
+
+                <div class="avatar-shadow"></div>
+
+                <div class="clay-avatar" id="clayAvatar" aria-label="3D featureless clay humanoid avatar">
+                    <div class="avatar-head"></div>
+
+                    <div class="avatar-neck"></div>
+
+                    <div class="avatar-torso"></div>
+
+                    <div class="avatar-arm avatar-arm-left">
+                        <div class="avatar-hand"></div>
+                    </div>
+
+                    <div class="avatar-arm avatar-arm-right">
+                        <div class="avatar-hand"></div>
+                    </div>
+
+                    <div class="avatar-leg avatar-leg-left">
+                        <div class="avatar-foot"></div>
+                    </div>
+
+                    <div class="avatar-leg avatar-leg-right">
+                        <div class="avatar-foot"></div>
+                    </div>
+                </div>
+
+                <div class="stage-label">
+                    <span class="status-dot"></span>
+                    Avatar Preview
+                </div>
+
+                <div class="rotation-hint">
+                    Drag to rotate
+                </div>
+            </div>
+        </section>
+
+        <aside class="customizer">
+
+            <div class="customizer-heading">
+                <p class="eyebrow">CUSTOMIZE</p>
+                <h2>Avatar</h2>
+                <p>Shape your RiseUp character.</p>
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    <span>Body</span>
+                    <span class="section-value" id="bodyValue">Default</span>
+                </div>
+
+                <div class="option-grid">
+                    <button class="option active" data-body="default" type="button">
+                        <span class="option-preview preview-default"></span>
+                        <span>Default</span>
+                    </button>
+
+                    <button class="option" data-body="tall" type="button">
+                        <span class="option-preview preview-tall"></span>
+                        <span>Tall</span>
+                    </button>
+
+                    <button class="option" data-body="compact" type="button">
+                        <span class="option-preview preview-compact"></span>
+                        <span>Compact</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    <span>Material</span>
+                    <span class="section-value" id="materialValue">Clay</span>
+                </div>
+
+                <div class="material-options">
+                    <button class="material-option active" data-material="clay" type="button">
+                        <span class="material-swatch clay-swatch"></span>
+                        <span>Clay</span>
+                    </button>
+
+                    <button class="material-option" data-material="light" type="button">
+                        <span class="material-swatch light-swatch"></span>
+                        <span>Light</span>
+                    </button>
+
+                    <button class="material-option" data-material="stone" type="button">
+                        <span class="material-swatch stone-swatch"></span>
+                        <span>Stone</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    <span>Pose</span>
+                    <span class="section-value" id="poseValue">Standing</span>
+                </div>
+
+                <div class="pose-list">
+                    <button class="pose-option active" data-pose="standing" type="button">
+                        <span class="pose-icon">│</span>
+                        <span>Standing</span>
+                    </button>
+
+                    <button class="pose-option" data-pose="wave" type="button">
+                        <span class="pose-icon">╱</span>
+                        <span>Wave</span>
+                    </button>
+
+                    <button class="pose-option" data-pose="point" type="button">
+                        <span class="pose-icon">→</span>
+                        <span>Point</span>
+                    </button>
+
+                    <button class="pose-option" data-pose="relaxed" type="button">
+                        <span class="pose-icon">⌁</span>
+                        <span>Relaxed</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    <span>Avatar Name</span>
+                </div>
+
+                <input
+                    class="name-input"
+                    id="nameInput"
+                    type="text"
+                    maxlength="24"
+                    placeholder="Your Avatar"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="customizer-footer">
+                <button class="reset-button" id="resetAvatarButton" type="button">
+                    Reset Avatar
+                </button>
+            </div>
+
+        </aside>
+    </main>
+
+    <div class="save-toast" id="saveToast" role="status" aria-live="polite">
+        Avatar saved
     </div>
-  </main>
 
-  <script src="player3d.js"></script>
+</div>
+
+<script src="player3d.js"></script>
+```
+
 </body>
 </html>

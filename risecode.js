@@ -1,568 +1,377 @@
-(() => {
+(function () {
+"use strict";
 
-  "use strict";
+```
+const RiseCode = {
 
+    version: "1.0.0",
 
-  const RiseCode = {
+    types: [
+        "number",
+        "string",
+        "boolean",
+        "vector2",
+        "vector3",
+        "color",
+        "object",
+        "array",
+        "function"
+    ],
 
+    keywords: [
+        "let",
+        "const",
+        "var",
+        "function",
+        "if",
+        "else",
+        "for",
+        "while",
+        "return",
+        "true",
+        "false"
+    ],
 
-    /* ======================================================
-       REMOVE COMMENTS
-       ====================================================== */
+    shapes: [
+        "cube",
+        "wedge",
+        "sphere",
+        "cylinder",
+        "plane",
+        "cone"
+    ],
 
-    stripComments(
-      code
-    ) {
+    tokenize(code) {
+        const tokens = [];
+        const source = String(code || "");
 
-      return code
-        .split("\n")
-        .map(
-          line => {
+        const pattern =
+            /\/\/.*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|[A-Za-z_][A-Za-z0-9_.]*|===|!==|==|!=|<=|>=|&&|\|\||[{}()[\];,.=:+\-*/<>]/g;
 
-            let quote =
-              null;
+        let match;
 
-            for (
-              let i = 0;
-              i < line.length;
-              i++
-            ) {
+        while ((match = pattern.exec(source)) !== null) {
+            const value = match[0];
 
-              const char =
-                line[i];
-
-
-              if (
-                (
-                  char === '"' ||
-                  char === "'"
-                )
-              ) {
-
-                if (
-                  !quote
-                ) {
-
-                  quote =
-                    char;
-
-                } else if (
-                  quote ===
-                  char
-                ) {
-
-                  quote =
-                    null;
-
-                }
-
+            if (value.startsWith("//")) {
                 continue;
-              }
-
-
-              if (
-                char === "/" &&
-                line[i + 1] === "/" &&
-                !quote
-              ) {
-
-                return line
-                  .substring(
-                    0,
-                    i
-                  )
-                  .trim();
-              }
             }
 
+            tokens.push({
+                value,
+                index: match.index,
+                type: this.getTokenType(value)
+            });
+        }
 
-            return line;
-          }
-        )
-        .join("\n");
+        return tokens;
     },
 
-
-    /* ======================================================
-       VALIDATION
-       ====================================================== */
-
-    validate(
-      code
-    ) {
-
-      if (
-        typeof code !==
-        "string"
-      ) {
-
-        return {
-
-          valid: false,
-
-          error:
-            "RiseScript must be text."
-
-        };
-      }
-
-
-      const cleaned =
-        this.stripComments(
-          code
-        );
-
-
-      const lines =
-        cleaned.split(
-          "\n"
-        );
-
-
-      let braces =
-        0;
-
-      let whenDepth =
-        0;
-
-
-      for (
-        let i = 0;
-        i < lines.length;
-        i++
-      ) {
-
-        const line =
-          lines[i].trim();
-
-
-        if (
-          !line
-        )
-          continue;
-
-
-        /*
-         * Old-style when/end.
-         */
-        if (
-          /^when\b/.test(
-            line
-          )
-        ) {
-
-          whenDepth++;
-
-          continue;
+    getTokenType(value) {
+        if (this.keywords.includes(value)) {
+            return "keyword";
         }
 
-
-        if (
-          line ===
-          "end;"
-        ) {
-
-          if (
-            whenDepth <= 0
-          ) {
-
-            return {
-
-              valid: false,
-
-              error:
-                `Unexpected end; on line ${i + 1}.`
-
-            };
-          }
-
-
-          whenDepth--;
-
-          continue;
+        if (this.types.includes(value)) {
+            return "type";
         }
 
-
-        /*
-         * Open brace.
-         */
-        const opens =
-          (
-            line.match(
-              /\{/g
-            ) || []
-          ).length;
-
-
-        const closes =
-          (
-            line.match(
-              /\}/g
-            ) || []
-          ).length;
-
-
-        braces +=
-          opens -
-          closes;
-
-
-        if (
-          braces < 0
-        ) {
-
-          return {
-
-            valid: false,
-
-            error:
-              `Unexpected } on line ${i + 1}.`
-
-          };
+        if (this.shapes.includes(value)) {
+            return "shape";
         }
 
-
-        /*
-         * Command.
-         */
-        if (
-          line.startsWith(
-            "<command>"
-          )
-        ) {
-
-          if (
-            !line.endsWith(
-              "</command>"
-            )
-          ) {
-
-            return {
-
-              valid: false,
-
-              error:
-                `Command is not closed on line ${i + 1}.`
-
-            };
-          }
-
-          continue;
+        if (/^\d/.test(value)) {
+            return "number";
         }
 
-
-        /*
-         * Blocks do not require ;
-         */
         if (
-          line.endsWith("{") ||
-          line === "}"
+            value.startsWith('"') ||
+            value.startsWith("'")
         ) {
-
-          continue;
+            return "string";
         }
 
-
-        /*
-         * Function call / declaration /
-         * normal RiseScript statement.
-         *
-         * A missing semicolon is only an
-         * error when the line is clearly
-         * a normal statement.
-         */
         if (
-          !line.endsWith(";") &&
-          !/^(if|else|for|while|function|event|loop)\b/.test(
-            line
-          )
+            [
+                "=",
+                "==",
+                "===",
+                "!=",
+                "!==",
+                "<",
+                ">",
+                "<=",
+                ">=",
+                "+",
+                "-",
+                "*",
+                "/",
+                "&&",
+                "||"
+            ].includes(value)
         ) {
-
-          /*
-           * User-defined language may
-           * contain multiline constructs.
-           * Don't destroy the whole script
-           * over these.
-           */
-          continue;
+            return "operator";
         }
-      }
 
+        if (
+            [
+                "{",
+                "}",
+                "(",
+                ")",
+                "[",
+                "]",
+                ";",
+                ",",
+                "."
+            ].includes(value)
+        ) {
+            return "punctuation";
+        }
 
-      if (
-        braces !== 0
-      ) {
-
-        return {
-
-          valid: false,
-
-          error:
-            "A { block is missing its closing }."
-
-        };
-      }
-
-
-      if (
-        whenDepth !== 0
-      ) {
-
-        return {
-
-          valid: false,
-
-          error:
-            "A when block is missing end;."
-
-        };
-      }
-
-
-      return {
-
-        valid: true,
-
-        error: null
-
-      };
+        return "identifier";
     },
 
-
-    /* ======================================================
-       PARSE
-       ====================================================== */
-
-    parse(
-      code
-    ) {
-
-      const validation =
-        this.validate(
-          code
-        );
-
-
-      if (
-        !validation.valid
-      ) {
-
-        throw new Error(
-          validation.error
-        );
-      }
-
-
-      const cleaned =
-        this.stripComments(
-          code
-        );
-
-
-      const lines =
-        cleaned.split(
-          "\n"
-        );
-
-
-      const instructions =
-        [];
-
-
-      for (
-        let i = 0;
-        i < lines.length;
-        i++
-      ) {
-
-        const line =
-          lines[i].trim();
-
-
-        if (!line)
-          continue;
-
-
-        if (
-          line.startsWith(
-            "<command>"
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "command",
-
-            value:
-              line
-                .replace(
-                  "<command>",
-                  ""
-                )
-                .replace(
-                  "</command>",
-                  ""
-                )
-                .trim()
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          /^event\b/.test(
-            line
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "event",
-
-            value:
-              line
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          /^function\b/.test(
-            line
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "function",
-
-            value:
-              line
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          /^loop\b/.test(
-            line
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "loop",
-
-            value:
-              line
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          /^when\b/.test(
-            line
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "when",
-
-            value:
-              line
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          line ===
-          "end;"
-        ) {
-
-          instructions.push({
-
-            type:
-              "end"
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          line ===
-          "}"
-        ) {
-
-          instructions.push({
-
-            type:
-              "braceEnd"
-
-          });
-
-          continue;
-        }
-
-
-        if (
-          line.endsWith(
-            "{"
-          )
-        ) {
-
-          instructions.push({
-
-            type:
-              "block",
-
-            value:
-              line
-
-          });
-
-          continue;
-        }
-
-
-        instructions.push({
-
-          type:
-            "statement",
-
-          value:
-            line
-
+    parse(code) {
+        const source = String(code || "");
+        const lines = source.replace(/\r\n/g, "\n").split("\n");
+
+        const result = [];
+
+        lines.forEach((line, index) => {
+            const lineNumber = index + 1;
+            const trimmed = line.trim();
+
+            if (!trimmed) {
+                return;
+            }
+
+            if (
+                trimmed.startsWith("//") ||
+                trimmed.startsWith("#")
+            ) {
+                return;
+            }
+
+            const instruction =
+                this.parseStatement(trimmed, lineNumber);
+
+            if (instruction) {
+                result.push(instruction);
+            }
         });
-      }
 
+        return result;
+    },
 
-      return instructions;
+    parseStatement(line, lineNumber) {
+
+        let match = line.match(
+            /^player\.walk\.speed\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "statement",
+                command: "player.walk.speed",
+                value: this.parseValue(match[1]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^player\.position\.(x|y|z)\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "statement",
+                command: `player.position.${match[1]}`,
+                value: this.parseValue(match[2]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^map\.name\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "statement",
+                command: "map.name",
+                value: this.parseValue(match[1]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^add\.mesh\.([A-Za-z0-9_]+)\s*\(\s*\)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "command",
+                command: `add.mesh.${match[1]}`,
+                value: null,
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^([xyz])\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "statement",
+                command: match[1],
+                value: this.parseValue(match[2]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^rotation\.(x|y|z)\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "statement",
+                command: `rotation.${match[1]}`,
+                value: this.parseValue(match[2]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^let\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "variable",
+                name: match[1],
+                value: this.parseValue(match[2]),
+                line: lineNumber
+            };
+        }
+
+        match = line.match(
+            /^const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*;?$/
+        );
+
+        if (match) {
+            return {
+                type: "constant",
+                name: match[1],
+                value: this.parseValue(match[2]),
+                line: lineNumber
+            };
+        }
+
+        return {
+            type: "unknown",
+            source: line,
+            line: lineNumber
+        };
+    },
+
+    parseValue(value) {
+        const input = String(value).trim();
+
+        if (
+            (
+                input.startsWith('"') &&
+                input.endsWith('"')
+            ) ||
+            (
+                input.startsWith("'") &&
+                input.endsWith("'")
+            )
+        ) {
+            return input.slice(1, -1);
+        }
+
+        if (input === "true") {
+            return true;
+        }
+
+        if (input === "false") {
+            return false;
+        }
+
+        if (
+            input.startsWith("[") &&
+            input.endsWith("]")
+        ) {
+            try {
+                return JSON.parse(input);
+            } catch {
+                return input;
+            }
+        }
+
+        if (!Number.isNaN(Number(input))) {
+            return Number(input);
+        }
+
+        return input;
+    },
+
+    validate(code) {
+        const parsed = this.parse(code);
+        const errors = [];
+
+        parsed.forEach(instruction => {
+            if (instruction.type === "unknown") {
+                errors.push({
+                    line: instruction.line,
+                    message:
+                        `Unknown RiseCode statement: ${instruction.source}`
+                });
+            }
+
+            if (
+                instruction.command &&
+                instruction.command.startsWith("add.mesh.")
+            ) {
+                const shape =
+                    instruction.command.replace(
+                        "add.mesh.",
+                        ""
+                    );
+
+                if (!this.shapes.includes(shape)) {
+                    errors.push({
+                        line: instruction.line,
+                        message:
+                            `Unknown mesh type: ${shape}`
+                    });
+                }
+            }
+        });
+
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    },
+
+    compile(code) {
+        const validation = this.validate(code);
+
+        return {
+            success: validation.valid,
+            instructions: validation.valid
+                ? this.parse(code)
+                : [],
+            errors: validation.errors
+        };
     }
+};
 
-  };
-
-
-  window.RiseCode =
-    RiseCode;
+window.RiseCode = RiseCode;
+```
 
 })();

@@ -1,274 +1,427 @@
-(() => {
-  "use strict";
+"use strict";
 
-  const params = new URLSearchParams(window.location.search);
-  const gameId = params.get("game");
+const RiseUpAvatar = (() => {
+const STORAGE_KEY = "riseup_avatar";
+const TOK_KEY = "riseup_tok";
 
-  const viewport = document.getElementById("viewport");
-  const loading = document.getElementById("loading");
-  const fpsCounter = document.getElementById("fpsCounter");
-  const stateCounter = document.getElementById("stateCounter");
-  const gameTitle = document.getElementById("gameTitle");
-  const gameCreator = document.getElementById("gameCreator");
-  const toknAmount = document.getElementById("toknAmount");
+```
+const defaults = {
+    name: "Your Avatar",
+    body: "default",
+    material: "clay",
+    pose: "standing",
+    rotation: 0
+};
 
-  let scene, camera, renderer;
-  let player;
-  let velocity = new THREE.Vector3();
-  let direction = new THREE.Vector3();
+const $ = (selector) => document.querySelector(selector);
 
-  let moveForward = false;
-  let moveBackward = false;
-  let moveLeft = false;
-  let moveRight = false;
-  let canJump = false;
-  let isLocked = false;
-  let isRunning = false;
+let avatar = {
+    ...defaults
+};
 
-  const keys = {};
-  const PLAYER_HEIGHT = 1.7;
-  const PLAYER_SPEED = 7;
-  const JUMP_FORCE = 9;
-  const GRAVITY = 22;
+let dragging = false;
+let startX = 0;
+let startRotation = 0;
 
-  let prevTime = performance.now();
-  let frames = 0;
-  let lastFps = 0;
-
-  function hideLoading() {
-    if (loading) loading.classList.add("hidden");
-  }
-
-  function getGames() {
+function loadAvatar() {
     try {
-      return JSON.parse(localStorage.getItem("riseup_games") || "[]");
-    } catch {
-      return [];
-    }
-  }
+        const raw = localStorage.getItem(STORAGE_KEY);
 
-  function init() {
-    // Game info
-    const games = getGames();
-    const game = games.find(g => String(g.id) === String(gameId));
-
-    if (game) {
-      if (gameTitle) gameTitle.textContent = game.name || "RiseUp 3D";
-      if (gameCreator) gameCreator.textContent = game.creator ? "By " + game.creator : "";
-    } else {
-      if (gameTitle) gameTitle.textContent = "Demo World";
-    }
-
-    // Tokn
-    if (toknAmount) {
-      const amount = Number(localStorage.getItem("riseup_tokn_Creator") || 0);
-      toknAmount.textContent = amount.toLocaleString();
-    }
-
-    // Check if Three.js loaded
-    if (typeof THREE === "undefined") {
-      if (loading) {
-        loading.innerHTML = "<div class='loading-box'><strong>Error</strong><span>Three.js failed to load</span></div>";
-      }
-      return;
-    }
-
-    // Scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x87ceeb, 25, 90);
-
-    // Camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, PLAYER_HEIGHT, 8);
-
-    // Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    viewport.appendChild(renderer.domElement);
-
-    // Lights
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.75);
-    hemi.position.set(0, 40, 0);
-    scene.add(hemi);
-
-    const dir = new THREE.DirectionalLight(0xffffff, 0.85);
-    dir.position.set(25, 35, 15);
-    dir.castShadow = true;
-    scene.add(dir);
-
-    // Ground
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
-      new THREE.MeshStandardMaterial({ color: 0x3a7d44 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    // Platforms
-    createBox(0, 0.5, -10, 5, 1, 5, 0x8b5a2b);
-    createBox(-7, 1.2, -16, 3, 2.4, 3, 0x6b4423);
-    createBox(7, 1.8, -18, 4, 3.6, 2, 0x5c4033);
-    createBox(0, 2.5, -26, 10, 1, 4, 0x4a3728);
-    createBox(-12, 0.5, -6, 2.5, 1, 2.5, 0x228b22);
-    createBox(12, 0.5, -6, 2.5, 1, 2.5, 0x228b22);
-
-    // Invisible player body
-    player = new THREE.Mesh(
-      new THREE.BoxGeometry(0.6, PLAYER_HEIGHT, 0.6),
-      new THREE.MeshBasicMaterial({ visible: false })
-    );
-    player.position.set(0, PLAYER_HEIGHT / 2, 8);
-    scene.add(player);
-
-    // Events
-    renderer.domElement.addEventListener("click", () => {
-      renderer.domElement.requestPointerLock();
-    });
-
-    document.addEventListener("pointerlockchange", () => {
-      isLocked = document.pointerLockElement === renderer.domElement;
-      if (stateCounter) {
-        stateCounter.textContent = isLocked ? "Playing" : "Click to play";
-      }
-    });
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("keyup", onKeyUp);
-    window.addEventListener("resize", onResize);
-
-    document.getElementById("backButton")?.addEventListener("click", () => {
-      window.location.href = "home.html";
-    });
-
-    // Hide loading after short delay
-    setTimeout(hideLoading, 500);
-
-    // Start loop
-    animate();
-  }
-
-  function createBox(x, y, z, w, h, d, color) {
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(w, h, d),
-      new THREE.MeshStandardMaterial({ color })
-    );
-    mesh.position.set(x, y, z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    scene.add(mesh);
-  }
-
-  function onMouseMove(e) {
-    if (!isLocked) return;
-    camera.rotation.order = "YXZ";
-    camera.rotation.y -= e.movementX * 0.002;
-    camera.rotation.x -= e.movementY * 0.002;
-    camera.rotation.x = Math.max(-1.4, Math.min(1.4, camera.rotation.x));
-  }
-
-  function onKeyDown(e) {
-    keys[e.code] = true;
-    switch (e.code) {
-      case "KeyW": case "ArrowUp": moveForward = true; break;
-      case "KeyS": case "ArrowDown": moveBackward = true; break;
-      case "KeyA": case "ArrowLeft": moveLeft = true; break;
-      case "KeyD": case "ArrowRight": moveRight = true; break;
-      case "ShiftLeft": case "ShiftRight": isRunning = true; break;
-      case "Space":
-        if (canJump) {
-          velocity.y = JUMP_FORCE;
-          canJump = false;
+        if (!raw) {
+            avatar = {
+                ...defaults
+            };
+            return;
         }
-        break;
+
+        const saved = JSON.parse(raw);
+
+        avatar = {
+            ...defaults,
+            ...saved
+        };
+    } catch {
+        avatar = {
+            ...defaults
+        };
     }
-  }
+}
 
-  function onKeyUp(e) {
-    keys[e.code] = false;
-    switch (e.code) {
-      case "KeyW": case "ArrowUp": moveForward = false; break;
-      case "KeyS": case "ArrowDown": moveBackward = false; break;
-      case "KeyA": case "ArrowLeft": moveLeft = false; break;
-      case "KeyD": case "ArrowRight": moveRight = false; break;
-      case "ShiftLeft": case "ShiftRight": isRunning = false; break;
+function saveAvatar(showMessage = true) {
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(avatar)
+    );
+
+    if (showMessage) {
+        showToast("Avatar saved");
     }
-  }
+}
 
-  function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
+function getTok() {
+    const value = Number(
+        localStorage.getItem(TOK_KEY) || "0"
+    );
 
-  function animate() {
-    requestAnimationFrame(animate);
+    return Number.isFinite(value) && value >= 0
+        ? Math.floor(value)
+        : 0;
+}
 
-    const time = performance.now();
-    const delta = Math.min((time - prevTime) / 1000, 0.05);
-    prevTime = time;
+function updateTok() {
+    const amount = $("#tokAmount");
 
-    // FPS
-    frames++;
-    if (time - lastFps > 500) {
-      if (fpsCounter) fpsCounter.textContent = Math.round((frames * 1000) / (time - lastFps)) + " FPS";
-      frames = 0;
-      lastFps = time;
+    if (amount) {
+        amount.textContent = getTok().toLocaleString();
     }
+}
 
-    if (isLocked) {
-      // Gravity
-      velocity.y -= GRAVITY * delta;
+function render() {
+    const model = $("#clayAvatar");
 
-      // Direction
-      direction.z = Number(moveForward) - Number(moveBackward);
-      direction.x = Number(moveRight) - Number(moveLeft);
-      direction.normalize();
-
-      const speed = isRunning ? PLAYER_SPEED * 1.7 : PLAYER_SPEED;
-
-      let moveX = 0;
-      let moveZ = 0;
-
-      if (moveForward || moveBackward) moveZ = -direction.z * speed;
-      if (moveLeft || moveRight) moveX = -direction.x * speed;
-
-      // Rotate movement by camera yaw
-      const angle = camera.rotation.y;
-      const vx = moveX * Math.cos(angle) - moveZ * Math.sin(angle);
-      const vz = moveX * Math.sin(angle) + moveZ * Math.cos(angle);
-
-      player.position.x += vx * delta;
-      player.position.z += vz * delta;
-      player.position.y += velocity.y * delta;
-
-      // Ground
-      if (player.position.y < PLAYER_HEIGHT / 2) {
-        velocity.y = 0;
-        player.position.y = PLAYER_HEIGHT / 2;
-        canJump = true;
-      }
-
-      // Camera follows player
-      camera.position.x = player.position.x;
-      camera.position.y = player.position.y + 0.6;
-      camera.position.z = player.position.z;
+    if (!model) {
+        return;
     }
 
-    renderer.render(scene, camera);
-  }
+    model.className = "clay-avatar";
 
-  // Start
-  try {
-    init();
-  } catch (err) {
-    console.error(err);
-    if (loading) {
-      loading.innerHTML = "<div class='loading-box'><strong>Error</strong><span>Could not start 3D world</span></div>";
+    if (avatar.body !== "default") {
+        model.classList.add(`body-${avatar.body}`);
     }
-  }
+
+    if (avatar.material !== "clay") {
+        model.classList.add(`material-${avatar.material}`);
+    }
+
+    if (avatar.pose !== "standing") {
+        model.classList.add(`pose-${avatar.pose}`);
+    }
+
+    model.style.setProperty(
+        "--avatar-rotation",
+        `${avatar.rotation}deg`
+    );
+
+    const name = $("#avatarName");
+    const input = $("#nameInput");
+
+    if (name) {
+        name.textContent = avatar.name || "Your Avatar";
+    }
+
+    if (input && document.activeElement !== input) {
+        input.value = avatar.name || "";
+    }
+
+    updateSelectedButtons();
+    updateLabels();
+}
+
+function updateSelectedButtons() {
+    document
+        .querySelectorAll("[data-body]")
+        .forEach((button) => {
+            button.classList.toggle(
+                "active",
+                button.dataset.body === avatar.body
+            );
+        });
+
+    document
+        .querySelectorAll("[data-material]")
+        .forEach((button) => {
+            button.classList.toggle(
+                "active",
+                button.dataset.material === avatar.material
+            );
+        });
+
+    document
+        .querySelectorAll("[data-pose]")
+        .forEach((button) => {
+            button.classList.toggle(
+                "active",
+                button.dataset.pose === avatar.pose
+            );
+        });
+}
+
+function updateLabels() {
+    const bodyNames = {
+        default: "Default",
+        tall: "Tall",
+        compact: "Compact"
+    };
+
+    const materialNames = {
+        clay: "Clay",
+        light: "Light",
+        stone: "Stone"
+    };
+
+    const poseNames = {
+        standing: "Standing",
+        wave: "Wave",
+        point: "Point",
+        relaxed: "Relaxed"
+    };
+
+    $("#bodyValue").textContent =
+        bodyNames[avatar.body] || "Default";
+
+    $("#materialValue").textContent =
+        materialNames[avatar.material] || "Clay";
+
+    $("#poseValue").textContent =
+        poseNames[avatar.pose] || "Standing";
+}
+
+function setupOptions() {
+    document.querySelectorAll("[data-body]").forEach((button) => {
+        button.addEventListener("click", () => {
+            avatar.body = button.dataset.body;
+            render();
+        });
+    });
+
+    document.querySelectorAll("[data-material]").forEach((button) => {
+        button.addEventListener("click", () => {
+            avatar.material = button.dataset.material;
+            render();
+        });
+    });
+
+    document.querySelectorAll("[data-pose]").forEach((button) => {
+        button.addEventListener("click", () => {
+            avatar.pose = button.dataset.pose;
+            render();
+        });
+    });
+}
+
+function setupNameInput() {
+    const input = $("#nameInput");
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener("input", () => {
+        avatar.name = input.value.trim() || "Your Avatar";
+
+        const heading = $("#avatarName");
+
+        if (heading) {
+            heading.textContent = avatar.name;
+        }
+    });
+
+    input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            input.blur();
+            saveAvatar();
+        }
+    });
+}
+
+function setupRotation() {
+    const stage = $("#avatarStage");
+
+    if (!stage) {
+        return;
+    }
+
+    stage.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("button")) {
+            return;
+        }
+
+        dragging = true;
+        startX = event.clientX;
+        startRotation = avatar.rotation;
+
+        stage.classList.add("dragging");
+        stage.setPointerCapture(event.pointerId);
+
+        const model = $("#clayAvatar");
+
+        model?.classList.add("no-transition");
+    });
+
+    stage.addEventListener("pointermove", (event) => {
+        if (!dragging) {
+            return;
+        }
+
+        const difference = event.clientX - startX;
+
+        avatar.rotation = startRotation + difference * 0.7;
+
+        if (avatar.rotation > 180) {
+            avatar.rotation -= 360;
+        }
+
+        if (avatar.rotation < -180) {
+            avatar.rotation += 360;
+        }
+
+        const model = $("#clayAvatar");
+
+        if (model) {
+            model.style.setProperty(
+                "--avatar-rotation",
+                `${avatar.rotation}deg`
+            );
+        }
+    });
+
+    const stopDragging = () => {
+        if (!dragging) {
+            return;
+        }
+
+        dragging = false;
+
+        stage.classList.remove("dragging");
+
+        const model = $("#clayAvatar");
+
+        model?.classList.remove("no-transition");
+    };
+
+    stage.addEventListener("pointerup", stopDragging);
+    stage.addEventListener("pointercancel", stopDragging);
+    stage.addEventListener("lostpointercapture", stopDragging);
+
+    stage.addEventListener("wheel", (event) => {
+        event.preventDefault();
+
+        const model = $("#clayAvatar");
+
+        if (!model) {
+            return;
+        }
+
+        const currentScale =
+            Number(
+                getComputedStyle(model)
+                    .getPropertyValue("--avatar-scale")
+            ) || 1;
+
+        const nextScale =
+            currentScale + (event.deltaY < 0 ? 0.04 : -0.04);
+
+        const clamped = Math.max(
+            0.72,
+            Math.min(1.35, nextScale)
+        );
+
+        model.style.setProperty(
+            "--avatar-scale",
+            clamped
+        );
+
+        avatar.zoom = clamped;
+    }, {
+        passive: false
+    });
+}
+
+function setupButtons() {
+    $("#homeButton")?.addEventListener("click", () => {
+        window.location.href = "home.html";
+    });
+
+    $("#saveButton")?.addEventListener("click", () => {
+        saveAvatar();
+    });
+
+    $("#resetAvatarButton")?.addEventListener("click", () => {
+        avatar = {
+            ...defaults
+        };
+
+        saveAvatar(false);
+        render();
+        showToast("Avatar reset");
+    });
+
+    $("#resetViewButton")?.addEventListener("click", () => {
+        avatar.rotation = 0;
+        avatar.zoom = 1;
+
+        const model = $("#clayAvatar");
+
+        if (model) {
+            model.style.setProperty(
+                "--avatar-scale",
+                "1"
+            );
+        }
+
+        render();
+    });
+
+    $("#tokButton")?.addEventListener("click", () => {
+        showToast("TOK balance");
+    });
+}
+
+function showToast(message) {
+    const toast = $("#saveToast");
+
+    if (!toast) {
+        return;
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(showToast.timer);
+
+    showToast.timer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2200);
+}
+
+function initialize() {
+    loadAvatar();
+
+    if (typeof avatar.zoom !== "number") {
+        avatar.zoom = 1;
+    }
+
+    setupOptions();
+    setupNameInput();
+    setupRotation();
+    setupButtons();
+    render();
+
+    const model = $("#clayAvatar");
+
+    if (model) {
+        model.style.setProperty(
+            "--avatar-scale",
+            avatar.zoom
+        );
+    }
+}
+
+return {
+    initialize,
+    saveAvatar,
+    reset() {
+        avatar = {
+            ...defaults
+        };
+
+        render();
+    }
+};
+```
+
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+RiseUpAvatar.initialize();
+});

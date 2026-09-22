@@ -1,46 +1,232 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiseUp Game</title>
-  <link rel="stylesheet" href="player.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player — RiseUp</title>
+    <link rel="stylesheet" href="player.css">
 </head>
 <body>
 
-<header class="player-topbar">
-  <button id="backButton">← Back</button>
+<div class="app">
 
-  <div>
-    <strong id="gameTitle">RiseUp Game</strong>
-    <span id="gameCreator"></span>
-  </div>
+    <header class="topbar">
+        <button class="brand" id="homeButton" type="button">
+            <span class="brand-mark">R</span>
+            <span>RiseUp</span>
+        </button>
 
-  <div class="player-spacer"></div>
+        <div class="topbar-spacer"></div>
 
-  <span>◈ <b id="rux">0</b></span>
-</header>
+        <div class="tok">
+            <span class="tok-icon">T</span>
+            <span id="tokAmount">0</span>
+        </div>
 
-<main class="player-page">
+        <button class="icon-button" id="messagesButton" type="button" aria-label="Messages">
+            <span class="icon">▢</span>
+        </button>
 
-  <div id="gameViewport" class="game-viewport">
-    <div id="gameWorld"></div>
+        <button class="profile-button" id="profileButton" type="button">
+            <span class="profile-avatar" id="topAvatar">R</span>
+            <span class="profile-name" id="topUsername">Player</span>
+            <span class="chevron">⌄</span>
+        </button>
+    </header>
 
-    <div id="loading" class="loading">
-      Loading game...
-    </div>
-  </div>
+    <main class="page">
 
-  <div class="controls">
-    <span>WASD / Arrow Keys to move</span>
-    <button id="restartButton">Restart</button>
-  </div>
+        <section class="profile-hero">
 
-</main>
+            <div class="hero-background"></div>
 
-<script src="risecode.js"></script>
-<script src="risecode-runtime.js"></script>
+            <div class="hero-content">
+
+                <div class="avatar-stage" id="avatarStage">
+                    <div class="stage-grid"></div>
+                    <div class="stage-glow"></div>
+
+                    <div class="avatar" id="avatar">
+
+                        <div class="avatar-shadow"></div>
+
+                        <div class="avatar-model">
+
+                            <div class="avatar-head">
+                                <div class="head-highlight"></div>
+                            </div>
+
+                            <div class="avatar-neck"></div>
+
+                            <div class="avatar-torso">
+                                <div class="torso-highlight"></div>
+                            </div>
+
+                            <div class="avatar-arm left">
+                                <div class="avatar-hand"></div>
+                            </div>
+
+                            <div class="avatar-arm right">
+                                <div class="avatar-hand"></div>
+                            </div>
+
+                            <div class="avatar-leg left">
+                                <div class="avatar-foot"></div>
+                            </div>
+
+                            <div class="avatar-leg right">
+                                <div class="avatar-foot"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-info">
+
+                    <div class="online-status">
+                        <span></span>
+                        Online
+                    </div>
+
+                    <h1 id="displayName">Player</h1>
+
+                    <p class="username" id="username">@player</p>
+
+                    <p class="bio" id="bio">
+                        Welcome to my RiseUp profile.
+                    </p>
+
+                    <div class="profile-actions">
+                        <button class="primary-button" id="editAvatarButton" type="button">
+                            Edit Avatar
+                        </button>
+
+                        <button class="secondary-button" id="addFriendButton" type="button">
+                            Add Friend
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <section class="content">
+
+            <div class="stats-row">
+
+                <div class="stat-card">
+                    <span class="stat-value" id="gamesPlayed">0</span>
+                    <span class="stat-label">Games Played</span>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-value" id="friendsCount">0</span>
+                    <span class="stat-label">Friends</span>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-value" id="followersCount">0</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-value" id="createdCount">0</span>
+                    <span class="stat-label">Created</span>
+                </div>
+
+            </div>
+
+            <div class="section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Avatar</h2>
+                        <p>Your current RiseUp character</p>
+                    </div>
+
+                    <button class="text-button" id="customizeButton" type="button">
+                        Customize
+                    </button>
+                </div>
+
+                <div class="avatar-details">
+
+                    <div class="detail-avatar">
+                        <div class="mini-avatar" id="miniAvatar">
+                            <div class="mini-head"></div>
+                            <div class="mini-body"></div>
+                            <div class="mini-arm mini-left"></div>
+                            <div class="mini-arm mini-right"></div>
+                            <div class="mini-leg mini-leg-left"></div>
+                            <div class="mini-leg mini-leg-right"></div>
+                        </div>
+                    </div>
+
+                    <div class="avatar-properties">
+
+                        <div class="property">
+                            <span>Name</span>
+                            <strong id="avatarName">Your Avatar</strong>
+                        </div>
+
+                        <div class="property">
+                            <span>Body</span>
+                            <strong id="avatarBody">Default</strong>
+                        </div>
+
+                        <div class="property">
+                            <span>Material</span>
+                            <strong id="avatarMaterial">Clay</strong>
+                        </div>
+
+                        <div class="property">
+                            <span>Pose</span>
+                            <strong id="avatarPose">Standing</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Created Games</h2>
+                        <p>Games published by this player</p>
+                    </div>
+
+                    <button class="text-button" id="createButton" type="button">
+                        Create
+                    </button>
+                </div>
+
+                <div class="empty-card" id="gamesEmpty">
+                    <div class="empty-icon">+</div>
+                    <h3>No games yet</h3>
+                    <p>Create your first game and publish it to RiseUp.</p>
+                    <button class="primary-button small" id="createGameButton" type="button">
+                        Create a Game
+                    </button>
+                </div>
+
+                <div class="games-grid" id="gamesGrid"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
 <script src="player.js"></script>
+
 
 </body>
 </html>

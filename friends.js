@@ -1,243 +1,384 @@
-(() => {
-  "use strict";
+const USER_KEY = "riseup_currentUser";
+const FRIENDS_KEY_PREFIX = "riseup_friends_";
+const AVATAR_KEY = "riseup_avatar";
+const TOK_KEY = "riseup_tok";
 
-  const currentUser = localStorage.getItem("riseup_currentUser");
+function getCurrentUser() {
+const raw = localStorage.getItem(USER_KEY);
 
-  const $ = id => document.getElementById(id);
+```
+if (!raw) {
+    return {
+        username: "Player",
+        displayName: "Player"
+    };
+}
 
-  function getUsers() {
-    try {
-      return JSON.parse(localStorage.getItem("riseup_users") || "{}");
-    } catch {
-      return {};
+try {
+    const parsed = JSON.parse(raw);
+
+    if (typeof parsed === "string") {
+        return {
+            username: parsed,
+            displayName: parsed
+        };
     }
-  }
 
-  function getFriends() {
-    if (!currentUser) return [];
+    return {
+        username: parsed.username || parsed.name || "Player",
+        displayName: parsed.displayName || parsed.username || parsed.name || "Player"
+    };
+} catch {
+    return {
+        username: raw,
+        displayName: raw
+    };
+}
+```
 
-    try {
-      const friends = JSON.parse(
-        localStorage.getItem(`riseup_friends_${currentUser}`) || "[]"
-      );
+}
 
-      return Array.isArray(friends) ? friends : [];
-    } catch {
-      return [];
-    }
-  }
+function loadAvatar() {
+try {
+return JSON.parse(localStorage.getItem(AVATAR_KEY)) || {
+name: "Your Avatar",
+body: "default",
+material: "clay",
+pose: "standing",
+rotation: 0
+};
+} catch {
+return {
+name: "Your Avatar",
+body: "default",
+material: "clay",
+pose: "standing",
+rotation: 0
+};
+}
+}
 
-  function saveFriends(friends) {
-    localStorage.setItem(
-      `riseup_friends_${currentUser}`,
-      JSON.stringify(friends)
+function getFriendsKey(username) {
+return `${FRIENDS_KEY_PREFIX}${username}`;
+}
+
+function loadFriends() {
+const user = getCurrentUser();
+
+```
+try {
+    const friends = JSON.parse(
+        localStorage.getItem(getFriendsKey(user.username)) || "[]"
     );
-  }
 
-  function toast(message) {
-    const el = $("toast");
-    if (!el) return;
+    return Array.isArray(friends) ? friends : [];
+} catch {
+    return [];
+}
+```
 
-    el.textContent = message;
-    el.classList.add("show");
+}
 
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => {
-      el.classList.remove("show");
-    }, 2200);
-  }
+function saveFriends(friends) {
+const user = getCurrentUser();
 
-  function escapeHTML(value) {
-    const div = document.createElement("div");
-    div.textContent = value;
-    return div.innerHTML;
-  }
+```
+localStorage.setItem(
+    getFriendsKey(user.username),
+    JSON.stringify(friends)
+);
+```
 
-  function openFriends() {
-    $("friendsModal").classList.remove("hidden");
-    $("friendSearch").value = "";
-    $("friendSearchResults").innerHTML = "";
-    $("friendSearch").focus();
-  }
+}
 
-  function closeFriends() {
-    $("friendsModal").classList.add("hidden");
-  }
+function getTok() {
+const value = Number(localStorage.getItem(TOK_KEY));
+return Number.isFinite(value) ? value : 0;
+}
 
-  function renderSearch() {
-    const search = $("friendSearch").value
-      .trim()
-      .toLowerCase();
+function getFriendAvatar(friend) {
+return {
+name: friend.avatarName || "Avatar",
+body: friend.body || "default",
+material: friend.material || "clay",
+pose: friend.pose || "standing"
+};
+}
 
-    const results = $("friendSearchResults");
-    results.innerHTML = "";
+function avatarMarkup(avatar) {
+const body = avatar.body || "default";
+const material = avatar.material || "clay";
+const pose = avatar.pose || "standing";
 
-    if (!search) return;
+```
+return `
+    <div class="friend-avatar"
+         data-body="${body}"
+         data-material="${material}"
+         data-pose="${pose}">
+        <div class="friend-head"></div>
+        <div class="friend-neck"></div>
+        <div class="friend-torso"></div>
+        <div class="friend-arm friend-arm-left"></div>
+        <div class="friend-arm friend-arm-right"></div>
+        <div class="friend-leg friend-leg-left"></div>
+        <div class="friend-leg friend-leg-right"></div>
+    </div>
+`;
+```
 
-    const users = getUsers();
-    const friends = getFriends();
+}
 
-    const matches = Object.keys(users)
-      .filter(username => {
-        if (username === currentUser) return false;
-        if (friends.includes(username)) return false;
+function createFriendCard(friend, index) {
+const card = document.createElement("article");
 
-        return username.toLowerCase().includes(search);
-      })
-      .slice(0, 10);
+```
+card.className = "friend-card";
 
-    if (!matches.length) {
-      results.innerHTML = `
-        <div style="padding:20px;text-align:center;color:#8b949e">
-          No players found.
-        </div>
-      `;
-      return;
-    }
+const displayName =
+    friend.displayName ||
+    friend.username ||
+    `Player ${index + 1}`;
 
-    matches.forEach(username => {
-      const row = document.createElement("div");
-      row.className = "friend-result";
+const username =
+    friend.username ||
+    displayName.toLowerCase().replace(/\s+/g, "");
 
-      row.innerHTML = `
-        <div class="result-user">
-          <div class="result-avatar">
-            ${escapeHTML(username.charAt(0).toUpperCase())}
-          </div>
+const avatar = getFriendAvatar(friend);
 
-          <strong>${escapeHTML(username)}</strong>
-        </div>
+card.innerHTML = `
+    <div class="friend-preview">
+        ${avatarMarkup(avatar)}
+    </div>
 
-        <button class="add-friend">
-          Add Friend
-        </button>
-      `;
+    <div class="friend-info">
+        <div class="friend-name-row">
+            <div>
+                <h3></h3>
+                <p></p>
+            </div>
 
-      row.querySelector(".add-friend")
-        .addEventListener("click", () => {
-          addFriend(username);
-        });
-
-      results.appendChild(row);
-    });
-  }
-
-  function addFriend(username) {
-    const friends = getFriends();
-
-    if (friends.includes(username)) return;
-
-    friends.push(username);
-    saveFriends(friends);
-
-    renderFriends();
-    renderSearch();
-
-    toast(`${username} added to your friends!`);
-  }
-
-  function removeFriend(username) {
-    const friends = getFriends()
-      .filter(friend => friend !== username);
-
-    saveFriends(friends);
-    renderFriends();
-
-    toast(`${username} removed.`);
-  }
-
-  function renderFriends() {
-    const list = $("friendsList");
-    const friends = getFriends();
-    const users = getUsers();
-
-    list.innerHTML = "";
-
-    if (!friends.length) {
-      list.innerHTML = `
-        <div class="empty-friends">
-          <div class="empty-icon">♧</div>
-          <h3>No friends yet</h3>
-          <p>Find people to add as friends and play together.</p>
-          <button id="newFindFriends">Find Friends</button>
-        </div>
-      `;
-
-      $("newFindFriends").addEventListener(
-        "click",
-        openFriends
-      );
-
-      return;
-    }
-
-    friends.forEach(username => {
-      if (!users[username]) return;
-
-      const row = document.createElement("div");
-      row.className = "friend-row";
-
-      row.innerHTML = `
-        <div class="friend-avatar">
-          ${escapeHTML(username.charAt(0).toUpperCase())}
-        </div>
-
-        <div class="friend-details">
-          <span class="friend-name">
-            ${escapeHTML(username)}
-          </span>
-
-          <span class="friend-status">
             <span class="online-dot"></span>
-            Online
-          </span>
         </div>
-      `;
 
-      row.addEventListener("contextmenu", event => {
-        event.preventDefault();
+        <div class="friend-actions">
+            <button class="friend-button primary" data-action="profile">
+                Profile
+            </button>
 
-        if (
-          confirm(
-            `Remove ${username} from your friends?`
-          )
-        ) {
-          removeFriend(username);
-        }
-      });
+            <button class="friend-button secondary" data-action="remove">
+                Remove
+            </button>
+        </div>
+    </div>
+`;
 
-      list.appendChild(row);
-    });
-  }
+card.querySelector("h3").textContent = displayName;
+card.querySelector("p").textContent = `@${username}`;
 
-  $("findFriendsButton").addEventListener(
+card.querySelector('[data-action="profile"]').addEventListener(
     "click",
-    openFriends
-  );
+    () => {
+        localStorage.setItem(
+            "riseup_viewing_profile",
+            JSON.stringify(friend)
+        );
 
-  $("findFriendsMain").addEventListener(
-    "click",
-    openFriends
-  );
-
-  $("closeFriendsModal").addEventListener(
-    "click",
-    closeFriends
-  );
-
-  $("friendsModal").addEventListener(
-    "click",
-    event => {
-      if (event.target === $("friendsModal")) {
-        closeFriends();
-      }
+        window.location.href = "player.html";
     }
-  );
+);
 
-  $("friendSearch").addEventListener(
-    "input",
-    renderSearch
-  );
+card.querySelector('[data-action="remove"]').addEventListener(
+    "click",
+    () => {
+        const friends = loadFriends();
 
-  renderFriends();
-})();
+        friends.splice(index, 1);
+        saveFriends(friends);
+
+        renderFriends();
+    }
+);
+
+return card;
+```
+
+}
+
+function renderFriends(search = "") {
+const grid = document.getElementById("friendsGrid");
+const empty = document.getElementById("friendsEmpty");
+const count = document.getElementById("friendsCount");
+
+```
+if (!grid) {
+    return;
+}
+
+const friends = loadFriends();
+
+const filtered = friends.filter(friend => {
+    const text = [
+        friend.displayName,
+        friend.username
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+    return text.includes(search.toLowerCase());
+});
+
+grid.innerHTML = "";
+
+if (count) {
+    count.textContent = friends.length.toLocaleString();
+}
+
+if (!filtered.length) {
+    if (empty) {
+        empty.style.display = "block";
+    }
+
+    return;
+}
+
+if (empty) {
+    empty.style.display = "none";
+}
+
+filtered.forEach((friend, index) => {
+    grid.appendChild(createFriendCard(friend, index));
+});
+```
+
+}
+
+function addFriend(friend) {
+const friends = loadFriends();
+
+```
+const username = String(friend.username || "").toLowerCase();
+
+if (!username) {
+    return false;
+}
+
+if (
+    friends.some(
+        existing =>
+            String(existing.username || "").toLowerCase() === username
+    )
+) {
+    return false;
+}
+
+friends.push({
+    username: friend.username,
+    displayName: friend.displayName || friend.username,
+    avatarName: friend.avatarName || "Avatar",
+    body: friend.body || "default",
+    material: friend.material || "clay",
+    pose: friend.pose || "standing"
+});
+
+saveFriends(friends);
+renderFriends();
+
+return true;
+```
+
+}
+
+function goHome() {
+window.location.href = "home.html";
+}
+
+function goAvatar() {
+window.location.href = "player3d.html";
+}
+
+function goMarketplace() {
+window.location.href = "home.html?page=marketplace";
+}
+
+function initializeFriendsPage() {
+const currentUser = getCurrentUser();
+const avatar = loadAvatar();
+
+```
+const usernameElement = document.getElementById("username");
+const displayNameElement = document.getElementById("displayName");
+const topAvatar = document.getElementById("topAvatar");
+const tokAmount = document.getElementById("tokAmount");
+
+if (usernameElement) {
+    usernameElement.textContent = `@${currentUser.username}`;
+}
+
+if (displayNameElement) {
+    displayNameElement.textContent = currentUser.displayName;
+}
+
+if (topAvatar) {
+    topAvatar.textContent =
+        currentUser.displayName.charAt(0).toUpperCase();
+}
+
+if (tokAmount) {
+    tokAmount.textContent = getTok().toLocaleString();
+}
+
+const search = document.getElementById("friendSearch");
+
+if (search) {
+    search.addEventListener("input", () => {
+        renderFriends(search.value);
+    });
+}
+
+document.getElementById("homeButton")?.addEventListener(
+    "click",
+    goHome
+);
+
+document.getElementById("avatarButton")?.addEventListener(
+    "click",
+    goAvatar
+);
+
+document.getElementById("marketplaceButton")?.addEventListener(
+    "click",
+    goMarketplace
+);
+
+renderFriends();
+
+window.RiseUpFriends = {
+    getAll: loadFriends,
+    add: addFriend,
+    remove(username) {
+        const friends = loadFriends().filter(
+            friend =>
+                String(friend.username).toLowerCase() !==
+                String(username).toLowerCase()
+        );
+
+        saveFriends(friends);
+        renderFriends();
+    }
+};
+
+void avatar;
+```
+
+}
+
+if (document.readyState === "loading") {
+document.addEventListener(
+"DOMContentLoaded",
+initializeFriendsPage
+);
+} else {
+initializeFriendsPage();
+}

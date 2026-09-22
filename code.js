@@ -1,518 +1,552 @@
-(() => {
-  "use strict";
+const FILES_KEY = "riseup_code_files";
+const PROJECT_KEY = "riseup_code_project";
+const USER_KEY = "riseup_currentUser";
 
-  const currentUser =
-    localStorage.getItem("riseup_currentUser");
+const defaultFiles = {
+"index.rise": `// Welcome to RiseCode
+// Your game starts here.
 
-  if (!currentUser) {
-    window.location.href = "index.html";
+map.name = "My World";
+
+add.mesh.cube();
+
+player.walk.speed = 5;
+`,
+    "player.rise": `// Player settings
+
+player.walk.speed = 5;
+`,
+    "world.rise": `// World setup
+
+add.mesh.cube();
+add.mesh.wedge();
+`
+};
+
+let files = loadFiles();
+let currentFile = "index.rise";
+
+const fileList = document.getElementById("fileList");
+const editorTabs = document.getElementById("editorTabs");
+const editor = document.getElementById("codeEditor");
+const lineNumbers = document.getElementById("lineNumbers");
+const currentFileName = document.getElementById("currentFileName");
+const cursorPosition = document.getElementById("cursorPosition");
+const saveStatus = document.getElementById("saveStatus");
+const projectName = document.getElementById("projectName");
+const newFileModal = document.getElementById("newFileModal");
+const newFileName = document.getElementById("newFileName");
+
+function getUserName() {
+const raw = localStorage.getItem(USER_KEY);
+
+```
+if (!raw) {
+    return "Player";
+}
+
+try {
+    const parsed = JSON.parse(raw);
+
+    if (typeof parsed === "string") {
+        return parsed;
+    }
+
+    return parsed.username || parsed.name || "Player";
+} catch {
+    return raw;
+}
+```
+
+}
+
+function getStorageKey() {
+return `${FILES_KEY}_${getUserName()}`;
+}
+
+function loadFiles() {
+try {
+const saved = localStorage.getItem(getStorageKey());
+
+```
+    if (saved) {
+        const parsed = JSON.parse(saved);
+
+        if (parsed && typeof parsed === "object") {
+            return {
+                ...defaultFiles,
+                ...parsed
+            };
+        }
+    }
+} catch {
+    // Use defaults.
+}
+
+return { ...defaultFiles };
+```
+
+}
+
+function saveFiles() {
+localStorage.setItem(
+getStorageKey(),
+JSON.stringify(files)
+);
+
+```
+saveStatus.textContent = "Saved";
+```
+
+}
+
+function renderFileList() {
+fileList.innerHTML = "";
+
+```
+Object.keys(files).forEach(name => {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "file-item";
+    button.classList.toggle("active", name === currentFile);
+
+    button.innerHTML = `
+        <span class="file-icon">R</span>
+        <span class="file-name"></span>
+    `;
+
+    button.querySelector(".file-name").textContent = name;
+
+    button.addEventListener("click", () => {
+        openFile(name);
+    });
+
+    fileList.appendChild(button);
+});
+```
+
+}
+
+function renderTabs() {
+editorTabs.innerHTML = "";
+
+```
+const names = Object.keys(files);
+
+names.forEach(name => {
+    const tab = document.createElement("button");
+
+    tab.type = "button";
+    tab.className = "editor-tab";
+    tab.classList.toggle("active", name === currentFile);
+
+    tab.innerHTML = `
+        <span class="file-icon">R</span>
+        <span></span>
+    `;
+
+    tab.querySelector("span:last-child").textContent = name;
+
+    tab.addEventListener("click", () => {
+        openFile(name);
+    });
+
+    editorTabs.appendChild(tab);
+});
+```
+
+}
+
+function updateLineNumbers() {
+const count = Math.max(
+1,
+editor.value.split("\n").length
+);
+
+```
+lineNumbers.innerHTML = "";
+
+for (let i = 1; i <= count; i++) {
+    const line = document.createElement("div");
+
+    line.className = "line-number";
+    line.textContent = i;
+
+    lineNumbers.appendChild(line);
+}
+```
+
+}
+
+function openFile(name) {
+if (!(name in files)) {
+return;
+}
+
+```
+files[currentFile] = editor.value;
+
+currentFile = name;
+editor.value = files[currentFile];
+
+currentFileName.textContent = currentFile;
+
+renderFileList();
+renderTabs();
+updateLineNumbers();
+updateCursor();
+```
+
+}
+
+function updateCursor() {
+const position = editor.selectionStart;
+const before = editor.value.slice(0, position);
+
+```
+const lines = before.split("\n");
+
+const line = lines.length;
+const column = lines[lines.length - 1].length + 1;
+
+cursorPosition.textContent =
+    `Ln ${line}, Col ${column}`;
+```
+
+}
+
+function showSavedStatus(text = "Saved") {
+saveStatus.textContent = text;
+
+```
+clearTimeout(showSavedStatus.timer);
+
+showSavedStatus.timer = setTimeout(() => {
+    saveStatus.textContent = "Ready";
+}, 1600);
+```
+
+}
+
+function saveCurrentFile() {
+files[currentFile] = editor.value;
+saveFiles();
+showSavedStatus();
+}
+
+function formatCode() {
+const source = editor.value;
+
+```
+const formatted = source
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map(line => line.trimEnd())
+    .join("\n");
+
+editor.value = formatted;
+
+files[currentFile] = formatted;
+
+updateLineNumbers();
+showSavedStatus("Formatted");
+```
+
+}
+
+function openNewFileModal() {
+newFileName.value = "script.rise";
+newFileModal.classList.remove("hidden");
+
+```
+setTimeout(() => {
+    newFileName.focus();
+    newFileName.select();
+}, 0);
+```
+
+}
+
+function closeNewFileModal() {
+newFileModal.classList.add("hidden");
+}
+
+function createFile() {
+let name = newFileName.value.trim();
+
+```
+if (!name) {
     return;
-  }
+}
 
-  const editor =
-    document.getElementById("codeEditor");
+if (!name.endsWith(".rise")) {
+    name += ".rise";
+}
 
-  const fileName =
-    document.getElementById("fileName");
+if (files[name]) {
+    openFile(name);
+    closeNewFileModal();
+    return;
+}
 
-  const fileList =
-    document.getElementById("fileList");
+files[name] = `// ${name}
+```
 
-  const lineNumbers =
-    document.getElementById("lineNumbers");
+`;
 
-  const status =
-    document.getElementById("codeStatus");
+```
+renderFileList();
+renderTabs();
+openFile(name);
 
-  const runButton =
-    document.getElementById("runCode");
+closeNewFileModal();
+```
 
-  let files = [];
-  let activeIndex = 0;
+}
 
-  function storageKey() {
-    return `riseup_code_files_${currentUser}`;
-  }
+function runCode() {
+files[currentFile] = editor.value;
 
-  function loadFiles() {
-    try {
-      files = JSON.parse(
-        localStorage.getItem(storageKey()) || "[]"
-      );
-    } catch {
-      files = [];
+```
+saveFiles();
+
+if (
+    window.RiseCodeRuntime &&
+    typeof window.RiseCodeRuntime.run === "function"
+) {
+    const result = window.RiseCodeRuntime.run(files);
+
+    if (result?.errors?.length) {
+        saveStatus.textContent = "Runtime Error";
+        console.error(result.errors);
+    } else {
+        showSavedStatus("Running");
     }
 
-    if (!Array.isArray(files)) {
-      files = [];
-    }
+    return;
+}
 
-    if (!files.length) {
-      files.push({
-        name: "Game.rise",
-        code:
-`player.walk.speed = 5;
-player.jump.power = 10;
-player.health = 100;
+showSavedStatus("Saved");
+```
 
-when player.touches(coin)
-    player.rux += coin.value;
-    coin.remove();
-end;`
-      });
-    }
+}
 
-    activeIndex = 0;
+function insertText(text) {
+const start = editor.selectionStart;
+const end = editor.selectionEnd;
 
-    renderFiles();
-    loadActiveFile();
-  }
+```
+editor.setRangeText(
+    text,
+    start,
+    end,
+    "end"
+);
 
-  function saveFiles() {
-    localStorage.setItem(
-      storageKey(),
-      JSON.stringify(files)
-    );
-  }
+files[currentFile] = editor.value;
 
-  function renderFiles() {
-    fileList.innerHTML = "";
+updateLineNumbers();
+updateCursor();
+editor.focus();
+```
 
-    files.forEach((file, index) => {
+}
 
-      const item =
-        document.createElement("div");
+function handleQuickCommand(type) {
+const commands = {
+game: `// Game system
 
-      item.className =
-        "file-item" +
-        (index === activeIndex ? " active" : "");
+let gameState = "playing";
 
-      item.textContent =
-        "▣ " + file.name;
+function startGame() {
+gameState = "playing";
+}
+`,
+        weapon: `// Weapon system
 
-      item.addEventListener("click", () => {
+let weaponDamage = 25;
+let weaponRange = 50;
+`,
+        npc: `// NPC system
 
-        saveCurrentFile();
+let npcName = "NPC";
+let npcHealth = 100;
+`,
+        ui: `// UI system
 
-        activeIndex = index;
+let uiVisible = true;
+`,
+        debug: `// Debug
 
-        renderFiles();
-        loadActiveFile();
+console.log("Checking game...");
+`,
+        multiplayer: `// Multiplayer system
 
-      });
+let multiplayerEnabled = true;
+`
+};
 
-      fileList.appendChild(item);
-    });
-  }
+```
+if (commands[type]) {
+    insertText(commands[type]);
+    showSavedStatus("Inserted");
+}
+```
 
-  function loadActiveFile() {
+}
 
-    const file =
-      files[activeIndex];
+document.getElementById("homeButton").addEventListener(
+"click",
+() => {
+window.location.href = "home.html";
+}
+);
 
-    if (!file) return;
+document.getElementById("studioButton").addEventListener(
+"click",
+() => {
+window.location.href = "studio.html";
+}
+);
 
-    fileName.value =
-      file.name;
+document.getElementById("saveButton").addEventListener(
+"click",
+saveCurrentFile
+);
 
-    editor.value =
-      file.code;
+document.getElementById("newFileButton").addEventListener(
+"click",
+openNewFileModal
+);
 
-    document.getElementById(
-      "currentFile"
-    ).textContent =
-      file.name;
+document.getElementById("addFileButton").addEventListener(
+"click",
+openNewFileModal
+);
 
-    updateLines();
-  }
+document.getElementById("closeModalButton").addEventListener(
+"click",
+closeNewFileModal
+);
 
-  function saveCurrentFile() {
+document.getElementById("cancelFileButton").addEventListener(
+"click",
+closeNewFileModal
+);
 
-    if (!files[activeIndex]) {
-      return;
-    }
+document.getElementById("createFileButton").addEventListener(
+"click",
+createFile
+);
 
-    files[activeIndex].name =
-      fileName.value.trim() ||
-      "Game.rise";
+document.querySelector(".modal-backdrop").addEventListener(
+"click",
+closeNewFileModal
+);
 
-    files[activeIndex].code =
-      editor.value;
+document.getElementById("runButton").addEventListener(
+"click",
+runCode
+);
 
-    saveFiles();
-  }
+document.getElementById("formatButton").addEventListener(
+"click",
+formatCode
+);
 
-  function validateCode() {
+document.querySelectorAll(".quick-command").forEach(button => {
+button.addEventListener("click", () => {
+handleQuickCommand(button.dataset.command);
+});
+});
 
-    if (!window.RiseCode) {
-      return {
-        valid: false,
-        error: "RiseCode compiler is not loaded."
-      };
-    }
+editor.addEventListener("input", () => {
+files[currentFile] = editor.value;
 
-    return window.RiseCode.validate(
-      editor.value
-    );
-  }
+```
+updateLineNumbers();
+updateCursor();
 
-  function saveCode() {
+saveStatus.textContent = "Unsaved";
+```
 
+});
+
+editor.addEventListener("click", updateCursor);
+editor.addEventListener("keyup", updateCursor);
+editor.addEventListener("select", updateCursor);
+
+editor.addEventListener("scroll", () => {
+lineNumbers.scrollTop = editor.scrollTop;
+});
+
+editor.addEventListener("keydown", event => {
+if (event.key === "Tab") {
+event.preventDefault();
+insertText("    ");
+return;
+}
+
+```
+if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key.toLowerCase() === "s"
+) {
+    event.preventDefault();
     saveCurrentFile();
+}
 
-    const result =
-      validateCode();
+if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key === "Enter"
+) {
+    event.preventDefault();
+    runCode();
+}
 
-    if (!result.valid) {
+if (event.key === "Escape") {
+    closeNewFileModal();
+}
+```
 
-      status.textContent =
-        "Error: " + result.error;
+});
 
-      toast(result.error);
+newFileName.addEventListener("keydown", event => {
+if (event.key === "Enter") {
+event.preventDefault();
+createFile();
+}
+});
 
-      return false;
-    }
+projectName.textContent =
+localStorage.getItem(PROJECT_KEY) ||
+"Untitled Project";
 
-    status.textContent =
-      "Saved";
+editor.value = files[currentFile];
 
-    renderFiles();
+renderFileList();
+renderTabs();
+updateLineNumbers();
+updateCursor();
 
-    toast("RiseCode saved.");
+window.RiseUpCode = {
+getFiles() {
+files[currentFile] = editor.value;
+return { ...files };
+},
 
-    return true;
-  }
-
-  function runCode() {
-
+```
+save() {
     saveCurrentFile();
+},
 
-    const result =
-      validateCode();
+openFile,
 
-    if (!result.valid) {
+createFile(name) {
+    newFileName.value = name;
+    createFile();
+}
+```
 
-      status.textContent =
-        "Error: " + result.error;
-
-      toast(result.error);
-
-      return;
-    }
-
-    if (!window.RiseCodeRuntime) {
-
-      status.textContent =
-        "Runtime missing";
-
-      toast(
-        "RiseCode runtime is not loaded."
-      );
-
-      return;
-    }
-
-    status.textContent =
-      "Running...";
-
-    runButton.disabled = true;
-
-    try {
-
-      const game =
-        window.RiseUpGame ||
-        window.RiseCodeGame ||
-        createEditorGame();
-
-      window.RiseCodeRuntime.run(
-        files,
-        game
-      );
-
-      /*
-       * Tell Studio / the game that
-       * RiseCode has been executed.
-       */
-      window.dispatchEvent(
-        new CustomEvent(
-          "riseup:code-run",
-          {
-            detail: {
-              files: files,
-              activeFile:
-                files[activeIndex],
-              game: game
-            }
-          }
-        )
-      );
-
-      status.textContent =
-        "Running";
-
-      toast(
-        "▶ RiseScript is running."
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      status.textContent =
-        "Runtime error";
-
-      toast(
-        error.message ||
-        "RiseScript failed to run."
-      );
-
-    } finally {
-
-      setTimeout(() => {
-        runButton.disabled = false;
-      }, 250);
-
-    }
-  }
-
-  function createEditorGame() {
-
-    if (!window.RiseCodeEditorGame) {
-
-      window.RiseCodeEditorGame = {
-
-        name: "RiseUp Game",
-
-        player: {
-
-          health: 100,
-
-          speed: 5,
-
-          jumpPower: 10,
-
-          rux: 0
-
-        },
-
-        world: {
-
-          gravity: 9.8
-
-        },
-
-        objects: []
-
-      };
-
-    }
-
-    return window.RiseCodeEditorGame;
-  }
-
-  function createFile() {
-
-    saveCurrentFile();
-
-    files.push({
-
-      name:
-        `Script${files.length + 1}.rise`,
-
-      code:
-`player.walk.speed = 5;`
-
-    });
-
-    activeIndex =
-      files.length - 1;
-
-    saveFiles();
-
-    renderFiles();
-    loadActiveFile();
-
-    toast(
-      "New code file created."
-    );
-  }
-
-  function updateLines() {
-
-    const count =
-      editor.value.split("\n").length;
-
-    lineNumbers.textContent =
-      Array.from(
-        { length: count },
-        (_, i) => i + 1
-      ).join("\n");
-  }
-
-  function toast(message) {
-
-    const el =
-      document.getElementById(
-        "codeToast"
-      );
-
-    el.textContent =
-      message;
-
-    el.classList.add("show");
-
-    clearTimeout(
-      toast.timer
-    );
-
-    toast.timer =
-      setTimeout(() => {
-
-        el.classList.remove(
-          "show"
-        );
-
-      }, 2200);
-  }
-
-  editor.addEventListener(
-    "input",
-    updateLines
-  );
-
-  editor.addEventListener(
-    "keydown",
-    event => {
-
-      if (event.key !== "Tab") {
-        return;
-      }
-
-      event.preventDefault();
-
-      const start =
-        editor.selectionStart;
-
-      const end =
-        editor.selectionEnd;
-
-      editor.value =
-        editor.value.substring(
-          0,
-          start
-        ) +
-        "    " +
-        editor.value.substring(
-          end
-        );
-
-      editor.selectionStart =
-        editor.selectionEnd =
-        start + 4;
-
-      updateLines();
-    }
-  );
-
-  editor.addEventListener(
-    "scroll",
-    () => {
-
-      lineNumbers.scrollTop =
-        editor.scrollTop;
-
-    }
-  );
-
-  document
-    .getElementById("saveCode")
-    .addEventListener(
-      "click",
-      saveCode
-    );
-
-  runButton.addEventListener(
-    "click",
-    runCode
-  );
-
-  document
-    .getElementById("newFile")
-    .addEventListener(
-      "click",
-      createFile
-    );
-
-  document
-    .getElementById("backStudio")
-    .addEventListener(
-      "click",
-      () => {
-
-        saveCurrentFile();
-
-        window.location.href =
-          "studio.html";
-
-      }
-    );
-
-  fileName.addEventListener(
-    "input",
-    () => {
-
-      if (files[activeIndex]) {
-
-        files[activeIndex].name =
-          fileName.value;
-
-      }
-
-    }
-  );
-
-  /*
-   * Ctrl + S
-   */
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        (event.ctrlKey ||
-         event.metaKey) &&
-        event.key.toLowerCase() === "s"
-      ) {
-
-        event.preventDefault();
-
-        saveCode();
-
-      }
-
-    }
-  );
-
-  /*
-   * F5 = Run
-   */
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key === "F5"
-      ) {
-
-        event.preventDefault();
-
-        runCode();
-
-      }
-
-    }
-  );
-
-  loadFiles();
-
-})();
+};
