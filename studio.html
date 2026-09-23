@@ -2,304 +2,3373 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0d10">
-  <title>RiseUp Studio</title>
-  <link rel="stylesheet" href="studio.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d11">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="RiseUp Game Engine X Studio">
+<title>RiseUp Studio — Game Engine X</title>
 </head>
 
 <body>
-  <div class="app-shell">
+
+<div id="app" class="engine-app">
 
 ```
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-mark">R</div>
-    <div>
-      <strong>RiseUp</strong>
-      <span>Studio</span>
+<!-- =========================================================
+     APPLICATION SHELL
+     ========================================================= -->
+
+<header id="topbar" class="engine-topbar">
+
+    <div class="topbar-left">
+
+        <button
+            id="brandButton"
+            class="brand-button"
+            type="button"
+            aria-label="Open RiseUp Studio menu"
+        >
+            <span class="brand-mark" aria-hidden="true">
+                <span class="brand-mark-r">R</span>
+            </span>
+
+            <span class="brand-text">
+                <strong>RiseUp</strong>
+                <span>Studio</span>
+            </span>
+        </button>
+
+        <div class="topbar-divider" aria-hidden="true"></div>
+
+        <button
+            id="projectMenuButton"
+            class="project-menu-button"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+        >
+            <span id="projectNameLabel">Untitled Game</span>
+            <span class="dropdown-arrow" aria-hidden="true"></span>
+        </button>
+
+        <span
+            id="saveState"
+            class="save-state"
+            aria-live="polite"
+        >
+            Saved
+        </span>
+
     </div>
-  </div>
 
-  <div class="topbar-center">
-    <div class="project-name" id="projectNameDisplay">Untitled Project</div>
-    <span class="save-status" id="saveStatus">Saved</span>
-  </div>
+    <nav
+        id="mainToolbar"
+        class="main-toolbar"
+        aria-label="Studio tools"
+    >
 
-  <div class="topbar-actions">
-    <button class="top-button" id="undoButton" type="button" title="Undo">
-      Undo
-    </button>
+        <div class="tool-group">
+            <button
+                id="undoButton"
+                class="toolbar-button"
+                type="button"
+                title="Undo"
+                aria-label="Undo"
+                disabled
+            >
+                <span class="icon icon-undo" aria-hidden="true"></span>
+            </button>
 
-    <button class="top-button" id="redoButton" type="button" title="Redo">
-      Redo
-    </button>
+            <button
+                id="redoButton"
+                class="toolbar-button"
+                type="button"
+                title="Redo"
+                aria-label="Redo"
+                disabled
+            >
+                <span class="icon icon-redo" aria-hidden="true"></span>
+            </button>
+        </div>
 
-    <button class="top-button" id="saveButton" type="button">
-      Save
-    </button>
+        <div class="toolbar-divider" aria-hidden="true"></div>
 
-    <button class="play-button" id="playButton" type="button">
-      Play
-    </button>
+        <div class="tool-group">
 
-    <button class="publish-button" id="publishButton" type="button">
-      Publish
-    </button>
-  </div>
+            <button
+                id="selectTool"
+                class="toolbar-button active"
+                type="button"
+                data-tool="select"
+                title="Select"
+                aria-label="Select tool"
+                aria-pressed="true"
+            >
+                <span class="icon icon-select" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="moveTool"
+                class="toolbar-button"
+                type="button"
+                data-tool="move"
+                title="Move"
+                aria-label="Move tool"
+                aria-pressed="false"
+            >
+                <span class="icon icon-move" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="rotateTool"
+                class="toolbar-button"
+                type="button"
+                data-tool="rotate"
+                title="Rotate"
+                aria-label="Rotate tool"
+                aria-pressed="false"
+            >
+                <span class="icon icon-rotate" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="scaleTool"
+                class="toolbar-button"
+                type="button"
+                data-tool="scale"
+                title="Scale"
+                aria-label="Scale tool"
+                aria-pressed="false"
+            >
+                <span class="icon icon-scale" aria-hidden="true"></span>
+            </button>
+
+        </div>
+
+        <div class="toolbar-divider" aria-hidden="true"></div>
+
+        <div class="tool-group">
+
+            <button
+                id="snapButton"
+                class="toolbar-button"
+                type="button"
+                title="Snap"
+                aria-label="Toggle snapping"
+                aria-pressed="true"
+            >
+                <span class="icon icon-snap" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="gridButton"
+                class="toolbar-button active"
+                type="button"
+                title="Grid"
+                aria-label="Toggle grid"
+                aria-pressed="true"
+            >
+                <span class="icon icon-grid" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="focusButton"
+                class="toolbar-button"
+                type="button"
+                title="Focus Selection"
+                aria-label="Focus selected object"
+            >
+                <span class="icon icon-focus" aria-hidden="true"></span>
+            </button>
+
+        </div>
+
+    </nav>
+
+    <div class="topbar-right">
+
+        <div class="play-controls">
+
+            <button
+                id="playButton"
+                class="play-button"
+                type="button"
+                title="Play Game"
+            >
+                <span class="icon icon-play" aria-hidden="true"></span>
+                <span>Play</span>
+            </button>
+
+            <button
+                id="stopButton"
+                class="stop-button"
+                type="button"
+                title="Stop Game"
+                disabled
+            >
+                <span class="icon icon-stop" aria-hidden="true"></span>
+                <span>Stop</span>
+            </button>
+
+        </div>
+
+        <button
+            id="saveButton"
+            class="secondary-action"
+            type="button"
+        >
+            Save
+        </button>
+
+        <button
+            id="publishButton"
+            class="publish-button"
+            type="button"
+        >
+            Publish
+        </button>
+
+        <button
+            id="accountButton"
+            class="account-button"
+            type="button"
+            aria-label="Account"
+            aria-haspopup="menu"
+            aria-expanded="false"
+        >
+            <span id="topbarAvatar" class="topbar-avatar">R</span>
+        </button>
+
+    </div>
+
 </header>
 
-<div class="workspace">
 
-  <aside class="left-panel">
-    <div class="panel-header">
-      <span>Explorer</span>
-      <button id="addObjectButton" class="small-button" type="button">+</button>
-    </div>
+<!-- =========================================================
+     MAIN ENGINE WORKSPACE
+     ========================================================= -->
 
-    <div class="scene-tree" id="sceneTree">
-      <div class="tree-item selected" data-object-id="root">
-        <span class="tree-icon">◆</span>
-        <span>World</span>
-      </div>
+<main id="workspace" class="engine-workspace">
 
-      <div class="tree-children" id="objectTree"></div>
-    </div>
+    <!-- =====================================================
+         LEFT DOCK
+         ===================================================== -->
 
-    <div class="left-bottom">
-      <button class="side-action" id="openCodeButton" type="button">
-        <span>&lt;/&gt;</span>
-        RiseCode
-      </button>
+    <aside
+        id="leftDock"
+        class="left-dock"
+        aria-label="Project tools"
+    >
 
-      <button class="side-action" id="avatarButton" type="button">
-        <span>●</span>
-        Avatar
-      </button>
-    </div>
-  </aside>
+        <div class="dock-tabs" role="tablist">
 
-  <main class="main-editor">
+            <button
+                id="explorerTab"
+                class="dock-tab active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="explorerPanel"
+            >
+                <span class="icon icon-explorer" aria-hidden="true"></span>
+                <span class="dock-tab-label">Explorer</span>
+            </button>
 
-    <div class="editor-toolbar">
-      <div class="toolbar-group">
-        <button class="tool-button active" data-tool="select" type="button">
-          Select
-        </button>
+            <button
+                id="assetsTab"
+                class="dock-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="assetsPanel"
+            >
+                <span class="icon icon-assets" aria-hidden="true"></span>
+                <span class="dock-tab-label">Assets</span>
+            </button>
 
-        <button class="tool-button" data-tool="move" type="button">
-          Move
-        </button>
+            <button
+                id="codeTab"
+                class="dock-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="codePanel"
+            >
+                <span class="icon icon-code" aria-hidden="true"></span>
+                <span class="dock-tab-label">Code</span>
+            </button>
 
-        <button class="tool-button" data-tool="rotate" type="button">
-          Rotate
-        </button>
+            <button
+                id="blocksTab"
+                class="dock-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="blocksPanel"
+            >
+                <span class="icon icon-blocks" aria-hidden="true"></span>
+                <span class="dock-tab-label">Blocks</span>
+            </button>
 
-        <button class="tool-button" data-tool="scale" type="button">
-          Scale
-        </button>
-      </div>
-
-      <div class="toolbar-group right">
-        <button class="tool-button" id="gridButton" type="button">
-          Grid
-        </button>
-
-        <button class="tool-button" id="cameraResetButton" type="button">
-          Reset View
-        </button>
-      </div>
-    </div>
-
-    <section class="viewport" id="viewport">
-      <div class="viewport-grid"></div>
-
-      <div class="world">
-        <div class="ground"></div>
-
-        <div class="studio-avatar" id="studioAvatar">
-          <div class="avatar-head"></div>
-          <div class="avatar-body"></div>
-          <div class="avatar-arm avatar-arm-left"></div>
-          <div class="avatar-arm avatar-arm-right"></div>
-          <div class="avatar-leg avatar-leg-left"></div>
-          <div class="avatar-leg avatar-leg-right"></div>
         </div>
 
-        <div class="scene-object cube-object" id="previewCube">
-          <div class="cube-face cube-front"></div>
-          <div class="cube-face cube-back"></div>
-          <div class="cube-face cube-left"></div>
-          <div class="cube-face cube-right"></div>
-          <div class="cube-face cube-top"></div>
-          <div class="cube-face cube-bottom"></div>
+
+        <!-- Explorer -->
+
+        <section
+            id="explorerPanel"
+            class="dock-panel active"
+            role="tabpanel"
+        >
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+                    <span>Scene</span>
+                    <span id="sceneObjectCount" class="panel-count">0</span>
+                </div>
+
+                <div class="panel-actions">
+
+                    <button
+                        id="addObjectButton"
+                        class="small-icon-button"
+                        type="button"
+                        title="Add Object"
+                        aria-label="Add Object"
+                    >
+                        <span class="icon icon-plus" aria-hidden="true"></span>
+                    </button>
+
+                    <button
+                        id="sceneOptionsButton"
+                        class="small-icon-button"
+                        type="button"
+                        title="Scene Options"
+                        aria-label="Scene Options"
+                    >
+                        <span class="icon icon-more" aria-hidden="true"></span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="scene-toolbar">
+
+                <button
+                    id="sceneSearchButton"
+                    class="scene-search-button"
+                    type="button"
+                >
+                    <span class="icon icon-search" aria-hidden="true"></span>
+                    <span>Search Scene</span>
+                </button>
+
+            </div>
+
+
+            <div
+                id="sceneTree"
+                class="scene-tree"
+                role="tree"
+                aria-label="Scene hierarchy"
+            >
+
+                <div
+                    id="sceneRoot"
+                    class="scene-node scene-root"
+                    role="treeitem"
+                    aria-expanded="true"
+                    tabindex="0"
+                >
+
+                    <span class="node-arrow expanded" aria-hidden="true"></span>
+
+                    <span class="node-icon node-icon-world" aria-hidden="true"></span>
+
+                    <span class="node-name">World</span>
+
+                </div>
+
+
+                <div
+                    id="sceneChildren"
+                    class="scene-children"
+                    role="group"
+                >
+
+                    <div
+                        class="scene-node"
+                        data-object-id="camera-main"
+                        data-object-type="Camera"
+                        role="treeitem"
+                        tabindex="-1"
+                    >
+                        <span class="node-arrow empty" aria-hidden="true"></span>
+                        <span class="node-icon node-icon-camera" aria-hidden="true"></span>
+                        <span class="node-name">Main Camera</span>
+                    </div>
+
+
+                    <div
+                        class="scene-node"
+                        data-object-id="sun-main"
+                        data-object-type="Light"
+                        role="treeitem"
+                        tabindex="-1"
+                    >
+                        <span class="node-arrow empty" aria-hidden="true"></span>
+                        <span class="node-icon node-icon-light" aria-hidden="true"></span>
+                        <span class="node-name">Sun</span>
+                    </div>
+
+
+                    <div
+                        class="scene-node"
+                        data-object-id="environment"
+                        data-object-type="Folder"
+                        role="treeitem"
+                        aria-expanded="true"
+                        tabindex="-1"
+                    >
+                        <span class="node-arrow expanded" aria-hidden="true"></span>
+                        <span class="node-icon node-icon-folder" aria-hidden="true"></span>
+                        <span class="node-name">Environment</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="scene-footer">
+
+                <button
+                    id="createFolderButton"
+                    class="scene-footer-button"
+                    type="button"
+                >
+                    <span class="icon icon-folder-plus" aria-hidden="true"></span>
+                    Folder
+                </button>
+
+                <button
+                    id="createObjectButton"
+                    class="scene-footer-button"
+                    type="button"
+                >
+                    <span class="icon icon-cube-plus" aria-hidden="true"></span>
+                    Object
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Assets -->
+
+        <section
+            id="assetsPanel"
+            class="dock-panel"
+            role="tabpanel"
+            hidden
+        >
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+                    <span>Assets</span>
+                </div>
+
+                <div class="panel-actions">
+
+                    <button
+                        id="importAssetButton"
+                        class="small-icon-button"
+                        type="button"
+                        title="Import Asset"
+                        aria-label="Import Asset"
+                    >
+                        <span class="icon icon-upload" aria-hidden="true"></span>
+                    </button>
+
+                    <button
+                        id="newAssetButton"
+                        class="small-icon-button"
+                        type="button"
+                        title="New Asset"
+                        aria-label="New Asset"
+                    >
+                        <span class="icon icon-plus" aria-hidden="true"></span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="asset-search">
+
+                <label
+                    class="search-field"
+                    for="assetSearchInput"
+                >
+                    <span class="icon icon-search" aria-hidden="true"></span>
+
+                    <input
+                        id="assetSearchInput"
+                        type="search"
+                        placeholder="Search assets"
+                        autocomplete="off"
+                    >
+                </label>
+
+            </div>
+
+
+            <div
+                id="assetBrowser"
+                class="asset-browser"
+            >
+
+                <div class="asset-section">
+
+                    <div class="asset-section-title">
+                        <span>Project</span>
+                    </div>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="folder"
+                        data-asset-id="scripts"
+                    >
+                        <span class="asset-icon asset-folder"></span>
+                        <span class="asset-name">Scripts</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="folder"
+                        data-asset-id="materials"
+                    >
+                        <span class="asset-icon asset-folder"></span>
+                        <span class="asset-name">Materials</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="folder"
+                        data-asset-id="meshes"
+                    >
+                        <span class="asset-icon asset-folder"></span>
+                        <span class="asset-name">Meshes</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="folder"
+                        data-asset-id="textures"
+                    >
+                        <span class="asset-icon asset-folder"></span>
+                        <span class="asset-name">Textures</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="folder"
+                        data-asset-id="audio"
+                    >
+                        <span class="asset-icon asset-folder"></span>
+                        <span class="asset-name">Audio</span>
+                    </button>
+
+                </div>
+
+
+                <div class="asset-section">
+
+                    <div class="asset-section-title">
+                        <span>Built In</span>
+                    </div>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="cube"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Cube</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="sphere"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Sphere</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="cylinder"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Cylinder</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="plane"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Plane</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="wedge"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Wedge</span>
+                    </button>
+
+                    <button
+                        class="asset-item"
+                        type="button"
+                        data-asset-type="mesh"
+                        data-asset-id="cone"
+                    >
+                        <span class="asset-icon asset-mesh"></span>
+                        <span class="asset-name">Cone</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Code -->
+
+        <section
+            id="codePanel"
+            class="dock-panel"
+            role="tabpanel"
+            hidden
+        >
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+                    <span>Code</span>
+                </div>
+
+                <button
+                    id="newScriptButton"
+                    class="small-icon-button"
+                    type="button"
+                    title="New Script"
+                    aria-label="New Script"
+                >
+                    <span class="icon icon-plus" aria-hidden="true"></span>
+                </button>
+
+            </div>
+
+
+            <div class="code-file-list">
+
+                <button
+                    class="code-file active"
+                    type="button"
+                    data-file="index.rise"
+                >
+                    <span class="code-file-icon">R</span>
+                    <span class="code-file-name">index.rise</span>
+                </button>
+
+                <button
+                    class="code-file"
+                    type="button"
+                    data-file="player.rise"
+                >
+                    <span class="code-file-icon">R</span>
+                    <span class="code-file-name">player.rise</span>
+                </button>
+
+                <button
+                    class="code-file"
+                    type="button"
+                    data-file="world.rise"
+                >
+                    <span class="code-file-icon">R</span>
+                    <span class="code-file-name">world.rise</span>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Blocks -->
+
+        <section
+            id="blocksPanel"
+            class="dock-panel"
+            role="tabpanel"
+            hidden
+        >
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+                    <span>Visual Scripts</span>
+                </div>
+
+                <button
+                    id="newBlockGraphButton"
+                    class="small-icon-button"
+                    type="button"
+                    title="New Graph"
+                    aria-label="New Graph"
+                >
+                    <span class="icon icon-plus" aria-hidden="true"></span>
+                </button>
+
+            </div>
+
+
+            <div class="block-category-list">
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="events"
+                >
+                    <span class="category-dot events"></span>
+                    Events
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="logic"
+                >
+                    <span class="category-dot logic"></span>
+                    Logic
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="objects"
+                >
+                    <span class="category-dot objects"></span>
+                    Objects
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="movement"
+                >
+                    <span class="category-dot movement"></span>
+                    Movement
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="world"
+                >
+                    <span class="category-dot world"></span>
+                    World
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="player"
+                >
+                    <span class="category-dot player"></span>
+                    Player
+                </button>
+
+                <button
+                    class="block-category"
+                    type="button"
+                    data-category="ui"
+                >
+                    <span class="category-dot ui"></span>
+                    UI
+                </button>
+
+            </div>
+
+        </section>
+
+    </aside>
+
+
+    <!-- =====================================================
+         CENTER EDITOR
+         ===================================================== -->
+
+    <section
+        id="editorArea"
+        class="editor-area"
+        aria-label="Game Engine viewport"
+    >
+
+        <!-- Viewport Toolbar -->
+
+        <div
+            id="viewportToolbar"
+            class="viewport-toolbar"
+        >
+
+            <div class="viewport-toolbar-left">
+
+                <div class="mode-selector">
+
+                    <button
+                        id="modeSelectButton"
+                        class="mode-button active"
+                        type="button"
+                        aria-pressed="true"
+                    >
+                        <span class="icon icon-select" aria-hidden="true"></span>
+                        Select
+                    </button>
+
+                    <button
+                        id="modeMoveButton"
+                        class="mode-button"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span class="icon icon-move" aria-hidden="true"></span>
+                        Move
+                    </button>
+
+                    <button
+                        id="modeRotateButton"
+                        class="mode-button"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span class="icon icon-rotate" aria-hidden="true"></span>
+                        Rotate
+                    </button>
+
+                    <button
+                        id="modeScaleButton"
+                        class="mode-button"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span class="icon icon-scale" aria-hidden="true"></span>
+                        Scale
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="viewport-toolbar-center">
+
+                <div class="coordinate-mode">
+
+                    <button
+                        id="worldSpaceButton"
+                        class="coordinate-button active"
+                        type="button"
+                        aria-pressed="true"
+                    >
+                        World
+                    </button>
+
+                    <button
+                        id="localSpaceButton"
+                        class="coordinate-button"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        Local
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="viewport-toolbar-right">
+
+                <button
+                    id="cameraPerspectiveButton"
+                    class="viewport-button active"
+                    type="button"
+                    title="Perspective"
+                    aria-label="Perspective camera"
+                    aria-pressed="true"
+                >
+                    <span class="icon icon-perspective" aria-hidden="true"></span>
+                </button>
+
+                <button
+                    id="cameraOrthographicButton"
+                    class="viewport-button"
+                    type="button"
+                    title="Orthographic"
+                    aria-label="Orthographic camera"
+                    aria-pressed="false"
+                >
+                    <span class="icon icon-orthographic" aria-hidden="true"></span>
+                </button>
+
+                <button
+                    id="viewportOptionsButton"
+                    class="viewport-button"
+                    type="button"
+                    title="Viewport Options"
+                    aria-label="Viewport Options"
+                >
+                    <span class="icon icon-more" aria-hidden="true"></span>
+                </button>
+
+            </div>
+
         </div>
-      </div>
 
-      <div class="viewport-crosshair"></div>
 
-      <div class="viewport-info">
-        <span id="cameraInfo">Perspective</span>
-        <span id="coordinatesInfo">X 0&nbsp;&nbsp;Y 0&nbsp;&nbsp;Z 0</span>
-      </div>
+        <!-- 3D Viewport -->
 
-      <div class="viewport-help">
-        Drag to rotate • Wheel to zoom • Select an object
-      </div>
-    </section>
+        <div
+            id="viewport"
+            class="viewport"
+            tabindex="0"
+            aria-label="3D game viewport. Use mouse to orbit, pan, and zoom."
+        >
 
-    <div class="bottom-editor">
-      <div class="editor-tabs">
-        <button class="editor-tab active" type="button" data-tab="scene">
-          Scene
-        </button>
+            <canvas
+                id="engineCanvas"
+                class="engine-canvas"
+                aria-label="3D scene"
+            ></canvas>
 
-        <button class="editor-tab" type="button" data-tab="code">
-          Code
-        </button>
 
-        <button class="editor-tab" type="button" data-tab="output">
-          Output
-        </button>
-      </div>
+            <div
+                id="viewportGrid"
+                class="viewport-grid"
+                aria-hidden="true"
+            ></div>
 
-      <div class="bottom-content" id="sceneTab">
-        <div class="welcome-title">Build your world</div>
-        <div class="welcome-text">
-          Add objects, move them around, and use RiseCode to control your game.
+
+            <div
+                id="viewportWorld"
+                class="viewport-world"
+                aria-hidden="true"
+            >
+
+                <div class="world-horizon"></div>
+
+                <div class="world-ground"></div>
+
+                <div class="world-grid-lines"></div>
+
+                <div class="scene-preview">
+
+                    <div
+                        class="preview-object preview-cube"
+                        data-preview-type="cube"
+                    >
+                        <div class="cube-face cube-front"></div>
+                        <div class="cube-face cube-back"></div>
+                        <div class="cube-face cube-left"></div>
+                        <div class="cube-face cube-right"></div>
+                        <div class="cube-face cube-top"></div>
+                        <div class="cube-face cube-bottom"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Selection -->
+
+            <div
+                id="selectionBox"
+                class="selection-box"
+                hidden
+                aria-hidden="true"
+            ></div>
+
+
+            <!-- Transform Gizmo -->
+
+            <div
+                id="transformGizmo"
+                class="transform-gizmo"
+                hidden
+                aria-hidden="true"
+            >
+
+                <div
+                    id="gizmoX"
+                    class="gizmo-axis gizmo-axis-x"
+                    data-axis="x"
+                >
+                    <span></span>
+                </div>
+
+                <div
+                    id="gizmoY"
+                    class="gizmo-axis gizmo-axis-y"
+                    data-axis="y"
+                >
+                    <span></span>
+                </div>
+
+                <div
+                    id="gizmoZ"
+                    class="gizmo-axis gizmo-axis-z"
+                    data-axis="z"
+                >
+                    <span></span>
+                </div>
+
+                <div
+                    id="gizmoCenter"
+                    class="gizmo-center"
+                ></div>
+
+            </div>
+
+
+            <!-- World Axis -->
+
+            <div
+                id="worldAxis"
+                class="world-axis"
+                aria-hidden="true"
+            >
+
+                <div class="axis-line axis-x">
+                    <span>X</span>
+                </div>
+
+                <div class="axis-line axis-y">
+                    <span>Y</span>
+                </div>
+
+                <div class="axis-line axis-z">
+                    <span>Z</span>
+                </div>
+
+            </div>
+
+
+            <!-- Viewport Overlay -->
+
+            <div class="viewport-overlay">
+
+                <div
+                    id="viewportBreadcrumb"
+                    class="viewport-breadcrumb"
+                >
+                    <span>World</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <span id="selectedObjectBreadcrumb">Nothing Selected</span>
+                </div>
+
+
+                <div
+                    id="viewportStats"
+                    class="viewport-stats"
+                >
+                    <span id="fpsCounter">FPS 60</span>
+                    <span id="objectCounter">Objects 3</span>
+                    <span id="triangleCounter">Triangles 0</span>
+                </div>
+
+
+                <div
+                    id="cameraHint"
+                    class="camera-hint"
+                >
+                    <span>MMB</span> Orbit
+                    <span>Shift + MMB</span> Pan
+                    <span>Wheel</span> Zoom
+                </div>
+
+            </div>
+
+
+            <!-- Empty Scene -->
+
+            <div
+                id="emptySceneOverlay"
+                class="empty-scene-overlay"
+                hidden
+            >
+
+                <div class="empty-scene-content">
+
+                    <div class="empty-scene-icon">
+                        <span class="icon icon-cube" aria-hidden="true"></span>
+                    </div>
+
+                    <h2>Your World Is Empty</h2>
+
+                    <p>
+                        Add an object to begin building your game.
+                    </p>
+
+                    <button
+                        id="emptySceneAddButton"
+                        class="primary-action"
+                        type="button"
+                    >
+                        Add Object
+                    </button>
+
+                </div>
+
+            </div>
+
         </div>
-      </div>
 
-      <div class="bottom-content hidden" id="codeTab">
-        <textarea id="quickCode" spellcheck="false">add.mesh.cube();
 
+        <!-- =================================================
+             BOTTOM EDITOR
+             ================================================= -->
+
+        <section
+            id="bottomEditor"
+            class="bottom-editor"
+        >
+
+            <div class="bottom-tabs" role="tablist">
+
+                <button
+                    id="sceneTab"
+                    class="bottom-tab active"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="scenePanel"
+                >
+                    Scene
+                </button>
+
+                <button
+                    id="codeWorkspaceTab"
+                    class="bottom-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="codeWorkspace"
+                >
+                    Code
+                </button>
+
+                <button
+                    id="blocksWorkspaceTab"
+                    class="bottom-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="blocksWorkspace"
+                >
+                    Blocks
+                </button>
+
+                <button
+                    id="outputTab"
+                    class="bottom-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="outputPanel"
+                >
+                    Output
+                </button>
+
+                <button
+                    id="consoleTab"
+                    class="bottom-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="consolePanel"
+                >
+                    Console
+                </button>
+
+            </div>
+
+
+            <!-- Scene Bottom Panel -->
+
+            <div
+                id="scenePanel"
+                class="bottom-panel active"
+                role="tabpanel"
+            >
+
+                <div class="scene-status">
+
+                    <div class="status-group">
+
+                        <span class="status-label">Selected:</span>
+
+                        <strong id="sceneSelectedName">
+                            None
+                        </strong>
+
+                    </div>
+
+                    <div class="status-group">
+
+                        <span class="status-label">Tool:</span>
+
+                        <strong id="sceneSelectedTool">
+                            Select
+                        </strong>
+
+                    </div>
+
+                    <div class="status-group">
+
+                        <span class="status-label">Snap:</span>
+
+                        <strong id="sceneSnapStatus">
+                            1 stud
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Code Workspace -->
+
+            <div
+                id="codeWorkspace"
+                class="bottom-panel code-workspace"
+                role="tabpanel"
+                hidden
+            >
+
+                <div class="code-workspace-toolbar">
+
+                    <div class="code-tabs">
+
+                        <button
+                            class="code-tab active"
+                            type="button"
+                            data-code-file="index.rise"
+                        >
+                            <span class="code-tab-icon">R</span>
+                            index.rise
+                        </button>
+
+                    </div>
+
+                    <div class="code-actions">
+
+                        <button
+                            id="formatCodeButton"
+                            class="code-action"
+                            type="button"
+                        >
+                            Format
+                        </button>
+
+                        <button
+                            id="runCodeButton"
+                            class="code-action primary"
+                            type="button"
+                        >
+                            Run
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="code-editor-shell">
+
+                    <div
+                        id="codeLineNumbers"
+                        class="code-line-numbers"
+                        aria-hidden="true"
+                    >
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>6</span>
+                        <span>7</span>
+                        <span>8</span>
+                        <span>9</span>
+                        <span>10</span>
+                    </div>
+
+                    <textarea
+                        id="riseCodeEditor"
+                        class="rise-code-editor"
+                        spellcheck="false"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        aria-label="RiseCode editor"
+                    >map.name = "World";
+```
+
+add.mesh.cube();
 
 x = 0;
 y = 0;
-z = 0;</textarea> </div>
+z = 0;
+
+player.walk.speed = 5;</textarea>
+
+```
+                </div>
+
+            </div>
 
 
-      <div class="bottom-content hidden" id="outputTab">
-        <div id="outputLog" class="output-log">
-          <div>RiseUp Studio ready.</div>
+            <!-- Blocks Workspace -->
+
+            <div
+                id="blocksWorkspace"
+                class="bottom-panel blocks-workspace"
+                role="tabpanel"
+                hidden
+            >
+
+                <div class="blocks-toolbar">
+
+                    <div class="blocks-title">
+                        Visual Script
+                    </div>
+
+                    <button
+                        id="addBlockButton"
+                        class="code-action primary"
+                        type="button"
+                    >
+                        Add Block
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="blockCanvas"
+                    class="block-canvas"
+                >
+
+                    <div
+                        class="logic-block event-block"
+                        data-block-id="game-start"
+                        draggable="true"
+                    >
+                        <div class="block-header">
+                            <span>When</span>
+                            <strong>Game Starts</strong>
+                        </div>
+
+                        <div class="block-connection output"></div>
+                    </div>
+
+
+                    <div
+                        class="block-connector"
+                        aria-hidden="true"
+                    ></div>
+
+
+                    <div
+                        class="logic-block action-block"
+                        data-block-id="spawn-player"
+                        draggable="true"
+                    >
+                        <div class="block-header">
+                            <span>Player</span>
+                            <strong>Spawn</strong>
+                        </div>
+
+                        <div class="block-field">
+                            <span>Position</span>
+                            <input
+                                type="text"
+                                value="0, 0, 0"
+                                aria-label="Spawn position"
+                            >
+                        </div>
+
+                        <div class="block-connection input"></div>
+                        <div class="block-connection output"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Output -->
+
+            <div
+                id="outputPanel"
+                class="bottom-panel output-panel"
+                role="tabpanel"
+                hidden
+            >
+
+                <div class="output-toolbar">
+
+                    <span class="output-title">Build Output</span>
+
+                    <button
+                        id="clearOutputButton"
+                        class="code-action"
+                        type="button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+                <div
+                    id="outputLog"
+                    class="output-log"
+                    role="log"
+                    aria-live="polite"
+                >
+                    <div class="output-line info">
+                        <span class="output-prefix">[Studio]</span>
+                        Ready.
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Console -->
+
+            <div
+                id="consolePanel"
+                class="bottom-panel console-panel"
+                role="tabpanel"
+                hidden
+            >
+
+                <div class="console-input-row">
+
+                    <span class="console-prompt">&gt;</span>
+
+                    <input
+                        id="consoleInput"
+                        class="console-input"
+                        type="text"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Enter engine command..."
+                        aria-label="Engine console command"
+                    >
+
+                </div>
+
+                <div
+                    id="consoleOutput"
+                    class="console-output"
+                    role="log"
+                ></div>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- =====================================================
+         RIGHT INSPECTOR
+         ===================================================== -->
+
+    <aside
+        id="rightDock"
+        class="right-dock"
+        aria-label="Inspector"
+    >
+
+        <div class="inspector-header">
+
+            <div class="inspector-title">
+                <span>Inspector</span>
+            </div>
+
+            <button
+                id="inspectorOptionsButton"
+                class="small-icon-button"
+                type="button"
+                title="Inspector Options"
+                aria-label="Inspector Options"
+            >
+                <span class="icon icon-more" aria-hidden="true"></span>
+            </button>
+
         </div>
-      </div>
+
+
+        <div
+            id="inspectorEmpty"
+            class="inspector-empty"
+        >
+
+            <div class="inspector-empty-icon">
+                <span class="icon icon-cursor" aria-hidden="true"></span>
+            </div>
+
+            <h3>Nothing Selected</h3>
+
+            <p>
+                Select an object in the scene to edit its properties.
+            </p>
+
+        </div>
+
+
+        <div
+            id="inspectorContent"
+            class="inspector-content"
+            hidden
+        >
+
+            <section class="inspector-object-header">
+
+                <div
+                    id="inspectorObjectIcon"
+                    class="inspector-object-icon"
+                >
+                    <span class="icon icon-cube" aria-hidden="true"></span>
+                </div>
+
+                <div class="inspector-object-info">
+
+                    <input
+                        id="inspectorObjectName"
+                        class="object-name-input"
+                        type="text"
+                        value="Part"
+                        aria-label="Object name"
+                    >
+
+                    <span
+                        id="inspectorObjectType"
+                        class="object-type"
+                    >
+                        Mesh
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- Transform -->
+
+            <section class="inspector-section">
+
+                <button
+                    class="inspector-section-header"
+                    type="button"
+                    data-section="transform"
+                    aria-expanded="true"
+                >
+                    <span class="section-arrow expanded"></span>
+                    <span>Transform</span>
+                </button>
+
+
+                <div
+                    id="transformSection"
+                    class="inspector-section-body"
+                >
+
+                    <div class="property-row">
+
+                        <label>Position</label>
+
+                        <div class="vector-fields">
+
+                            <label class="vector-field x">
+                                <span>X</span>
+                                <input
+                                    id="positionX"
+                                    type="number"
+                                    step="0.1"
+                                    value="0"
+                                    aria-label="Position X"
+                                >
+                            </label>
+
+                            <label class="vector-field y">
+                                <span>Y</span>
+                                <input
+                                    id="positionY"
+                                    type="number"
+                                    step="0.1"
+                                    value="0"
+                                    aria-label="Position Y"
+                                >
+                            </label>
+
+                            <label class="vector-field z">
+                                <span>Z</span>
+                                <input
+                                    id="positionZ"
+                                    type="number"
+                                    step="0.1"
+                                    value="0"
+                                    aria-label="Position Z"
+                                >
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Rotation</label>
+
+                        <div class="vector-fields">
+
+                            <label class="vector-field x">
+                                <span>X</span>
+                                <input
+                                    id="rotationX"
+                                    type="number"
+                                    step="1"
+                                    value="0"
+                                    aria-label="Rotation X"
+                                >
+                            </label>
+
+                            <label class="vector-field y">
+                                <span>Y</span>
+                                <input
+                                    id="rotationY"
+                                    type="number"
+                                    step="1"
+                                    value="0"
+                                    aria-label="Rotation Y"
+                                >
+                            </label>
+
+                            <label class="vector-field z">
+                                <span>Z</span>
+                                <input
+                                    id="rotationZ"
+                                    type="number"
+                                    step="1"
+                                    value="0"
+                                    aria-label="Rotation Z"
+                                >
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Scale</label>
+
+                        <div class="vector-fields">
+
+                            <label class="vector-field x">
+                                <span>X</span>
+                                <input
+                                    id="scaleX"
+                                    type="number"
+                                    step="0.1"
+                                    value="1"
+                                    aria-label="Scale X"
+                                >
+                            </label>
+
+                            <label class="vector-field y">
+                                <span>Y</span>
+                                <input
+                                    id="scaleY"
+                                    type="number"
+                                    step="0.1"
+                                    value="1"
+                                    aria-label="Scale Y"
+                                >
+                            </label>
+
+                            <label class="vector-field z">
+                                <span>Z</span>
+                                <input
+                                    id="scaleZ"
+                                    type="number"
+                                    step="0.1"
+                                    value="1"
+                                    aria-label="Scale Z"
+                                >
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Pivot</label>
+
+                        <select
+                            id="pivotMode"
+                            class="property-select"
+                        >
+                            <option value="center">Center</option>
+                            <option value="origin">Origin</option>
+                            <option value="custom">Custom</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Appearance -->
+
+            <section class="inspector-section">
+
+                <button
+                    class="inspector-section-header"
+                    type="button"
+                    data-section="appearance"
+                    aria-expanded="true"
+                >
+                    <span class="section-arrow expanded"></span>
+                    <span>Appearance</span>
+                </button>
+
+
+                <div
+                    id="appearanceSection"
+                    class="inspector-section-body"
+                >
+
+                    <div class="property-row">
+
+                        <label>Material</label>
+
+                        <select
+                            id="materialSelect"
+                            class="property-select"
+                        >
+                            <option value="standard">Standard</option>
+                            <option value="metal">Metal</option>
+                            <option value="glass">Glass</option>
+                            <option value="plastic">Plastic</option>
+                            <option value="stone">Stone</option>
+                            <option value="wood">Wood</option>
+                            <option value="concrete">Concrete</option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Color</label>
+
+                        <div class="color-property">
+
+                            <input
+                                id="objectColor"
+                                type="color"
+                                value="#808080"
+                                aria-label="Object color"
+                            >
+
+                            <input
+                                id="objectColorHex"
+                                class="color-hex"
+                                type="text"
+                                value="#808080"
+                                maxlength="7"
+                                aria-label="Object color hexadecimal value"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Opacity</label>
+
+                        <div class="range-property">
+
+                            <input
+                                id="objectOpacity"
+                                type="range"
+                                min="0"
+                                max="100"
+                                value="100"
+                            >
+
+                            <output id="objectOpacityValue">
+                                100%
+                            </output>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Physics -->
+
+            <section class="inspector-section">
+
+                <button
+                    class="inspector-section-header"
+                    type="button"
+                    data-section="physics"
+                    aria-expanded="false"
+                >
+                    <span class="section-arrow"></span>
+                    <span>Physics</span>
+                </button>
+
+
+                <div
+                    id="physicsSection"
+                    class="inspector-section-body"
+                    hidden
+                >
+
+                    <div class="property-row checkbox-row">
+
+                        <label for="physicsEnabled">
+                            Physics Enabled
+                        </label>
+
+                        <input
+                            id="physicsEnabled"
+                            type="checkbox"
+                        >
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Mass</label>
+
+                        <input
+                            id="physicsMass"
+                            class="property-input"
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value="1"
+                        >
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Friction</label>
+
+                        <input
+                            id="physicsFriction"
+                            class="property-input"
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value="0.5"
+                        >
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Bounciness</label>
+
+                        <input
+                            id="physicsBounciness"
+                            class="property-input"
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Visibility -->
+
+            <section class="inspector-section">
+
+                <button
+                    class="inspector-section-header"
+                    type="button"
+                    data-section="visibility"
+                    aria-expanded="false"
+                >
+                    <span class="section-arrow"></span>
+                    <span>Visibility</span>
+                </button>
+
+
+                <div
+                    id="visibilitySection"
+                    class="inspector-section-body"
+                    hidden
+                >
+
+                    <div class="property-row checkbox-row">
+
+                        <label for="objectVisible">
+                            Visible
+                        </label>
+
+                        <input
+                            id="objectVisible"
+                            type="checkbox"
+                            checked
+                        >
+
+                    </div>
+
+
+                    <div class="property-row checkbox-row">
+
+                        <label for="objectCastShadow">
+                            Cast Shadow
+                        </label>
+
+                        <input
+                            id="objectCastShadow"
+                            type="checkbox"
+                            checked
+                        >
+
+                    </div>
+
+
+                    <div class="property-row checkbox-row">
+
+                        <label for="objectReceiveShadow">
+                            Receive Shadow
+                        </label>
+
+                        <input
+                            id="objectReceiveShadow"
+                            type="checkbox"
+                            checked
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Advanced -->
+
+            <section class="inspector-section">
+
+                <button
+                    class="inspector-section-header"
+                    type="button"
+                    data-section="advanced"
+                    aria-expanded="false"
+                >
+                    <span class="section-arrow"></span>
+                    <span>Advanced</span>
+                </button>
+
+
+                <div
+                    id="advancedSection"
+                    class="inspector-section-body"
+                    hidden
+                >
+
+                    <div class="property-row">
+
+                        <label>Object ID</label>
+
+                        <input
+                            id="objectId"
+                            class="property-input"
+                            type="text"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    <div class="property-row">
+
+                        <label>Layer</label>
+
+                        <select
+                            id="objectLayer"
+                            class="property-select"
+                        >
+                            <option value="default">Default</option>
+                            <option value="environment">Environment</option>
+                            <option value="player">Player</option>
+                            <option value="effects">Effects</option>
+                            <option value="ui">UI</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="inspector-danger-zone">
+
+                <button
+                    id="duplicateObjectButton"
+                    class="inspector-action"
+                    type="button"
+                >
+                    <span class="icon icon-copy" aria-hidden="true"></span>
+                    Duplicate
+                </button>
+
+                <button
+                    id="deleteObjectButton"
+                    class="inspector-action danger"
+                    type="button"
+                >
+                    <span class="icon icon-trash" aria-hidden="true"></span>
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+</main>
+
+
+<!-- =========================================================
+     AI ENGINE ASSISTANT
+     ========================================================= -->
+
+<aside
+    id="aiPanel"
+    class="ai-panel"
+    aria-label="RiseUp AI"
+    hidden
+>
+
+    <header class="ai-header">
+
+        <div class="ai-brand">
+
+            <div class="ai-logo">
+                R
+            </div>
+
+            <div>
+                <strong>RiseUp AI</strong>
+                <span>3D / 4D Engine Assistant</span>
+            </div>
+
+        </div>
+
+        <button
+            id="closeAiButton"
+            class="small-icon-button"
+            type="button"
+            title="Close AI"
+            aria-label="Close AI"
+        >
+            <span class="icon icon-close" aria-hidden="true"></span>
+        </button>
+
+    </header>
+
+
+    <div
+        id="aiMessages"
+        class="ai-messages"
+        role="log"
+        aria-live="polite"
+    >
+
+        <div class="ai-message assistant">
+
+            <div class="ai-message-avatar">
+                R
+            </div>
+
+            <div class="ai-message-body">
+
+                <p>
+                    I can help build your 3D or 4D game world.
+                </p>
+
+                <span class="ai-message-time">
+                    Ready
+                </span>
+
+            </div>
+
+        </div>
+
     </div>
 
-  </main>
 
-  <aside class="right-panel">
+    <div class="ai-suggestions">
 
-    <div class="panel-section">
-      <div class="panel-header">
-        <span>Properties</span>
-      </div>
-
-      <div id="propertiesPanel" class="properties-panel">
-        <div class="property-empty">
-          Select an object to edit its properties.
-        </div>
-      </div>
-    </div>
-
-    <div class="panel-section ai-section">
-      <div class="panel-header">
-        <span>RiseUp AI</span>
-        <span class="ai-status">3D / 4D</span>
-      </div>
-
-      <div class="ai-content">
-        <div class="ai-message">
-          Tell me what you want to build.
-        </div>
-
-        <div class="ai-suggestions">
-          <button type="button" data-ai="add a block">
+        <button
+            class="ai-suggestion"
+            type="button"
+            data-ai-command="add a block"
+        >
             Add a block
-          </button>
+        </button>
 
-          <button type="button" data-ai="make a spawn">
+        <button
+            class="ai-suggestion"
+            type="button"
+            data-ai-command="make a spawn"
+        >
             Make a spawn
-          </button>
+        </button>
 
-          <button type="button" data-ai="make a light">
+        <button
+            class="ai-suggestion"
+            type="button"
+            data-ai-command="add a light"
+        >
             Add a light
-          </button>
-        </div>
+        </button>
 
-        <div class="ai-input-row">
-          <input
+        <button
+            class="ai-suggestion"
+            type="button"
+            data-ai-command="build terrain"
+        >
+            Build terrain
+        </button>
+
+    </div>
+
+
+    <form
+        id="aiForm"
+        class="ai-input-form"
+    >
+
+        <textarea
             id="aiInput"
-            type="text"
-            autocomplete="off"
-            placeholder="Ask Studio AI..."
-          >
+            class="ai-input"
+            rows="1"
+            placeholder="Ask RiseUp AI to build something..."
+            aria-label="Ask RiseUp AI"
+        ></textarea>
 
-          <button id="aiSendButton" type="button">Send</button>
+        <button
+            id="aiSendButton"
+            class="ai-send-button"
+            type="submit"
+            aria-label="Send AI request"
+        >
+            <span class="icon icon-send" aria-hidden="true"></span>
+        </button>
+
+    </form>
+
+</aside>
+
+
+<!-- =========================================================
+     ADD OBJECT MODAL
+     ========================================================= -->
+
+<dialog
+    id="addObjectModal"
+    class="engine-modal"
+>
+
+    <div class="modal-shell">
+
+        <header class="modal-header">
+
+            <div>
+                <h2>Add Object</h2>
+                <p>Choose an object to add to your world.</p>
+            </div>
+
+            <button
+                id="closeAddObjectModal"
+                class="small-icon-button"
+                type="button"
+                aria-label="Close Add Object"
+            >
+                <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+
+        </header>
+
+
+        <div class="object-library">
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Part"
+            >
+                <span class="object-card-icon cube-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Part</strong>
+                    <small>Basic 3D mesh</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Wedge"
+            >
+                <span class="object-card-icon wedge-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Wedge</strong>
+                    <small>Triangular mesh</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Sphere"
+            >
+                <span class="object-card-icon sphere-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Sphere</strong>
+                    <small>Round mesh</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Cylinder"
+            >
+                <span class="object-card-icon cylinder-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Cylinder</strong>
+                    <small>Cylindrical mesh</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Plane"
+            >
+                <span class="object-card-icon plane-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Plane</strong>
+                    <small>Flat surface</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Cone"
+            >
+                <span class="object-card-icon cone-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Cone</strong>
+                    <small>Conical mesh</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Spawn"
+            >
+                <span class="object-card-icon spawn-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Spawn</strong>
+                    <small>Player spawn point</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Light"
+            >
+                <span class="object-card-icon light-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Light</strong>
+                    <small>Scene lighting</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Camera"
+            >
+                <span class="object-card-icon camera-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Camera</strong>
+                    <small>Scene camera</small>
+                </span>
+            </button>
+
+
+            <button
+                class="object-card"
+                type="button"
+                data-create-object="Folder"
+            >
+                <span class="object-card-icon folder-icon"></span>
+
+                <span class="object-card-text">
+                    <strong>Folder</strong>
+                    <small>Organize objects</small>
+                </span>
+            </button>
+
         </div>
-      </div>
+
     </div>
 
-  </aside>
-</div>
+</dialog>
 
-<div class="modal hidden" id="addObjectModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h2>Add Object</h2>
-      <button class="modal-close" id="closeObjectModal" type="button">×</button>
-    </div>
 
-    <div class="object-options">
-      <button type="button" data-object-type="Part">
-        <strong>Part</strong>
-        <span>Basic 3D block</span>
-      </button>
+<!-- =========================================================
+     PROJECT MENU
+     ========================================================= -->
 
-      <button type="button" data-object-type="Spawn">
-        <strong>Spawn</strong>
-        <span>Player starting point</span>
-      </button>
+<div
+    id="projectMenu"
+    class="context-menu project-menu"
+    role="menu"
+    hidden
+>
 
-      <button type="button" data-object-type="Light">
-        <strong>Light</strong>
-        <span>Scene lighting</span>
-      </button>
-
-      <button type="button" data-object-type="Folder">
-        <strong>Folder</strong>
-        <span>Organize objects</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="modal hidden" id="publishModal">
-  <div class="modal-card publish-card">
-    <div class="modal-header">
-      <h2>Publish Game</h2>
-      <button class="modal-close" id="closePublishModal" type="button">×</button>
-    </div>
-
-    <label for="publishName">Game Name</label>
-    <input id="publishName" type="text" placeholder="My RiseUp Game">
-
-    <label for="publishDescription">Description</label>
-    <textarea id="publishDescription" placeholder="Tell players about your game..."></textarea>
-
-    <button class="publish-confirm" id="confirmPublishButton" type="button">
-      Publish Game
+    <button
+        type="button"
+        role="menuitem"
+        id="renameProjectButton"
+    >
+        <span class="icon icon-edit" aria-hidden="true"></span>
+        Rename Project
     </button>
-  </div>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="projectSettingsButton"
+    >
+        <span class="icon icon-settings" aria-hidden="true"></span>
+        Project Settings
+    </button>
+
+    <div class="context-divider"></div>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="openProjectButton"
+    >
+        <span class="icon icon-folder-open" aria-hidden="true"></span>
+        Open Project
+    </button>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="newProjectButton"
+    >
+        <span class="icon icon-file-plus" aria-hidden="true"></span>
+        New Project
+    </button>
+
+    <div class="context-divider"></div>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="deleteProjectButton"
+        class="danger"
+    >
+        <span class="icon icon-trash" aria-hidden="true"></span>
+        Delete Project
+    </button>
+
 </div>
 
-<div class="toast" id="toast"></div>
+
+<!-- =========================================================
+     ACCOUNT MENU
+     ========================================================= -->
+
+<div
+    id="accountMenu"
+    class="context-menu account-menu"
+    role="menu"
+    hidden
+>
+
+    <div class="account-menu-header">
+
+        <span
+            id="accountMenuAvatar"
+            class="account-menu-avatar"
+        >
+            R
+        </span>
+
+        <div>
+            <strong id="accountMenuName">Creator</strong>
+            <span>RiseUp Account</span>
+        </div>
+
+    </div>
+
+    <div class="context-divider"></div>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="accountProfileButton"
+    >
+        Profile
+    </button>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="accountSettingsButton"
+    >
+        Settings
+    </button>
+
+    <div class="context-divider"></div>
+
+    <button
+        type="button"
+        role="menuitem"
+        id="accountExitButton"
+    >
+        Exit Studio
+    </button>
+
+</div>
 
 
-  </div>
+<!-- =========================================================
+     PUBLISH MODAL
+     ========================================================= -->
 
-  <script src="studio.js"></script>
+<dialog
+    id="publishModal"
+    class="engine-modal"
+>
+
+    <div class="modal-shell publish-shell">
+
+        <header class="modal-header">
+
+            <div>
+
+                <h2>Publish to RiseUp</h2>
+
+                <p>
+                    Make your game available on the RiseUp platform.
+                </p>
+
+            </div>
+
+            <button
+                id="closePublishModal"
+                class="small-icon-button"
+                type="button"
+                aria-label="Close Publish"
+            >
+                <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+
+        </header>
+
+
+        <form
+            id="publishForm"
+            class="publish-form"
+        >
+
+            <div class="form-field">
+
+                <label for="publishGameName">
+                    Game Name
+                </label>
+
+                <input
+                    id="publishGameName"
+                    type="text"
+                    maxlength="80"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="publishDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="publishDescription"
+                    rows="5"
+                    maxlength="1000"
+                    placeholder="Tell players about your game..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="publishVisibility">
+                    Visibility
+                </label>
+
+                <select
+                    id="publishVisibility"
+                >
+                    <option value="public">Public</option>
+                    <option value="unlisted">Unlisted</option>
+                    <option value="private">Private</option>
+                </select>
+
+            </div>
+
+
+            <div class="publish-preview">
+
+                <div
+                    id="publishPreviewThumbnail"
+                    class="publish-thumbnail"
+                >
+                    <span class="icon icon-game" aria-hidden="true"></span>
+                </div>
+
+                <div class="publish-preview-info">
+
+                    <strong id="publishPreviewName">
+                        Untitled Game
+                    </strong>
+
+                    <span>
+                        Created with RiseUp Studio
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelPublishButton"
+                    class="secondary-action"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="confirmPublishButton"
+                    class="publish-button"
+                    type="submit"
+                >
+                    Publish Game
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+
+<!-- =========================================================
+     PROJECT SETTINGS MODAL
+     ========================================================= -->
+
+<dialog
+    id="projectSettingsModal"
+    class="engine-modal"
+>
+
+    <div class="modal-shell">
+
+        <header class="modal-header">
+
+            <div>
+                <h2>Project Settings</h2>
+                <p>Configure your Game Engine X project.</p>
+            </div>
+
+            <button
+                id="closeProjectSettingsModal"
+                class="small-icon-button"
+                type="button"
+                aria-label="Close Project Settings"
+            >
+                <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+
+        </header>
+
+
+        <div class="settings-layout">
+
+            <nav class="settings-navigation">
+
+                <button
+                    class="settings-nav-item active"
+                    type="button"
+                    data-settings-page="general"
+                >
+                    General
+                </button>
+
+                <button
+                    class="settings-nav-item"
+                    type="button"
+                    data-settings-page="graphics"
+                >
+                    Graphics
+                </button>
+
+                <button
+                    class="settings-nav-item"
+                    type="button"
+                    data-settings-page="physics"
+                >
+                    Physics
+                </button>
+
+                <button
+                    class="settings-nav-item"
+                    type="button"
+                    data-settings-page="controls"
+                >
+                    Controls
+                </button>
+
+                <button
+                    class="settings-nav-item"
+                    type="button"
+                    data-settings-page="publishing"
+                >
+                    Publishing
+                </button>
+
+            </nav>
+
+
+            <div class="settings-pages">
+
+                <section
+                    class="settings-page active"
+                    data-settings-page-content="general"
+                >
+
+                    <h3>General</h3>
+
+                    <div class="form-field">
+
+                        <label for="settingsProjectName">
+                            Project Name
+                        </label>
+
+                        <input
+                            id="settingsProjectName"
+                            type="text"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="settingsProjectVersion">
+                            Version
+                        </label>
+
+                        <input
+                            id="settingsProjectVersion"
+                            type="text"
+                            value="0.1.0"
+                        >
+
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="settings-page"
+                    data-settings-page-content="graphics"
+                    hidden
+                >
+
+                    <h3>Graphics</h3>
+
+                    <div class="form-field">
+
+                        <label for="graphicsQuality">
+                            Quality
+                        </label>
+
+                        <select id="graphicsQuality">
+
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high" selected>High</option>
+                            <option value="ultra">Ultra</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-field checkbox-form-field">
+
+                        <label for="graphicsShadows">
+                            Dynamic Shadows
+                        </label>
+
+                        <input
+                            id="graphicsShadows"
+                            type="checkbox"
+                            checked
+                        >
+
+                    </div>
+
+
+                    <div class="form-field checkbox-form-field">
+
+                        <label for="graphicsPostProcessing">
+                            Post Processing
+                        </label>
+
+                        <input
+                            id="graphicsPostProcessing"
+                            type="checkbox"
+                            checked
+                        >
+
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="settings-page"
+                    data-settings-page-content="physics"
+                    hidden
+                >
+
+                    <h3>Physics</h3>
+
+                    <div class="form-field">
+
+                        <label for="physicsGravity">
+                            Gravity
+                        </label>
+
+                        <input
+                            id="physicsGravity"
+                            type="number"
+                            value="-9.81"
+                            step="0.01"
+                        >
+
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="settings-page"
+                    data-settings-page-content="controls"
+                    hidden
+                >
+
+                    <h3>Controls</h3>
+
+                    <div class="shortcut-list">
+
+                        <div class="shortcut-row">
+                            <span>Play</span>
+                            <kbd>F5</kbd>
+                        </div>
+
+                        <div class="shortcut-row">
+                            <span>Save</span>
+                            <kbd>Ctrl</kbd>
+                            <span>+</span>
+                            <kbd>S</kbd>
+                        </div>
+
+                        <div class="shortcut-row">
+                            <span>Undo</span>
+                            <kbd>Ctrl</kbd>
+                            <span>+</span>
+                            <kbd>Z</kbd>
+                        </div>
+
+                        <div class="shortcut-row">
+                            <span>Redo</span>
+                            <kbd>Ctrl</kbd>
+                            <span>+</span>
+                            <kbd>Shift</kbd>
+                            <span>+</span>
+                            <kbd>Z</kbd>
+                        </div>
+
+                        <div class="shortcut-row">
+                            <span>Delete Object</span>
+                            <kbd>Delete</kbd>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="settings-page"
+                    data-settings-page-content="publishing"
+                    hidden
+                >
+
+                    <h3>Publishing</h3>
+
+                    <div class="form-field">
+
+                        <label for="settingsGameUrl">
+                            Game URL
+                        </label>
+
+                        <input
+                            id="settingsGameUrl"
+                            type="text"
+                            placeholder="your-game"
+                        >
+
+                        <small>
+                            RiseUp will use this identifier for your published game.
+                        </small>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                id="cancelProjectSettingsButton"
+                class="secondary-action"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                id="saveProjectSettingsButton"
+                class="primary-action"
+                type="button"
+            >
+                Apply
+            </button>
+
+        </div>
+
+    </div>
+
+</dialog>
+
+
+<!-- =========================================================
+     DELETE PROJECT CONFIRMATION
+     ========================================================= -->
+
+<dialog
+    id="deleteProjectModal"
+    class="engine-modal confirmation-modal"
+>
+
+    <div class="modal-shell">
+
+        <div class="confirmation-icon danger">
+            <span class="icon icon-trash" aria-hidden="true"></span>
+        </div>
+
+        <h2>Delete Project?</h2>
+
+        <p>
+            This will reset the current Game Engine X project and remove
+            its saved editor state.
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                id="cancelDeleteProjectButton"
+                class="secondary-action"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                id="confirmDeleteProjectButton"
+                class="danger-button"
+                type="button"
+            >
+                Delete Project
+            </button>
+
+        </div>
+
+    </div>
+
+</dialog>
+
+
+<!-- =========================================================
+     RENAME PROJECT MODAL
+     ========================================================= -->
+
+<dialog
+    id="renameProjectModal"
+    class="engine-modal"
+>
+
+    <div class="modal-shell">
+
+        <header class="modal-header">
+
+            <div>
+
+                <h2>Rename Project</h2>
+
+                <p>
+                    Choose a name for your game project.
+                </p>
+
+            </div>
+
+            <button
+                id="closeRenameProjectModal"
+                class="small-icon-button"
+                type="button"
+                aria-label="Close Rename Project"
+            >
+                <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+
+        </header>
+
+
+        <form id="renameProjectForm">
+
+            <div class="form-field">
+
+                <label for="renameProjectInput">
+                    Project Name
+                </label>
+
+                <input
+                    id="renameProjectInput"
+                    type="text"
+                    maxlength="80"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelRenameProjectButton"
+                    class="secondary-action"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="primary-action"
+                    type="submit"
+                >
+                    Rename
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+
+<!-- =========================================================
+     COMMAND PALETTE
+     ========================================================= -->
+
+<dialog
+    id="commandPalette"
+    class="command-palette"
+>
+
+    <div class="command-shell">
+
+        <div class="command-search">
+
+            <span
+                class="icon icon-search"
+                aria-hidden="true"
+            ></span>
+
+            <input
+                id="commandSearchInput"
+                type="search"
+                placeholder="Search commands..."
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Search commands"
+            >
+
+            <kbd>Esc</kbd>
+
+        </div>
+
+
+        <div
+            id="commandList"
+            class="command-list"
+            role="listbox"
+        >
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="add-object"
+                role="option"
+            >
+                <span class="command-icon icon-cube"></span>
+                <span class="command-content">
+                    <strong>Add Object</strong>
+                    <small>Create a new object in the scene</small>
+                </span>
+                <kbd>A</kbd>
+            </button>
+
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="save"
+                role="option"
+            >
+                <span class="command-icon icon-save"></span>
+                <span class="command-content">
+                    <strong>Save Project</strong>
+                    <small>Save the current project</small>
+                </span>
+                <kbd>Ctrl S</kbd>
+            </button>
+
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="play"
+                role="option"
+            >
+                <span class="command-icon icon-play"></span>
+                <span class="command-content">
+                    <strong>Play Game</strong>
+                    <small>Launch the current game</small>
+                </span>
+                <kbd>F5</kbd>
+            </button>
+
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="ai"
+                role="option"
+            >
+                <span class="command-icon icon-ai"></span>
+                <span class="command-content">
+                    <strong>Open RiseUp AI</strong>
+                    <small>Build with the 3D/4D assistant</small>
+                </span>
+            </button>
+
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="code"
+                role="option"
+            >
+                <span class="command-icon icon-code"></span>
+                <span class="command-content">
+                    <strong>Open RiseCode</strong>
+                    <small>Edit the game with code</small>
+                </span>
+            </button>
+
+
+            <button
+                class="command-item"
+                type="button"
+                data-command="blocks"
+                role="option"
+            >
+                <span class="command-icon icon-blocks"></span>
+                <span class="command-content">
+                    <strong>Open Visual Scripts</strong>
+                    <small>Create logic with connected blocks</small>
+                </span>
+            </button>
+
+        </div>
+
+    </div>
+
+</dialog>
+
+
+<!-- =========================================================
+     TOAST SYSTEM
+     ========================================================= -->
+
+<div
+    id="toastContainer"
+    class="toast-container"
+    aria-live="polite"
+    aria-atomic="true"
+></div>
+
+
+<!-- =========================================================
+     LOADING SCREEN
+     ========================================================= -->
+
+<div
+    id="engineLoadingScreen"
+    class="engine-loading-screen"
+    hidden
+>
+
+    <div class="loading-brand">
+
+        <div class="loading-logo">
+            R
+        </div>
+
+        <strong>RiseUp Studio</strong>
+
+        <span>Game Engine X</span>
+
+    </div>
+
+
+    <div class="loading-progress">
+
+        <div
+            id="loadingProgressBar"
+            class="loading-progress-bar"
+        ></div>
+
+    </div>
+
+
+    <div
+        id="loadingStatus"
+        class="loading-status"
+        aria-live="polite"
+    >
+        Loading engine...
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MOBILE DRAWER OVERLAY
+     ========================================================= -->
+
+<div
+    id="drawerOverlay"
+    class="drawer-overlay"
+    hidden
+    aria-hidden="true"
+></div>
+
+
+<!-- =========================================================
+     HIDDEN FILE INPUT
+     ========================================================= -->
+
+<input
+    id="assetFileInput"
+    type="file"
+    hidden
+    multiple
+    accept=".png,.jpg,.jpeg,.webp,.svg,.json,.rise,.txt,.glb,.gltf,.obj,.wav,.mp3,.ogg"
+>
+
+
+<!-- =========================================================
+     ENGINE DATA
+     ========================================================= -->
+
+<script>
+    window.RiseUpStudioConfig = {
+        engineName: "Game Engine X",
+        platformName: "RiseUp",
+        version: "1.0.0",
+        editorVersion: "1.0.0",
+        projectStorageKey: "riseup_studio_project",
+        gamesStorageKey: "riseup_games",
+        avatarStorageKey: "riseup_avatar",
+        codeStoragePrefix: "riseup_code_files_",
+        currentUserKey: "riseup_currentUser",
+        defaultProjectName: "Untitled Game",
+        defaultSceneName: "World",
+        defaultCodeFile: "index.rise",
+        playShortcut: "F5",
+        saveShortcut: "CTRL+S",
+        undoShortcut: "CTRL+Z",
+        redoShortcut: "CTRL+SHIFT+Z"
+    };
+</script>
+
+
+<!-- =========================================================
+     ENGINE APPLICATION
+     ========================================================= -->
+
+<script src="studio.js"></script>
+```
+
+</div>
 
 </body>
 </html>
