@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0b0e13">
+<meta name="description" content="RiseUp Friends">
+<title>RiseUp — Friends</title>
+<link rel="icon" href="favicon.svg">
+<style>
+:root{
+--bg:#080a0e;
+--panel:#0e1117;
+--panel2:#12161e;
+--panel3:#171c25;
+--border:#252c38;
+--border2:#303948;
+--text:#f2f5f8;
+--muted:#8d97a7;
+--blue:#55a7ff;
+--blue2:#3187e8;
+--green:#76e06b;
+--red:#ff6675;
+--yellow:#ffd166;
+--shadow:0 18px 50px rgba(0,0,0,.35);
+--radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:245px;background:#0a0d12;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 14px;z-index:20}
+.brand{height:58px;display:flex;align-items:center;padding:0 12px;margin-bottom:15px}
+.brand-mark{width:36px;height:36px;border:2px solid var(--blue);border-radius:10px;display:grid;place-items:center;color:var(--blue);font-weight:900;font-size:17px;box-shadow:0 0 20px rgba(85,167,255,.12)}
+.brand-name{font-size:20px;font-weight:800;margin-left:11px;letter-spacing:-.5px}
+.brand-name span{color:var(--blue)}
+.nav-title{font-size:10px;font-weight:800;color:#596273;text-transform:uppercase;letter-spacing:1.4px;padding:12px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{height:43px;border-radius:10px;color:#aeb7c5;display:flex;align-items:center;gap:13px;padding:0 13px;font-size:14px;font-weight:600;transition:.15s}
+.nav a:hover{background:#121720;color:#fff}
+.nav a.active{background:rgba(85,167,255,.13);color:#fff;box-shadow:inset 2px 0 var(--blue)}
+.icon{width:19px;text-align:center;color:#7f8998;font-weight:800}
+.active .icon{color:var(--blue)}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:13px}
+.user-card{display:flex;align-items:center;padding:10px;border-radius:12px}
+.user-avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(145deg,#f5f5f5,#89919b);position:relative;overflow:hidden;flex:none}
+.user-avatar:before{content:"";position:absolute;width:21px;height:21px;border-radius:50%;background:#eee;top:3px;left:7px}
+.user-avatar:after{content:"";position:absolute;width:31px;height:22px;border-radius:18px 18px 0 0;background:#cdd2d7;left:2px;bottom:-4px}
+.user-info{margin-left:9px;min-width:0}
+.user-info strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info span{font-size:10px;color:var(--green)}
+.main{grid-column:2;min-width:0}
+.topbar{height:72px;border-bottom:1px solid var(--border);background:rgba(8,10,14,.92);backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 30px;position:sticky;top:0;z-index:15}
+.top-title{font-size:19px;font-weight:800}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.search{height:39px;width:270px;border:1px solid var(--border);background:#0e1218;border-radius:9px;color:#fff;padding:0 14px;outline:none}
+.search:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(85,167,255,.08)}
+.top-button{height:39px;padding:0 13px;border:1px solid var(--border);background:#11161e;color:#c9d0da;border-radius:9px;font-weight:700}
+.top-button:hover{background:#171d27;color:#fff}
+.content{padding:30px;max-width:1450px;margin:auto}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:25px}
+.hero h1{margin:0 0 7px;font-size:31px;letter-spacing:-1px}
+.hero p{margin:0;color:var(--muted);font-size:14px}
+.primary{height:42px;border:0;border-radius:9px;background:var(--blue);color:#07101b;font-weight:800;padding:0 18px;box-shadow:0 8px 25px rgba(85,167,255,.15)}
+.primary:hover{background:#72b7ff}
+.tabs{display:flex;gap:5px;border-bottom:1px solid var(--border);margin-bottom:22px}
+.tab{background:none;border:0;color:#7f8998;padding:13px 17px;font-size:13px;font-weight:800;border-bottom:2px solid transparent}
+.tab:hover{color:#fff}
+.tab.active{color:#fff;border-bottom-color:var(--blue)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-header{height:62px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px}
+.panel-header h2{margin:0;font-size:15px}
+.panel-header span{margin-left:auto;color:var(--muted);font-size:12px}
+.friend-list{padding:8px}
+.friend{min-height:76px;display:flex;align-items:center;padding:12px;border-radius:11px;transition:.15s}
+.friend:hover{background:#131821}
+.avatar{width:46px;height:46px;border-radius:12px;background:linear-gradient(145deg,#f7f7f7,#707984);position:relative;overflow:hidden;flex:none}
+.avatar:before{content:"";position:absolute;width:27px;height:27px;border-radius:50%;background:#f0f0f0;left:9px;top:3px}
+.avatar:after{content:"";position:absolute;width:42px;height:29px;border-radius:23px 23px 0 0;background:#c9ced3;left:2px;bottom:-7px}
+.online-dot{position:absolute;right:1px;bottom:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:3px solid var(--panel)}
+.friend-info{min-width:0;margin-left:13px}
+.friend-name{font-weight:800;font-size:14px}
+.friend-status{font-size:11px;color:var(--muted);margin-top:4px}
+.friend-status.online{color:var(--green)}
+.friend-actions{margin-left:auto;display:flex;gap:7px}
+.small-btn{height:34px;border:1px solid var(--border2);border-radius:8px;background:#151a22;color:#d9dfe7;padding:0 11px;font-size:11px;font-weight:800}
+.small-btn:hover{background:#1b222c;color:#fff}
+.small-btn.blue{background:rgba(85,167,255,.12);border-color:rgba(85,167,255,.3);color:var(--blue)}
+.right-stack{display:flex;flex-direction:column;gap:20px}
+.side-section{padding:15px}
+.stat{display:flex;justify-content:space-between;padding:11px 3px;border-bottom:1px solid #1b2029;font-size:12px}
+.stat:last-child{border:0}
+.stat span{color:var(--muted)}
+.stat strong{color:#fff}
+.request{display:flex;align-items:center;padding:11px 3px;border-bottom:1px solid #1b2029}
+.request:last-child{border:0}
+.request-info{margin-left:9px;min-width:0}
+.request-info strong{display:block;font-size:12px}
+.request-info span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.request-actions{margin-left:auto;display:flex;gap:4px}
+.accept,.deny{width:29px;height:29px;border-radius:7px;border:1px solid var(--border);background:#151a21;font-weight:900}
+.accept{color:var(--green)}
+.deny{color:var(--red)}
+.empty{padding:55px 20px;text-align:center;color:var(--muted)}
+.empty-icon{width:55px;height:55px;border:1px solid var(--border2);border-radius:15px;margin:0 auto 15px;display:grid;place-items:center;color:#657080;font-size:22px}
+.empty strong{display:block;color:#dfe4ea;margin-bottom:6px}
+.mobile-menu{display:none}
+@media(max-width:1050px){
+.sidebar{width:215px}
+.app{grid-template-columns:215px 1fr}
+.layout{grid-template-columns:1fr}
+.right-stack{display:grid;grid-template-columns:1fr 1fr}
+}
+@media(max-width:800px){
+.sidebar{display:none}
+.app{display:block}
+.main{width:100%}
+.mobile-menu{display:block}
+.topbar{padding:0 15px}
+.content{padding:20px 15px}
+.search{width:180px}
+.right-stack{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+.top-title{font-size:16px}
+.search{display:none}
+.hero{display:block}
+.hero .primary{margin-top:15px;width:100%}
+.friend{align-items:flex-start}
+.friend-actions{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+*{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">
+<div class="brand-mark">&lt;/&gt;</div>
+<div class="brand-name">Rise<span>Up</span></div>
+</div>
+<div class="nav-title">Platform</div>
+<nav class="nav">
+<a href="home.html"><span class="icon">⌂</span>Home</a>
+<a href="discover.html"><span class="icon">◈</span>Discover</a>
+<a href="avatar.html"><span class="icon">◉</span>Avatar</a>
+<a href="inventory.html"><span class="icon">▣</span>Inventory</a>
+<a class="active" href="friends.html"><span class="icon">♧</span>Friends</a>
+<a href="marketplace.html"><span class="icon">◇</span>Marketplace</a>
+<a href="messages.html"><span class="icon">▤</span>Messages</a>
+</nav>
+<div class="nav-title">Workspace</div>
+<nav class="nav">
+<a href="studio.html"><span class="icon">▦</span>Studio</a>
+<a href="code.html"><span class="icon">&lt;/&gt;</span>RiseCode</a>
+<a href="setting.html"><span class="icon">⚙</span>Settings</a>
+</nav>
+<div class="sidebar-bottom">
+<div class="user-card">
+<div class="user-avatar"></div>
+<div class="user-info">
+<strong id="sideUsername">Player</strong>
+<span>● Online</span>
+</div>
+</div>
+</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+<button class="top-button mobile-menu" id="mobileMenu">☰</button>
+<div class="top-title">Friends</div>
+<div class="top-actions">
+<input class="search" id="friendSearch" type="search" placeholder="Search friends..." autocomplete="off">
+<button class="top-button" id="addFriendTop">Add Friend</button>
+</div>
+</header>
+
+<section class="content">
+<div class="hero">
+<div>
+<h1>Your Friends</h1>
+<p>Connect with players, see who's online, and jump into games together.</p>
+</div>
+<button class="primary" id="addFriendHero">+ Add Friend</button>
+</div>
+
+<div class="tabs">
+<button class="tab active" data-tab="all">All Friends</button>
+<button class="tab" data-tab="online">Online</button>
+<button class="tab" data-tab="requests">Requests <span id="requestBadge"></span></button>
+</div>
+
+<div class="layout">
+<section class="panel">
+<div class="panel-header">
+<h2 id="listTitle">All Friends</h2>
+<span id="friendCount">0 friends</span>
+</div>
+<div class="friend-list" id="friendList"></div>
+</section>
+
+<div class="right-stack">
+<section class="panel">
+<div class="panel-header">
+<h2>Friend Activity</h2>
+</div>
+<div class="side-section">
+<div class="stat"><span>Total Friends</span><strong id="totalFriends">0</strong></div>
+<div class="stat"><span>Online Now</span><strong id="onlineFriends">0</strong></div>
+<div class="stat"><span>Requests</span><strong id="requestCount">0</strong></div>
+<div class="stat"><span>Recently Added</span><strong id="recentFriends">0</strong></div>
+</div>
+</section>
+
+<section class="panel">
+<div class="panel-header">
+<h2>Friend Requests</h2>
+<span id="sideRequestCount">0</span>
+</div>
+<div class="side-section" id="requestList"></div>
+</section>
+
+<section class="panel">
+<div class="panel-header">
+<h2>Quick Actions</h2>
+</div>
+<div class="side-section">
+<button class="small-btn" style="width:100%;margin-bottom:8px" id="inviteAll">Invite Online Friends</button>
+<button class="small-btn" style="width:100%;margin-bottom:8px" id="copyProfile">Copy Profile Link</button>
+<button class="small-btn" style="width:100%" id="refreshFriends">Refresh Friends</button>
+</div>
+</section>
+</div>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+"use strict";
+
+const currentUser =
+localStorage.getItem("riseup_currentUser") ||
+localStorage.getItem("riseup_username") ||
+"Player";
+
+const friendKey = "riseup_friends_" + currentUser;
+
+const defaultFriends = [
+{
+id:"friend_001",
+username:"NovaBuilds",
+status:"online",
+activity:"Building in RiseCode",
+lastSeen:"Online now",
+favorite:true
+},
+{
+id:"friend_002",
+username:"PixelForge",
+status:"online",
+activity:"Playing Neon District",
+lastSeen:"Online now",
+favorite:false
+},
+{
+id:"friend_003",
+username:"ShadowDev",
+status:"away",
+activity:"Away",
+lastSeen:"12 minutes ago",
+favorite:false
+},
+{
+id:"friend_004",
+username:"CloudRunner",
+status:"offline",
+activity:"Offline",
+lastSeen:"2 hours ago",
+favorite:false
+},
+{
+id:"friend_005",
+username:"ByteMaster",
+status:"online",
+activity:"Playing",
+lastSeen:"Online now",
+favorite:true
+},
+{
+id:"friend_006",
+username:"LunarLabs",
+status:"offline",
+activity:"Offline",
+lastSeen:"Yesterday",
+favorite:false
+},
+{
+id:"friend_007",
+username:"GameSmith",
+status:"online",
+activity:"Editing a game",
+lastSeen:"Online now",
+favorite:false
+},
+{
+id:"friend_008",
+username:"Vertex",
+status:"away",
+activity:"Away",
+lastSeen:"28 minutes ago",
+favorite:false
+}
+];
+
+const defaultRequests = [
+{
+id:"request_001",
+username:"CyberNova",
+message:"Wants to be your friend"
+},
+{
+id:"request_002",
+username:"DevRider",
+message:"Wants to be your friend"
+}
+];
+
+let friends = loadFriends();
+let requests = loadRequests();
+let activeTab = "all";
+
+function loadFriends(){
+try{
+const saved = JSON.parse(localStorage.getItem(friendKey));
+if(Array.isArray(saved)) return saved;
+}catch(error){}
+return defaultFriends;
+}
+
+function saveFriends(){
+localStorage.setItem(friendKey,JSON.stringify(friends));
+}
+
+function loadRequests(){
+try{
+const saved = JSON.parse(localStorage.getItem(friendKey+"_requests"));
+if(Array.isArray(saved)) return saved;
+}catch(error){}
+return defaultRequests;
+}
+
+function saveRequests(){
+localStorage.setItem(friendKey+"_requests",JSON.stringify(requests));
+}
+
+function escapeHTML(value){
+return String(value)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+}
+
+function avatarMarkup(name,online=false){
+const safe=escapeHTML(name);
+return `
+<div class="avatar" aria-label="${safe} avatar">
+${online?'<span class="online-dot"></span>':''}
+</div>`;
+}
+
+function friendMatches(friend,query){
+if(!query)return true;
+return friend.username.toLowerCase().includes(query.toLowerCase());
+}
+
+function getVisibleFriends(){
+let result=[...friends];
+
+if(activeTab==="online"){
+result=result.filter(friend=>friend.status==="online");
+}
+
+const query=document.getElementById("friendSearch").value.trim();
+
+if(query){
+result=result.filter(friend=>friendMatches(friend,query));
+}
+
+return result;
+}
+
+function renderFriends(){
+const list=document.getElementById("friendList");
+const visible=getVisibleFriends();
+
+document.getElementById("friendCount").textContent =
+`${visible.length} ${visible.length===1?"friend":"friends"}`;
+
+if(!visible.length){
+list.innerHTML=`
+<div class="empty">
+<div class="empty-icon">♧</div>
+<strong>No friends found</strong>
+<span>Try another search or add some new friends.</span>
+</div>`;
+return;
+}
+
+list.innerHTML=visible.map(friend=>{
+const statusClass=friend.status==="online"?"online":"";
+const activity=friend.status==="offline"
+?friend.lastSeen
+:friend.activity;
+
+return `
+<article class="friend" data-id="${escapeHTML(friend.id)}">
+${avatarMarkup(friend.username,friend.status==="online")}
+<div class="friend-info">
+<div class="friend-name">${escapeHTML(friend.username)}</div>
+<div class="friend-status ${statusClass}">
+${escapeHTML(activity)}
+</div>
+</div>
+<div class="friend-actions">
+<button class="small-btn" data-action="message" data-id="${escapeHTML(friend.id)}">Message</button>
+<button class="small-btn blue" data-action="profile" data-id="${escapeHTML(friend.id)}">Profile</button>
+</div>
+</article>`;
+}).join("");
+}
+
+function renderRequests(){
+const list=document.getElementById("requestList");
+document.getElementById("requestCount").textContent=requests.length;
+document.getElementById("sideRequestCount").textContent=requests.length;
+document.getElementById("requestBadge").textContent=
+requests.length?`(${requests.length})`:"";
+
+if(!requests.length){
+list.innerHTML=`
+<div class="empty" style="padding:25px 8px">
+<strong>No pending requests</strong>
+<span>You're all caught up.</span>
+</div>`;
+return;
+}
+
+list.innerHTML=requests.map(request=>`
+<div class="request">
+${avatarMarkup(request.username)}
+<div class="request-info">
+<strong>${escapeHTML(request.username)}</strong>
+<span>${escapeHTML(request.message)}</span>
+</div>
+<div class="request-actions">
+<button class="accept" title="Accept" data-request="accept" data-id="${escapeHTML(request.id)}">✓</button>
+<button class="deny" title="Decline" data-request="deny" data-id="${escapeHTML(request.id)}">×</button>
+</div>
+</div>
+`).join("");
+}
+
+function updateStats(){
+const online=friends.filter(friend=>friend.status==="online").length;
+document.getElementById("totalFriends").textContent=friends.length;
+document.getElementById("onlineFriends").textContent=online;
+document.getElementById("requestCount").textContent=requests.length;
+document.getElementById("recentFriends").textContent=
+Math.min(3,friends.length);
+}
+
+function renderAll(){
+renderFriends();
+renderRequests();
+updateStats();
+}
+
+function setTab(tab){
+activeTab=tab;
+
+document.querySelectorAll(".tab").forEach(button=>{
+button.classList.toggle("active",button.dataset.tab===tab);
+});
+
+const title={
+all:"All Friends",
+online:"Online Friends",
+requests:"Friend Requests"
+};
+
+document.getElementById("listTitle").textContent=title[tab]||"All Friends";
+
+if(tab==="requests"){
+document.getElementById("friendList").innerHTML=`
+<div class="empty">
+<div class="empty-icon">♧</div>
+<strong>Friend Requests</strong>
+<span>Manage your incoming requests using the panel on the right.</span>
+</div>`;
+}else{
+renderFriends();
+}
+}
+
+function openAddFriend(){
+const username=prompt("Enter the RiseUp username you want to add:");
+
+if(username===null)return;
+
+const clean=username.trim();
+
+if(!clean){
+alert("Please enter a username.");
+return;
+}
+
+if(clean.toLowerCase()===currentUser.toLowerCase()){
+alert("You can't add yourself.");
+return;
+}
+
+if(friends.some(friend=>friend.username.toLowerCase()===clean.toLowerCase())){
+alert("That player is already on your friends list.");
+return;
+}
+
+if(requests.some(request=>request.username.toLowerCase()===clean.toLowerCase())){
+alert("A request from that player is already pending.");
+return;
+}
+
+requests.push({
+id:"request_"+Date.now(),
+username:clean,
+message:"Friend request sent"
+});
+
+saveRequests();
+renderAll();
+
+alert(`Friend request sent to ${clean}.`);
+}
+
+function acceptRequest(id){
+const index=requests.findIndex(request=>request.id===id);
+if(index===-1)return;
+
+const request=requests[index];
+
+friends.unshift({
+id:"friend_"+Date.now(),
+username:request.username,
+status:"online",
+activity:"Just joined RiseUp",
+lastSeen:"Online now",
+favorite:false
+});
+
+requests.splice(index,1);
+
+saveFriends();
+saveRequests();
+renderAll();
+}
+
+function denyRequest(id){
+const index=requests.findIndex(request=>request.id===id);
+if(index===-1)return;
+
+requests.splice(index,1);
+
+saveRequests();
+renderAll();
+}
+
+function openProfile(id){
+const friend=friends.find(item=>item.id===id);
+if(!friend)return;
+
+localStorage.setItem("riseup_selected_friend",friend.username);
+
+alert(
+`${friend.username}\n\n`+
+`Status: ${friend.status}\n`+
+`Activity: ${friend.activity}`
+);
+}
+
+function openMessage(id){
+const friend=friends.find(item=>item.id===id);
+if(!friend)return;
+
+localStorage.setItem("riseup_message_target",friend.username);
+window.location.href="messages.html";
+}
+
+function inviteOnline(){
+const online=friends.filter(friend=>friend.status==="online");
+
+if(!online.length){
+alert("You don't have any friends online right now.");
+return;
+}
+
+alert(
+"Invite ready for:\n\n"+
+online.map(friend=>friend.username).join("\n")
+);
+}
+
+async function copyProfile(){
+const profile=
+"RiseUp profile: "+
+currentUser;
+
+try{
+await navigator.clipboard.writeText(profile);
+alert("Your profile link text was copied.");
+}catch(error){
+prompt("Copy your profile text:",profile);
+}
+}
+
+function refreshFriends(){
+friends=friends.map(friend=>{
+if(friend.status==="away"){
+return{
+...friend,
+lastSeen:"Just now",
+activity:"Online"
+};
+}
+return friend;
+});
+
+saveFriends();
+renderAll();
+}
+
+document.getElementById("friendSearch").addEventListener("input",()=>{
+if(activeTab!=="requests")renderFriends();
+});
+
+document.querySelectorAll(".tab").forEach(button=>{
+button.addEventListener("click",()=>{
+setTab(button.dataset.tab);
+});
+});
+
+document.getElementById("addFriendTop")
+.addEventListener("click",openAddFriend);
+
+document.getElementById("addFriendHero")
+.addEventListener("click",openAddFriend);
+
+document.getElementById("inviteAll")
+.addEventListener("click",inviteOnline);
+
+document.getElementById("copyProfile")
+.addEventListener("click",copyProfile);
+
+document.getElementById("refreshFriends")
+.addEventListener("click",refreshFriends);
+
+document.getElementById("friendList").addEventListener("click",event=>{
+const button=event.target.closest("button");
+if(!button)return;
+
+const action=button.dataset.action;
+const id=button.dataset.id;
+
+if(action==="profile")openProfile(id);
+if(action==="message")openMessage(id);
+});
+
+document.getElementById("requestList").addEventListener("click",event=>{
+const button=event.target.closest("button");
+if(!button)return;
+
+const action=button.dataset.request;
+const id=button.dataset.id;
+
+if(action==="accept")acceptRequest(id);
+if(action==="deny")denyRequest(id);
+});
+
+document.getElementById("mobileMenu").addEventListener("click",()=>{
+const sidebar=document.querySelector(".sidebar");
+
+if(sidebar.style.display==="flex"){
+sidebar.style.display="";
+return;
+}
+
+sidebar.style.display="flex";
+});
+
+document.getElementById("sideUsername").textContent=currentUser;
+
+renderAll();
+
+/*
+RiseUp Friends UI
+The following data helpers intentionally keep the page local-first.
+No external account service is required for this prototype.
+*/
+
+window.RiseUpFriends={
+getFriends:()=>[...friends],
+getRequests:()=>[...requests],
+addFriend:username=>{
+const clean=String(username||"").trim();
+
+if(!clean)return false;
+
+if(friends.some(
+friend=>friend.username.toLowerCase()===clean.toLowerCase()
+))return false;
+
+friends.push({
+id:"friend_"+Date.now(),
+username:clean,
+status:"offline",
+activity:"Offline",
+lastSeen:"Just added",
+favorite:false
+});
+
+saveFriends();
+renderAll();
+
+return true;
+},
+removeFriend:id=>{
+const index=friends.findIndex(friend=>friend.id===id);
+
+if(index===-1)return false;
+
+friends.splice(index,1);
+saveFriends();
+renderAll();
+
+return true;
+},
+setStatus:(id,status,activity)=>{
+const friend=friends.find(item=>item.id===id);
+
+if(!friend)return false;
+
+friend.status=status;
+friend.activity=activity||status;
+friend.lastSeen=status==="online"?"Online now":"Recently";
+
+saveFriends();
+renderAll();
+
+return true;
+}
+};
+</script>
+</body>
+</html>

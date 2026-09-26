@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory — RiseUp</title>
+
+<style>
+:root{
+    --bg:#080b10;
+    --sidebar:#090d12;
+    --panel:#0d131c;
+    --border:#1b2735;
+    --text:#eef4fc;
+    --muted:#8995a7;
+    --blue:#55a7ff;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+body{
+    display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:300px;
+    padding:28px 16px;
+    background:var(--sidebar);
+    border-right:1px solid #17202b;
+}
+
+.logo{
+    padding:0 14px 28px;
+    font-size:22px;
+    font-weight:800;
+}
+
+.logo span{
+    color:var(--blue);
+}
+
+.section-title{
+    margin:0 14px 10px;
+    color:#687487;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.5px;
+}
+
+.navigation{
+    display:grid;
+    gap:4px;
+    margin-bottom:30px;
+}
+
+.navigation button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#9ba6b6;
+    border-radius:11px;
+    padding:14px 18px;
+    font-size:18px;
+    text-align:left;
+    cursor:pointer;
+}
+
+.navigation button:hover{
+    background:#101924;
+    color:white;
+}
+
+.navigation button.active{
+    background:#131f2d;
+    color:white;
+    box-shadow:inset 2px 0 var(--blue);
+}
+
+.nav-icon{
+    display:inline-flex;
+    width:30px;
+    color:#8998aa;
+}
+
+.navigation button.active .nav-icon{
+    color:var(--blue);
+}
+
+.sidebar-footer{
+    position:absolute;
+    left:30px;
+    bottom:26px;
+    color:#667184;
+    font-size:12px;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:300px;
+    width:calc(100% - 300px);
+    padding:34px 42px 60px;
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+}
+
+.title{
+    font-size:32px;
+    font-weight:760;
+    letter-spacing:-1px;
+}
+
+.balance{
+    padding:10px 15px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:#0d151f;
+    color:#6db7ff;
+    font-size:13px;
+    font-weight:700;
+}
+
+/* TABS */
+
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:23px;
+    flex-wrap:wrap;
+}
+
+.tab{
+    border:1px solid var(--border);
+    background:#0d131c;
+    color:#929eaf;
+    border-radius:8px;
+    padding:9px 16px;
+    cursor:pointer;
+}
+
+.tab:hover{
+    color:white;
+}
+
+.tab.active{
+    background:#172e46;
+    border-color:#2c6798;
+    color:#72baff;
+}
+
+/* ITEMS */
+
+.items{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:16px;
+}
+
+.item{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    transition:.18s ease;
+}
+
+.item:hover{
+    transform:translateY(-2px);
+    border-color:#30465c;
+}
+
+.item-preview{
+    height:175px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            #203348,
+            #0c1219 70%
+        );
+}
+
+/* SMALL CARTOONY AVATAR PREVIEW */
+
+.mini-avatar{
+    position:relative;
+    width:90px;
+    height:135px;
+    filter:drop-shadow(0 12px 12px #0008);
+}
+
+.mini-head{
+    position:absolute;
+    left:20px;
+    top:0;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#f6f6f6,#b9bec2);
+}
+
+.mini-body{
+    position:absolute;
+    left:25px;
+    top:44px;
+    width:40px;
+    height:48px;
+    border-radius:18px;
+    background:linear-gradient(145deg,#e9ebec,#b7bdc1);
+}
+
+.mini-arm{
+    position:absolute;
+    top:49px;
+    width:14px;
+    height:48px;
+    border-radius:10px;
+    background:linear-gradient(145deg,#e8eaeb,#b5bbc0);
+}
+
+.mini-arm.left{
+    left:12px;
+    transform:rotate(8deg);
+}
+
+.mini-arm.right{
+    right:12px;
+    transform:rotate(-8deg);
+}
+
+.mini-leg{
+    position:absolute;
+    top:86px;
+    width:17px;
+    height:45px;
+    border-radius:10px;
+    background:linear-gradient(145deg,#e8eaeb,#b3b9be);
+}
+
+.mini-leg.left{
+    left:25px;
+}
+
+.mini-leg.right{
+    right:25px;
+}
+
+.item-info{
+    padding:14px;
+}
+
+.item-name{
+    font-size:14px;
+    font-weight:700;
+}
+
+.item-type{
+    margin-top:5px;
+    color:#6f7d91;
+    font-size:12px;
+}
+
+.item-status{
+    margin-top:11px;
+    color:#63b3ff;
+    font-size:11px;
+}
+
+/* EMPTY */
+
+.empty{
+    color:#748095;
+    padding:45px 0;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+    .items{
+        grid-template-columns:repeat(4,minmax(0,1fr));
+    }
+}
+
+@media(max-width:900px){
+    .items{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+}
+
+@media(max-width:850px){
+
+    .sidebar{
+        width:78px;
+        padding:20px 8px;
+    }
+
+    .logo{
+        font-size:0;
+        text-align:center;
+    }
+
+    .logo span{
+        font-size:20px;
+    }
+
+    .section-title,
+    .sidebar-footer{
+        display:none;
+    }
+
+    .navigation button{
+        text-align:center;
+        font-size:0;
+        padding:15px 5px;
+    }
+
+    .nav-icon{
+        width:auto;
+        font-size:20px;
+    }
+
+    .main{
+        margin-left:78px;
+        width:calc(100% - 78px);
+        padding:25px;
+    }
+}
+
+@media(max-width:600px){
+    .items{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .header{
+        align-items:flex-start;
+        gap:15px;
+        flex-direction:column;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<aside class="sidebar">
+
+```
+<div class="logo">Rise<span>Up</span></div>
+
+<div class="section-title">NAVIGATION</div>
+
+<nav class="navigation">
+
+    <button onclick="navigate('home.html')">
+        <span class="nav-icon">⌂</span>Home
+    </button>
+
+    <button onclick="navigate('discover.html')">
+        <span class="nav-icon">◇</span>Discover
+    </button>
+
+    <button onclick="navigate('Avatar.html')">
+        <span class="nav-icon">◉</span>Avatar
+    </button>
+
+    <button class="active">
+        <span class="nav-icon">□</span>Inventory
+    </button>
+
+    <button onclick="navigate('Friends.html')">
+        <span class="nav-icon">♧</span>Friends
+    </button>
+
+    <button onclick="navigate('Marketplace.html')">
+        <span class="nav-icon">◇</span>Marketplace
+    </button>
+
+    <button onclick="navigate('Messages.html')">
+        <span class="nav-icon">▱</span>Messages
+    </button>
+
+</nav>
+
+<div class="section-title">CREATOR</div>
+
+<nav class="navigation">
+
+    <button onclick="navigate('studio.html')">
+        <span class="nav-icon">✦</span>Studio
+    </button>
+
+    <button onclick="navigate('code.html')">
+        <span class="nav-icon">&lt;/&gt;</span>RiseCode
+    </button>
+
+</nav>
+
+<div class="section-title">OTHER</div>
+
+<nav class="navigation">
+
+    <button onclick="navigate('setting.html')">
+        <span class="nav-icon">⚙</span>Settings
+    </button>
+
+</nav>
+
+<div class="sidebar-footer">
+    RiseUp Preview
+</div>
+```
+
+</aside>
+
+<main class="main">
+
+```
+<header class="header">
+
+    <div class="title">
+        Inventory
+    </div>
+
+    <div class="balance">
+        TOK <span id="tok">0</span>
+    </div>
+
+</header>
+
+<div class="tabs">
+
+    <button class="tab active" data-type="all">
+        All Items
+    </button>
+
+    <button class="tab" data-type="avatar">
+        Avatar
+    </button>
+
+    <button class="tab" data-type="gear">
+        Gear
+    </button>
+
+    <button class="tab" data-type="effects">
+        Effects
+    </button>
+
+</div>
+
+<section class="items" id="items"></section>
+```
+
+</main>
+
+<script>
+const inventoryItems=[
+    {
+        name:"Classic Avatar",
+        type:"avatar",
+        status:"Owned"
+    },
+    {
+        name:"Smooth Head",
+        type:"avatar",
+        status:"Owned"
+    },
+    {
+        name:"Rise Jacket",
+        type:"avatar",
+        status:"Owned"
+    },
+    {
+        name:"Explorer Pack",
+        type:"gear",
+        status:"Owned"
+    },
+    {
+        name:"Creator Tool",
+        type:"gear",
+        status:"Owned"
+    },
+    {
+        name:"Blue Trail",
+        type:"effects",
+        status:"Owned"
+    },
+    {
+        name:"Rise Glow",
+        type:"effects",
+        status:"Owned"
+    },
+    {
+        name:"Builder Badge",
+        type:"gear",
+        status:"Owned"
+    }
+];
+
+const itemsElement=document.getElementById("items");
+
+let currentType="all";
+
+function avatarPreview(){
+
+    return `
+        <div class="mini-avatar">
+
+            <div class="mini-head"></div>
+
+            <div class="mini-body"></div>
+
+            <div class="mini-arm left"></div>
+
+            <div class="mini-arm right"></div>
+
+            <div class="mini-leg left"></div>
+
+            <div class="mini-leg right"></div>
+
+        </div>
+    `;
+}
+
+function symbolFor(type){
+
+    if(type==="gear") return "◆";
+
+    if(type==="effects") return "✦";
+
+    return avatarPreview();
+}
+
+function renderItems(){
+
+    const filtered=inventoryItems.filter(item=>
+        currentType==="all" ||
+        item.type===currentType
+    );
+
+    if(!filtered.length){
+
+        itemsElement.innerHTML=
+            '<div class="empty">No items in this category.</div>';
+
+        return;
+    }
+
+    itemsElement.innerHTML=filtered.map(item=>`
+
+        <article class="item">
+
+            <div class="item-preview">
+                ${symbolFor(item.type)}
+            </div>
+
+            <div class="item-info">
+
+                <div class="item-name">
+                    ${item.name}
+                </div>
+
+                <div class="item-type">
+                    ${item.type}
+                </div>
+
+                <div class="item-status">
+                    ${item.status}
+                </div>
+
+            </div>
+
+        </article>
+
+    `).join("");
+}
+
+document.querySelectorAll(".tab").forEach(tab=>{
+
+    tab.addEventListener("click",()=>{
+
+        document
+            .querySelectorAll(".tab")
+            .forEach(button=>{
+                button.classList.remove("active");
+            });
+
+        tab.classList.add("active");
+
+        currentType=tab.dataset.type;
+
+        renderItems();
+    });
+
+});
+
+document.getElementById("tok").textContent=
+    localStorage.getItem("riseup_tok")||"0";
+
+function navigate(page){
+    location.href=page;
+}
+
+renderItems();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RiseUp — Settings</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1018'/%3E%3Cpath d='M17 45V19h8l14 15V19h8v26h-8L25 30v15z' fill='%2355a7ff'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070a0f;
+  --panel:#0d121a;
+  --panel2:#111822;
+  --panel3:#151d28;
+  --line:#202a37;
+  --line2:#2b3747;
+  --text:#f4f7fb;
+  --muted:#8c98a8;
+  --blue:#55a7ff;
+  --blue2:#2f80ff;
+  --lime:#b8ff3d;
+  --danger:#ff5964;
+  --shadow:0 18px 60px rgba(0,0,0,.35);
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+button,input,select{font:inherit}
+button{border:0}
+a{text-decoration:none;color:inherit}
+.app{min-height:100vh;display:flex}
+.sidebar{
+  width:250px;
+  position:fixed;
+  inset:0 auto 0 0;
+  background:#090d13;
+  border-right:1px solid var(--line);
+  padding:20px 14px;
+  display:flex;
+  flex-direction:column;
+  z-index:20;
+}
+.brand{
+  height:54px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:0 10px;
+  margin-bottom:20px;
+}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  display:grid;place-items:center;
+  background:#101923;
+  border:1px solid #263646;
+  color:var(--blue);
+  font-size:17px;
+  font-weight:900;
+}
+.brand-name{font-weight:900;letter-spacing:.3px;font-size:19px}
+.brand-name span{color:var(--blue)}
+.nav-title{
+  color:#596575;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.5px;
+  padding:0 12px 9px;
+  text-transform:uppercase;
+}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{
+  height:44px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 12px;
+  color:#8995a5;
+  font-size:14px;
+  font-weight:650;
+  transition:.16s ease;
+}
+.nav a:hover{background:#111821;color:#eaf0f7}
+.nav a.active{
+  background:linear-gradient(90deg,rgba(85,167,255,.16),rgba(85,167,255,.05));
+  color:#fff;
+  box-shadow:inset 3px 0 var(--blue);
+}
+.nav-icon{
+  width:19px;
+  text-align:center;
+  color:currentColor;
+  font-size:13px;
+  font-weight:900;
+}
+.sidebar-bottom{margin-top:auto}
+.user-mini{
+  border:1px solid var(--line);
+  background:#0d131b;
+  border-radius:11px;
+  padding:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.user-avatar{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(145deg,#dce5ee,#8d9aa8);
+  position:relative;
+  overflow:hidden;
+}
+.user-avatar:before{
+  content:"";
+  width:20px;height:20px;
+  border-radius:50%;
+  background:#f5f7f8;
+  position:absolute;
+  left:7px;top:4px;
+}
+.user-avatar:after{
+  content:"";
+  width:27px;height:18px;
+  border-radius:16px 16px 4px 4px;
+  background:#b8ff3d;
+  position:absolute;
+  left:3px;bottom:-3px;
+}
+.user-copy{min-width:0}
+.user-name{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-status{font-size:10px;color:#687586;margin-top:2px}
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+  min-height:100vh;
+}
+.topbar{
+  height:72px;
+  border-bottom:1px solid var(--line);
+  background:rgba(7,10,15,.88);
+  backdrop-filter:blur(18px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  position:sticky;
+  top:0;
+  z-index:15;
+}
+.page-title{font-size:21px;font-weight:850;letter-spacing:-.3px}
+.page-subtitle{font-size:11px;color:#697687;margin-top:3px}
+.top-actions{display:flex;gap:8px}
+.top-btn{
+  height:38px;
+  padding:0 13px;
+  border-radius:8px;
+  border:1px solid var(--line2);
+  color:#b8c2cf;
+  background:#0d131b;
+  cursor:pointer;
+}
+.top-btn:hover{background:#151e29;color:#fff}
+.content{
+  max-width:1100px;
+  margin:0 auto;
+  padding:30px;
+}
+.settings-layout{
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
+  gap:22px;
+}
+.settings-nav{
+  position:sticky;
+  top:100px;
+  align-self:start;
+  background:#0b1017;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px;
+}
+.settings-nav button{
+  width:100%;
+  min-height:40px;
+  border-radius:8px;
+  background:transparent;
+  color:#7f8b9a;
+  text-align:left;
+  padding:0 11px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:700;
+}
+.settings-nav button:hover{background:#121a24;color:#eaf0f7}
+.settings-nav button.active{
+  background:#152131;
+  color:#fff;
+  box-shadow:inset 2px 0 var(--blue);
+}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+  margin-bottom:18px;
+}
+.panel-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+}
+.panel-title{font-size:15px;font-weight:850}
+.panel-description{font-size:11px;color:#778495;margin-top:5px;line-height:1.55}
+.panel-body{padding:20px}
+.section{display:none}
+.section.active{display:block}
+.field{
+  padding:15px 0;
+  border-bottom:1px solid #19212c;
+}
+.field:first-child{padding-top:0}
+.field:last-child{border-bottom:0;padding-bottom:0}
+.field-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.field-info{min-width:0}
+.field-name{font-size:13px;font-weight:750}
+.field-help{font-size:11px;color:#738091;line-height:1.5;margin-top:4px;max-width:620px}
+.input,.select{
+  width:270px;
+  height:40px;
+  border:1px solid var(--line2);
+  border-radius:8px;
+  outline:none;
+  background:#0a0f16;
+  color:#e9eef5;
+  padding:0 12px;
+}
+.input:focus,.select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(85,167,255,.08)}
+.avatar-preview{
+  width:86px;height:86px;border-radius:13px;
+  background:linear-gradient(145deg,#111a23,#080c12);
+  border:1px solid #273544;
+  position:relative;
+  overflow:hidden;
+}
+.avatar-preview:before{
+  content:"";
+  position:absolute;
+  width:46px;height:46px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#fff,#cbd5df);
+  left:20px;top:9px;
+  box-shadow:0 0 16px rgba(184,255,61,.1);
+}
+.avatar-preview:after{
+  content:"";
+  position:absolute;
+  width:58px;height:43px;
+  border-radius:31px 31px 10px 10px;
+  left:14px;bottom:-9px;
+  background:linear-gradient(120deg,#fff 20%,#b8ff3d 48%,#e8eef4 70%);
+}
+.toggle{
+  width:48px;height:27px;
+  border-radius:99px;
+  background:#202a36;
+  border:1px solid #344151;
+  padding:2px;
+  cursor:pointer;
+  position:relative;
+  flex:none;
+}
+.toggle:before{
+  content:"";
+  position:absolute;
+  width:21px;height:21px;
+  border-radius:50%;
+  background:#8995a3;
+  top:2px;left:2px;
+  transition:.18s ease;
+}
+.toggle.on{
+  background:rgba(85,167,255,.25);
+  border-color:rgba(85,167,255,.55);
+}
+.toggle.on:before{
+  left:23px;
+  background:var(--blue);
+}
+.choice-group{display:flex;gap:7px;flex-wrap:wrap}
+.choice{
+  min-width:88px;
+  height:37px;
+  padding:0 12px;
+  border:1px solid var(--line2);
+  background:#0a0f16;
+  color:#7f8b9a;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:750;
+}
+.choice:hover{color:#fff;background:#121923}
+.choice.active{border-color:rgba(85,167,255,.7);background:rgba(85,167,255,.1);color:#fff}
+.save-bar{
+  position:sticky;
+  bottom:15px;
+  background:rgba(9,13,19,.9);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--line2);
+  box-shadow:var(--shadow);
+  border-radius:11px;
+  padding:11px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.save-status{font-size:11px;color:#7f8b9a}
+.primary{
+  height:38px;
+  padding:0 17px;
+  border-radius:8px;
+  background:var(--blue);
+  color:#06101b;
+  font-weight:850;
+  cursor:pointer;
+}
+.primary:hover{filter:brightness(1.08)}
+.secondary{
+  height:38px;
+  padding:0 15px;
+  border-radius:8px;
+  background:#131b25;
+  color:#c4ccd7;
+  border:1px solid var(--line2);
+  font-weight:750;
+  cursor:pointer;
+}
+.secondary:hover{background:#19232f;color:#fff}
+.danger{
+  height:38px;
+  padding:0 15px;
+  border-radius:8px;
+  background:rgba(255,89,100,.08);
+  color:#ff7c84;
+  border:1px solid rgba(255,89,100,.28);
+  font-weight:750;
+  cursor:pointer;
+}
+.danger:hover{background:rgba(255,89,100,.14)}
+.notice{
+  display:none;
+  padding:11px 13px;
+  margin-bottom:15px;
+  border-radius:8px;
+  border:1px solid rgba(85,167,255,.25);
+  background:rgba(85,167,255,.07);
+  color:#a9cdf5;
+  font-size:11px;
+}
+.notice.show{display:block}
+.account-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#0a0f16;
+  margin-bottom:18px;
+}
+.big-avatar{
+  width:64px;height:64px;border-radius:12px;
+  background:#121b24;
+  position:relative;
+  overflow:hidden;
+}
+.big-avatar:before{
+  content:"";
+  position:absolute;
+  width:36px;height:36px;border-radius:50%;
+  background:#eef2f5;
+  left:14px;top:6px;
+}
+.big-avatar:after{
+  content:"";
+  position:absolute;
+  width:48px;height:38px;
+  border-radius:25px 25px 6px 6px;
+  background:linear-gradient(120deg,#fff,#b8ff3d,#f4f7fa);
+  left:8px;bottom:-5px;
+}
+.account-name{font-weight:850;font-size:15px}
+.account-meta{font-size:11px;color:#778495;margin-top:4px}
+.empty{
+  text-align:center;
+  padding:30px 15px;
+  color:#718092;
+  font-size:12px;
+}
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  background:#111a24;
+  border:1px solid #304052;
+  color:#edf3f8;
+  border-radius:9px;
+  padding:11px 15px;
+  font-size:11px;
+  font-weight:700;
+  z-index:100;
+  transition:.2s ease;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:900px){
+  .sidebar{width:70px;padding:16px 9px}
+  .brand{padding:0;justify-content:center}
+  .brand-name,.nav-title,.nav a span:not(.nav-icon),.user-copy{display:none}
+  .nav a{justify-content:center;padding:0}
+  .user-mini{justify-content:center;padding:8px}
+  .main{margin-left:70px;width:calc(100% - 70px)}
+  .settings-layout{grid-template-columns:1fr}
+  .settings-nav{position:static;display:flex;overflow:auto;gap:5px}
+  .settings-nav button{width:auto;white-space:nowrap}
+}
+@media(max-width:650px){
+  .topbar{padding:0 15px;height:64px}
+  .content{padding:18px 14px}
+  .top-actions{display:none}
+  .field-row{align-items:flex-start;flex-direction:column}
+  .input,.select{width:100%}
+  .choice-group{width:100%}
+  .choice{flex:1}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">&lt;/&gt;</div>
+    <div class="brand-name">Rise<span>Up</span></div>
+  </div>
+
+  <div class="nav-title">Platform</div>
+  <nav class="nav">
+    <a href="home.html"><span class="nav-icon">H</span><span>Home</span></a>
+    <a href="discover.html"><span class="nav-icon">D</span><span>Discover</span></a>
+    <a href="avatar.html"><span class="nav-icon">A</span><span>Avatar</span></a>
+    <a href="inventory.html"><span class="nav-icon">I</span><span>Inventory</span></a>
+    <a href="friends.html"><span class="nav-icon">F</span><span>Friends</span></a>
+    <a href="marketplace.html"><span class="nav-icon">M</span><span>Marketplace</span></a>
+    <a href="messages.html"><span class="nav-icon">C</span><span>Messages</span></a>
+  </nav>
+
+  <div class="nav-title" style="margin-top:18px">Create</div>
+  <nav class="nav">
+    <a href="studio.html"><span class="nav-icon">S</span><span>Studio</span></a>
+    <a href="code.html"><span class="nav-icon">&lt;/&gt;</span><span>RiseCode</span></a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="nav" style="margin-bottom:10px">
+      <a class="active" href="setting.html"><span class="nav-icon">G</span><span>Settings</span></a>
+    </div>
+    <div class="user-mini">
+      <div class="user-avatar"></div>
+      <div class="user-copy">
+        <div class="user-name" id="sideUsername">Player</div>
+        <div class="user-status">RiseUp account</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <div class="page-title">Settings</div>
+      <div class="page-subtitle">Control your RiseUp experience</div>
+    </div>
+    <div class="top-actions">
+      <button class="top-btn" id="resetSettings">Reset</button>
+      <button class="top-btn" id="saveTop">Save Changes</button>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="settings-layout">
+
+      <aside class="settings-nav">
+        <button class="active" data-section="account">Account</button>
+        <button data-section="appearance">Appearance</button>
+        <button data-section="gameplay">Gameplay</button>
+        <button data-section="privacy">Privacy</button>
+        <button data-section="notifications">Notifications</button>
+        <button data-section="accessibility">Accessibility</button>
+        <button data-section="advanced">Advanced</button>
+      </aside>
+
+      <section>
+
+        <div id="notice" class="notice"></div>
+
+        <div class="section active" id="section-account">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Account</div>
+              <div class="panel-description">Manage the profile information connected to this RiseUp browser account.</div>
+            </div>
+            <div class="panel-body">
+              <div class="account-card">
+                <div class="big-avatar"></div>
+                <div>
+                  <div class="account-name" id="accountUsername">Player</div>
+                  <div class="account-meta">Local RiseUp profile</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Display name</div>
+                    <div class="field-help">The name other players see around RiseUp.</div>
+                  </div>
+                  <input class="input" id="displayName" maxlength="24" placeholder="Display name">
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Username</div>
+                    <div class="field-help">Your current RiseUp username.</div>
+                  </div>
+                  <input class="input" id="username" maxlength="24" disabled>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Language</div>
+                    <div class="field-help">Choose the language used by RiseUp interface text.</div>
+                  </div>
+                  <select class="select" id="language">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-appearance">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Appearance</div>
+              <div class="panel-description">Customize how RiseUp looks on this device.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Theme</div>
+                    <div class="field-help">Select the interface theme.</div>
+                  </div>
+                  <div class="choice-group">
+                    <button class="choice active" data-choice="theme" data-value="dark">Dark</button>
+                    <button class="choice" data-choice="theme" data-value="system">System</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Compact navigation</div>
+                    <div class="field-help">Use a smaller navigation layout when supported.</div>
+                  </div>
+                  <button class="toggle" data-setting="compactNav" aria-label="Toggle compact navigation"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Animations</div>
+                    <div class="field-help">Enable interface transitions and motion effects.</div>
+                  </div>
+                  <button class="toggle on" data-setting="animations" aria-label="Toggle animations"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Accent</div>
+                    <div class="field-help">Choose the primary highlight color.</div>
+                  </div>
+                  <div class="choice-group">
+                    <button class="choice active" data-choice="accent" data-value="blue">Blue</button>
+                    <button class="choice" data-choice="accent" data-value="lime">Lime</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-gameplay">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Gameplay</div>
+              <div class="panel-description">Configure controls and default game behavior.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Control mode</div>
+                    <div class="field-help">Choose the default control layout for supported games.</div>
+                  </div>
+                  <div class="choice-group">
+                    <button class="choice active" data-choice="controls" data-value="keyboard">Keyboard</button>
+                    <button class="choice" data-choice="controls" data-value="touch">Touch</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Fly mode preference</div>
+                    <div class="field-help">Remember fly mode preference in Game Engine X compatible projects.</div>
+                  </div>
+                  <button class="toggle" data-setting="flyMode" aria-label="Toggle fly mode preference"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Show performance data</div>
+                    <div class="field-help">Display FPS and basic performance information when supported.</div>
+                  </div>
+                  <button class="toggle" data-setting="performance" aria-label="Toggle performance data"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Camera sensitivity</div>
+                    <div class="field-help">Default camera movement sensitivity.</div>
+                  </div>
+                  <input class="input" id="cameraSensitivity" type="number" min="1" max="200" value="100">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-privacy">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Privacy</div>
+              <div class="panel-description">Choose how other RiseUp players can interact with your profile.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Allow friend requests</div>
+                    <div class="field-help">Allow other players to send you friend requests.</div>
+                  </div>
+                  <button class="toggle on" data-setting="friendRequests" aria-label="Toggle friend requests"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Show online status</div>
+                    <div class="field-help">Let friends see when your RiseUp account is active.</div>
+                  </div>
+                  <button class="toggle on" data-setting="onlineStatus" aria-label="Toggle online status"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Allow messages from</div>
+                    <div class="field-help">Choose which users can start a conversation with you.</div>
+                  </div>
+                  <select class="select" id="messagePrivacy">
+                    <option value="everyone">Everyone</option>
+                    <option value="friends">Friends only</option>
+                    <option value="nobody">Nobody</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-notifications">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Notifications</div>
+              <div class="panel-description">Control alerts shown by RiseUp.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Friend activity</div>
+                    <div class="field-help">Notify when friends join supported games or interact with you.</div>
+                  </div>
+                  <button class="toggle on" data-setting="friendNotifications" aria-label="Toggle friend notifications"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Messages</div>
+                    <div class="field-help">Notify when a new RiseUp message arrives.</div>
+                  </div>
+                  <button class="toggle on" data-setting="messageNotifications" aria-label="Toggle message notifications"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Marketplace activity</div>
+                    <div class="field-help">Notify about supported marketplace events.</div>
+                  </div>
+                  <button class="toggle on" data-setting="marketplaceNotifications" aria-label="Toggle marketplace notifications"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Studio updates</div>
+                    <div class="field-help">Show notifications related to your projects and publishing.</div>
+                  </div>
+                  <button class="toggle on" data-setting="studioNotifications" aria-label="Toggle studio notifications"></button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-accessibility">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Accessibility</div>
+              <div class="panel-description">Make RiseUp easier to navigate and use.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Reduced motion</div>
+                    <div class="field-help">Reduce interface animations and transitions.</div>
+                  </div>
+                  <button class="toggle" data-setting="reducedMotion" aria-label="Toggle reduced motion"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Large interface text</div>
+                    <div class="field-help">Increase text sizing across supported RiseUp pages.</div>
+                  </div>
+                  <button class="toggle" data-setting="largeText" aria-label="Toggle large interface text"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">High contrast</div>
+                    <div class="field-help">Increase contrast between interface surfaces and text.</div>
+                  </div>
+                  <button class="toggle" data-setting="highContrast" aria-label="Toggle high contrast"></button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-advanced">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Advanced</div>
+              <div class="panel-description">Local browser data and advanced RiseUp preferences.</div>
+            </div>
+            <div class="panel-body">
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Remember last page</div>
+                    <div class="field-help">Return to the last RiseUp page you opened.</div>
+                  </div>
+                  <button class="toggle on" data-setting="rememberPage" aria-label="Toggle remember last page"></button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Local data</div>
+                    <div class="field-help">RiseUp stores settings, games, friends and other browser data locally for this prototype.</div>
+                  </div>
+                  <button class="secondary" id="exportData">Export Settings</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-row">
+                  <div class="field-info">
+                    <div class="field-name">Clear saved settings</div>
+                    <div class="field-help">Remove RiseUp settings saved by this page and restore the defaults.</div>
+                  </div>
+                  <button class="danger" id="clearSettings">Clear Settings</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <div class="save-status" id="saveStatus">All changes saved locally.</div>
+          <div style="display:flex;gap:8px">
+            <button class="secondary" id="cancelChanges">Cancel</button>
+            <button class="primary" id="saveChanges">Save Changes</button>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+</main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+
+const SETTINGS_KEY = "riseup_settings";
+const USER_KEY = "riseup_currentUser";
+
+const defaults = {
+  displayName:"",
+  language:"en",
+  theme:"dark",
+  accent:"blue",
+  compactNav:false,
+  animations:true,
+  controls:"keyboard",
+  flyMode:false,
+  performance:false,
+  cameraSensitivity:100,
+  friendRequests:true,
+  onlineStatus:true,
+  messagePrivacy:"everyone",
+  friendNotifications:true,
+  messageNotifications:true,
+  marketplaceNotifications:true,
+  studioNotifications:true,
+  reducedMotion:false,
+  largeText:false,
+  highContrast:false,
+  rememberPage:true
+};
+
+let settings = {};
+let savedSnapshot = {};
+
+function getUsername(){
+  return localStorage.getItem(USER_KEY) || "Player";
+}
+
+function getSettings(){
+  try{
+    const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+    return Object.assign({}, defaults, stored);
+  }catch{
+    return Object.assign({}, defaults);
+  }
+}
+
+function clone(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function saveSettings(){
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  savedSnapshot = clone(settings);
+  setStatus("All changes saved locally.");
+}
+
+function setStatus(text){
+  document.getElementById("saveStatus").textContent = text;
+}
+
+function toast(text){
+  const el = document.getElementById("toast");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(window.__riseToast);
+  window.__riseToast = setTimeout(()=>el.classList.remove("show"),2200);
+}
+
+function renderAccount(){
+  const username = getUsername();
+
+  document.getElementById("sideUsername").textContent = username;
+  document.getElementById("accountUsername").textContent = username;
+  document.getElementById("username").value = username;
+
+  document.getElementById("displayName").value =
+    settings.displayName || username;
+}
+
+function renderToggles(){
+  document.querySelectorAll(".toggle[data-setting]").forEach(button=>{
+    const key = button.dataset.setting;
+    button.classList.toggle("on", Boolean(settings[key]));
+    button.setAttribute("aria-pressed", Boolean(settings[key]));
+  });
+}
+
+function renderChoices(){
+  document.querySelectorAll(".choice[data-choice]").forEach(button=>{
+    const key = button.dataset.choice;
+    button.classList.toggle(
+      "active",
+      settings[key] === button.dataset.value
+    );
+  });
+}
+
+function renderInputs(){
+  document.getElementById("language").value = settings.language;
+  document.getElementById("cameraSensitivity").value = settings.cameraSensitivity;
+  document.getElementById("messagePrivacy").value = settings.messagePrivacy;
+}
+
+function renderAll(){
+  renderAccount();
+  renderToggles();
+  renderChoices();
+  renderInputs();
+
+  document.documentElement.dataset.theme = settings.theme;
+  document.documentElement.dataset.accent = settings.accent;
+
+  document.body.classList.toggle("large-text", settings.largeText);
+  document.body.classList.toggle("high-contrast", settings.highContrast);
+
+  if(settings.reducedMotion){
+    document.documentElement.style.setProperty(
+      "--motion-duration",
+      "0s"
+    );
+  }else{
+    document.documentElement.style.removeProperty("--motion-duration");
+  }
+}
+
+function showSection(name){
+  document.querySelectorAll(".section").forEach(section=>{
+    section.classList.toggle(
+      "active",
+      section.id === "section-" + name
+    );
+  });
+
+  document.querySelectorAll(".settings-nav button").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      button.dataset.section === name
+    );
+  });
+
+  localStorage.setItem("riseup_settings_last_section",name);
+}
+
+document.querySelectorAll(".settings-nav button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    showSection(button.dataset.section);
+  });
+});
+
+document.querySelectorAll(".toggle[data-setting]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    const key = button.dataset.setting;
+    settings[key] = !Boolean(settings[key]);
+    renderToggles();
+    setStatus("Unsaved changes");
+  });
+});
+
+document.querySelectorAll(".choice[data-choice]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    settings[button.dataset.choice] = button.dataset.value;
+    renderChoices();
+    setStatus("Unsaved changes");
+  });
+});
+
+document.getElementById("displayName").addEventListener("input",e=>{
+  settings.displayName = e.target.value;
+  setStatus("Unsaved changes");
+});
+
+document.getElementById("language").addEventListener("change",e=>{
+  settings.language = e.target.value;
+  setStatus("Unsaved changes");
+});
+
+document.getElementById("cameraSensitivity").addEventListener("input",e=>{
+  let value = Number(e.target.value);
+  if(!Number.isFinite(value)) value = 100;
+  settings.cameraSensitivity = Math.max(1,Math.min(200,value));
+  setStatus("Unsaved changes");
+});
+
+document.getElementById("messagePrivacy").addEventListener("change",e=>{
+  settings.messagePrivacy = e.target.value;
+  setStatus("Unsaved changes");
+});
+
+document.getElementById("saveChanges").addEventListener("click",()=>{
+  saveSettings();
+  renderAll();
+  toast("Settings saved");
+});
+
+document.getElementById("saveTop").addEventListener("click",()=>{
+  saveSettings();
+  renderAll();
+  toast("Settings saved");
+});
+
+document.getElementById("cancelChanges").addEventListener("click",()=>{
+  settings = clone(savedSnapshot);
+  renderAll();
+  setStatus("Changes cancelled");
+  toast("Changes cancelled");
+});
+
+document.getElementById("resetSettings").addEventListener("click",()=>{
+  settings = clone(defaults);
+  renderAll();
+  setStatus("Defaults loaded. Save to keep them.");
+  toast("Default settings loaded");
+});
+
+document.getElementById("clearSettings").addEventListener("click",()=>{
+  const confirmed = confirm(
+    "Clear your saved RiseUp settings and restore the defaults?"
+  );
+
+  if(!confirmed) return;
+
+  localStorage.removeItem(SETTINGS_KEY);
+  settings = clone(defaults);
+  savedSnapshot = clone(settings);
+
+  renderAll();
+  setStatus("Settings reset to defaults");
+  toast("Settings cleared");
+});
+
+document.getElementById("exportData").addEventListener("click",()=>{
+  const data = JSON.stringify(settings,null,2);
+  const blob = new Blob([data],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "riseup-settings.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+  toast("Settings exported");
+});
+
+window.RiseUpSettings = {
+  get(){
+    return clone(settings);
+  },
+  save(){
+    saveSettings();
+  },
+  reset(){
+    settings = clone(defaults);
+    renderAll();
+    saveSettings();
+  },
+  set(key,value){
+    if(!(key in defaults)) return false;
+    settings[key] = value;
+    renderAll();
+    return true;
+  }
+};
+
+settings = getSettings();
+savedSnapshot = clone(settings);
+
+const lastSection = localStorage.getItem("riseup_settings_last_section");
+if(lastSection && document.getElementById("section-" + lastSection)){
+  showSection(lastSection);
+}
+
+renderAll();
+
+})();
+</script>
+</body>
+</html>

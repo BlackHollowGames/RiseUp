@@ -1,0 +1,2901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#080a0e">
+<title>RiseUp — Messages</title>
+<link rel="icon" href="favicon.svg">
+
+<style>
+:root{
+--bg:#080a0e;
+--panel:#0d1117;
+--panel2:#11161e;
+--panel3:#171d26;
+--border:#252c37;
+--border2:#343e4c;
+--text:#f5f7fa;
+--muted:#8994a4;
+--white:#fff;
+--lime:#b7ff00;
+--blue:#55a7ff;
+--red:#ff6877;
+--green:#72df69;
+--yellow:#ffd166;
+}
+
+*{
+box-sizing:border-box;
+}
+
+html,
+body{
+margin:0;
+min-height:100%;
+}
+
+body{
+background:
+radial-gradient(circle at 80% 0%,rgba(183,255,0,.035),transparent 25%),
+#080a0e;
+color:var(--text);
+font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+overflow:hidden;
+}
+
+button,
+input,
+textarea{
+font:inherit;
+}
+
+button{
+cursor:pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible{
+outline:2px solid var(--lime);
+outline-offset:2px;
+}
+
+a{
+color:inherit;
+text-decoration:none;
+}
+
+.app{
+height:100vh;
+display:grid;
+grid-template-columns:245px minmax(0,1fr);
+}
+
+.sidebar{
+position:fixed;
+top:0;
+bottom:0;
+left:0;
+width:245px;
+padding:20px 14px;
+display:flex;
+flex-direction:column;
+background:#0a0d12;
+border-right:1px solid var(--border);
+z-index:100;
+}
+
+.brand{
+height:58px;
+display:flex;
+align-items:center;
+padding:0 12px;
+margin-bottom:15px;
+}
+
+.brand-mark{
+width:36px;
+height:36px;
+display:grid;
+place-items:center;
+border:2px solid var(--blue);
+border-radius:10px;
+color:var(--blue);
+font-size:15px;
+font-weight:900;
+}
+
+.brand-name{
+margin-left:11px;
+font-size:20px;
+font-weight:900;
+letter-spacing:-.7px;
+}
+
+.brand-name span{
+color:var(--blue);
+}
+
+.nav-title{
+padding:12px;
+color:#596273;
+font-size:10px;
+font-weight:900;
+letter-spacing:1.4px;
+text-transform:uppercase;
+}
+
+.nav{
+display:flex;
+flex-direction:column;
+gap:4px;
+}
+
+.nav a{
+height:43px;
+padding:0 13px;
+display:flex;
+align-items:center;
+gap:13px;
+border-radius:10px;
+color:#aeb7c5;
+font-size:14px;
+font-weight:650;
+transition:.15s;
+}
+
+.nav a:hover{
+background:#121720;
+color:#fff;
+}
+
+.nav a.active{
+background:rgba(183,255,0,.08);
+color:#fff;
+box-shadow:inset 2px 0 var(--lime);
+}
+
+.nav .icon{
+width:19px;
+text-align:center;
+color:#7e8998;
+font-weight:900;
+}
+
+.nav a.active .icon{
+color:var(--lime);
+}
+
+.sidebar-bottom{
+margin-top:auto;
+padding-top:13px;
+border-top:1px solid var(--border);
+}
+
+.user-card{
+display:flex;
+align-items:center;
+padding:10px;
+border-radius:11px;
+}
+
+.user-card:hover{
+background:#11161e;
+}
+
+.user-avatar{
+width:36px;
+height:36px;
+position:relative;
+overflow:hidden;
+border-radius:50%;
+background:linear-gradient(145deg,#fff,#bfc4c9);
+}
+
+.user-avatar:before{
+content:"";
+position:absolute;
+width:22px;
+height:22px;
+left:7px;
+top:3px;
+border-radius:50%;
+background:#fff;
+}
+
+.user-avatar:after{
+content:"";
+position:absolute;
+left:2px;
+right:2px;
+bottom:-5px;
+height:24px;
+border-radius:18px 18px 0 0;
+background:#dfe3e7;
+}
+
+.user-info{
+min-width:0;
+margin-left:9px;
+}
+
+.user-info strong{
+display:block;
+font-size:12px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.user-info span{
+display:block;
+margin-top:3px;
+color:var(--lime);
+font-size:10px;
+}
+
+.main{
+grid-column:2;
+min-width:0;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+.topbar{
+height:72px;
+min-height:72px;
+display:flex;
+align-items:center;
+padding:0 30px;
+border-bottom:1px solid var(--border);
+background:rgba(8,10,14,.94);
+backdrop-filter:blur(18px);
+z-index:20;
+}
+
+.top-title{
+font-size:19px;
+font-weight:900;
+}
+
+.top-actions{
+margin-left:auto;
+display:flex;
+align-items:center;
+gap:9px;
+}
+
+.search{
+width:255px;
+height:40px;
+padding:0 13px;
+border:1px solid var(--border);
+border-radius:9px;
+background:#0e1218;
+color:#fff;
+outline:none;
+font-size:12px;
+}
+
+.search::placeholder{
+color:#657080;
+}
+
+.search:focus{
+border-color:var(--lime);
+box-shadow:0 0 0 3px rgba(183,255,0,.05);
+}
+
+.new-message{
+height:40px;
+padding:0 14px;
+border:0;
+border-radius:9px;
+background:var(--lime);
+color:#101500;
+font-size:11px;
+font-weight:900;
+}
+
+.new-message:hover{
+background:#c7ff35;
+}
+
+.mobile-menu{
+display:none;
+height:40px;
+padding:0 12px;
+border:1px solid var(--border);
+border-radius:8px;
+background:#11161e;
+color:#fff;
+}
+
+.messages-layout{
+height:calc(100vh - 72px);
+display:grid;
+grid-template-columns:310px minmax(0,1fr);
+min-height:0;
+}
+
+.conversation-panel{
+min-width:0;
+display:flex;
+flex-direction:column;
+border-right:1px solid var(--border);
+background:#0a0d12;
+}
+
+.conversation-header{
+height:65px;
+min-height:65px;
+padding:0 15px;
+display:flex;
+align-items:center;
+border-bottom:1px solid var(--border);
+}
+
+.conversation-header strong{
+font-size:13px;
+}
+
+.conversation-header span{
+margin-left:auto;
+padding:4px 7px;
+border-radius:5px;
+background:#151a22;
+color:#778291;
+font-size:9px;
+font-weight:900;
+}
+
+.conversation-search{
+padding:11px;
+border-bottom:1px solid var(--border);
+}
+
+.conversation-search input{
+width:100%;
+height:36px;
+padding:0 10px;
+border:1px solid var(--border);
+border-radius:8px;
+background:#11161e;
+color:#fff;
+outline:none;
+font-size:11px;
+}
+
+.conversation-search input:focus{
+border-color:var(--lime);
+}
+
+.conversations{
+flex:1;
+overflow-y:auto;
+padding:7px;
+}
+
+.conversation{
+width:100%;
+min-height:70px;
+display:flex;
+align-items:center;
+padding:9px;
+border:0;
+border-radius:10px;
+background:transparent;
+color:#fff;
+text-align:left;
+}
+
+.conversation:hover{
+background:#11161e;
+}
+
+.conversation.active{
+background:rgba(183,255,0,.065);
+}
+
+.conversation-avatar{
+width:43px;
+height:43px;
+min-width:43px;
+position:relative;
+display:grid;
+place-items:center;
+border-radius:12px;
+background:
+linear-gradient(145deg,#fff,#c6cbd0);
+color:#161a20;
+font-size:14px;
+font-weight:1000;
+}
+
+.conversation-avatar.lime{
+background:
+linear-gradient(145deg,#fff,#d8ff73);
+}
+
+.conversation-avatar.blue{
+background:
+linear-gradient(145deg,#fff,#73b8ff);
+}
+
+.conversation-avatar.purple{
+background:
+linear-gradient(145deg,#fff,#b6a0ff);
+}
+
+.online-dot{
+position:absolute;
+right:-2px;
+bottom:-2px;
+width:11px;
+height:11px;
+border:2px solid #0a0d12;
+border-radius:50%;
+background:var(--lime);
+}
+
+.conversation-copy{
+min-width:0;
+margin-left:10px;
+}
+
+.conversation-top{
+display:flex;
+align-items:center;
+gap:5px;
+}
+
+.conversation-name{
+min-width:0;
+font-size:11px;
+font-weight:850;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.verified{
+color:var(--blue);
+font-size:9px;
+}
+
+.conversation-time{
+margin-left:auto;
+color:#596473;
+font-size:8px;
+}
+
+.conversation-preview{
+margin-top:5px;
+color:#778291;
+font-size:9px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.conversation.unread .conversation-preview{
+color:#bfc7d2;
+font-weight:700;
+}
+
+.unread-dot{
+width:7px;
+height:7px;
+min-width:7px;
+margin-left:5px;
+border-radius:50%;
+background:var(--lime);
+}
+
+.chat-panel{
+min-width:0;
+display:flex;
+flex-direction:column;
+background:
+radial-gradient(circle at 70% 25%,rgba(183,255,0,.025),transparent 28%),
+#080a0e;
+}
+
+.chat-header{
+height:65px;
+min-height:65px;
+padding:0 19px;
+display:flex;
+align-items:center;
+border-bottom:1px solid var(--border);
+background:rgba(8,10,14,.65);
+}
+
+.chat-avatar{
+width:36px;
+height:36px;
+display:grid;
+place-items:center;
+border-radius:10px;
+background:linear-gradient(145deg,#fff,#d2d5d8);
+color:#11151b;
+font-size:11px;
+font-weight:1000;
+}
+
+.chat-user{
+margin-left:10px;
+}
+
+.chat-user strong{
+display:block;
+font-size:12px;
+}
+
+.chat-user span{
+display:block;
+margin-top:3px;
+color:var(--lime);
+font-size:9px;
+font-weight:800;
+}
+
+.chat-actions{
+margin-left:auto;
+display:flex;
+gap:5px;
+}
+
+.chat-action{
+width:33px;
+height:33px;
+border:1px solid var(--border);
+border-radius:7px;
+background:#11161e;
+color:#8792a1;
+}
+
+.chat-action:hover{
+color:#fff;
+background:#171d26;
+}
+
+.chat-content{
+flex:1;
+min-height:0;
+display:flex;
+flex-direction:column;
+}
+
+.messages{
+flex:1;
+min-height:0;
+overflow-y:auto;
+padding:22px 25px;
+}
+
+.date-divider{
+display:flex;
+align-items:center;
+gap:12px;
+margin:8px 0 20px;
+color:#555f6e;
+font-size:8px;
+font-weight:900;
+letter-spacing:1.2px;
+text-transform:uppercase;
+}
+
+.date-divider:before,
+.date-divider:after{
+content:"";
+height:1px;
+flex:1;
+background:var(--border);
+}
+
+.message-row{
+display:flex;
+margin:7px 0;
+}
+
+.message-row.me{
+justify-content:flex-end;
+}
+
+.message-avatar{
+width:29px;
+height:29px;
+min-width:29px;
+margin-right:8px;
+align-self:flex-end;
+display:grid;
+place-items:center;
+border-radius:9px;
+background:linear-gradient(145deg,#fff,#cfd3d7);
+color:#171b21;
+font-size:8px;
+font-weight:1000;
+}
+
+.message-stack{
+max-width:min(650px,75%);
+}
+
+.message-author{
+margin:0 0 4px 2px;
+color:#7f8998;
+font-size:8px;
+font-weight:800;
+}
+
+.message-bubble{
+padding:10px 12px;
+border:1px solid var(--border);
+border-radius:11px 11px 11px 4px;
+background:#11161e;
+color:#d8dee7;
+font-size:11px;
+line-height:1.5;
+}
+
+.message-row.me .message-bubble{
+border-color:rgba(183,255,0,.18);
+border-radius:11px 11px 4px 11px;
+background:rgba(183,255,0,.09);
+color:#e9f2d5;
+}
+
+.message-time{
+margin-top:4px;
+color:#505a68;
+font-size:8px;
+}
+
+.message-row.me .message-time{
+text-align:right;
+}
+
+.system-message{
+margin:18px auto;
+width:max-content;
+max-width:90%;
+padding:6px 10px;
+border:1px solid var(--border);
+border-radius:6px;
+background:#0e1319;
+color:#596474;
+font-size:8px;
+}
+
+.typing{
+display:none;
+align-items:center;
+gap:7px;
+padding:0 25px 8px;
+color:#677181;
+font-size:9px;
+}
+
+.typing.show{
+display:flex;
+}
+
+.typing-dots{
+display:flex;
+gap:3px;
+}
+
+.typing-dots span{
+width:4px;
+height:4px;
+border-radius:50%;
+background:var(--lime);
+animation:typing 1s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2){
+animation-delay:.15s;
+}
+
+.typing-dots span:nth-child(3){
+animation-delay:.3s;
+}
+
+@keyframes typing{
+0%,60%,100%{
+transform:translateY(0);
+opacity:.35;
+}
+30%{
+transform:translateY(-3px);
+opacity:1;
+}
+}
+
+.composer{
+padding:10px 18px 16px;
+border-top:1px solid var(--border);
+background:#0a0d12;
+}
+
+.composer-tools{
+display:flex;
+gap:4px;
+margin-bottom:7px;
+}
+
+.composer-tool{
+width:28px;
+height:28px;
+border:0;
+border-radius:6px;
+background:transparent;
+color:#687382;
+}
+
+.composer-tool:hover{
+background:#151a22;
+color:#fff;
+}
+
+.composer-main{
+display:flex;
+align-items:flex-end;
+gap:8px;
+}
+
+.message-input{
+flex:1;
+min-height:43px;
+max-height:130px;
+resize:none;
+padding:12px;
+border:1px solid var(--border);
+border-radius:10px;
+background:#11161e;
+color:#fff;
+outline:none;
+font-size:11px;
+line-height:1.4;
+}
+
+.message-input:focus{
+border-color:var(--lime);
+box-shadow:0 0 0 3px rgba(183,255,0,.04);
+}
+
+.send-button{
+width:43px;
+height:43px;
+border:0;
+border-radius:9px;
+background:var(--lime);
+color:#101500;
+font-size:15px;
+font-weight:1000;
+}
+
+.send-button:hover{
+background:#c8ff3a;
+}
+
+.empty-chat{
+height:100%;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:30px;
+}
+
+.empty-icon{
+width:70px;
+height:70px;
+display:grid;
+place-items:center;
+margin-bottom:15px;
+border:1px solid var(--border2);
+border-radius:18px;
+color:var(--lime);
+font-size:25px;
+box-shadow:0 0 35px rgba(183,255,0,.05);
+}
+
+.empty-chat strong{
+font-size:16px;
+}
+
+.empty-chat p{
+max-width:330px;
+margin:7px 0 18px;
+color:var(--muted);
+font-size:11px;
+line-height:1.55;
+}
+
+.toast{
+position:fixed;
+left:50%;
+bottom:25px;
+z-index:300;
+transform:translate(-50%,20px);
+min-width:220px;
+padding:12px 16px;
+border:1px solid var(--border2);
+border-radius:9px;
+background:#12171f;
+box-shadow:0 20px 60px rgba(0,0,0,.5);
+font-size:10px;
+font-weight:800;
+text-align:center;
+opacity:0;
+pointer-events:none;
+transition:.2s;
+}
+
+.toast.show{
+opacity:1;
+transform:translate(-50%,0);
+}
+
+.modal-backdrop{
+position:fixed;
+inset:0;
+z-index:200;
+display:none;
+align-items:center;
+justify-content:center;
+padding:20px;
+background:rgba(0,0,0,.7);
+backdrop-filter:blur(7px);
+}
+
+.modal-backdrop.open{
+display:flex;
+}
+
+.modal{
+width:min(440px,100%);
+border:1px solid var(--border2);
+border-radius:15px;
+background:#0e1218;
+box-shadow:0 35px 100px rgba(0,0,0,.6);
+overflow:hidden;
+}
+
+.modal-head{
+height:58px;
+padding:0 17px;
+display:flex;
+align-items:center;
+border-bottom:1px solid var(--border);
+}
+
+.modal-head strong{
+font-size:13px;
+}
+
+.modal-close{
+margin-left:auto;
+width:31px;
+height:31px;
+border:1px solid var(--border);
+border-radius:7px;
+background:#151a22;
+color:#9da7b4;
+}
+
+.modal-body{
+padding:17px;
+}
+
+.modal-field{
+margin-bottom:13px;
+}
+
+.modal-field label{
+display:block;
+margin-bottom:6px;
+color:#778291;
+font-size:9px;
+font-weight:850;
+}
+
+.modal-field input{
+width:100%;
+height:40px;
+padding:0 10px;
+border:1px solid var(--border);
+border-radius:8px;
+background:#11161e;
+color:#fff;
+outline:none;
+font-size:11px;
+}
+
+.modal-field textarea{
+width:100%;
+height:90px;
+padding:10px;
+resize:vertical;
+border:1px solid var(--border);
+border-radius:8px;
+background:#11161e;
+color:#fff;
+outline:none;
+font-size:11px;
+}
+
+.modal-field input:focus,
+.modal-field textarea:focus{
+border-color:var(--lime);
+}
+
+.modal-send{
+width:100%;
+height:40px;
+border:0;
+border-radius:8px;
+background:var(--lime);
+color:#101500;
+font-size:11px;
+font-weight:900;
+}
+
+@media(max-width:900px){
+
+.sidebar{
+width:215px;
+}
+
+.app{
+grid-template-columns:215px minmax(0,1fr);
+}
+
+.messages-layout{
+grid-template-columns:275px minmax(0,1fr);
+}
+
+.search{
+width:180px;
+}
+
+}
+
+@media(max-width:760px){
+
+.sidebar{
+display:none;
+}
+
+.app{
+display:block;
+}
+
+.main{
+width:100%;
+}
+
+.mobile-menu{
+display:block;
+}
+
+.topbar{
+padding:0 14px;
+gap:8px;
+}
+
+.messages-layout{
+grid-template-columns:1fr;
+}
+
+.conversation-panel{
+position:absolute;
+top:72px;
+bottom:0;
+left:0;
+width:100%;
+z-index:30;
+display:none;
+}
+
+.conversation-panel.mobile-open{
+display:flex;
+}
+
+.chat-panel{
+width:100%;
+}
+
+.chat-panel.mobile-hidden{
+display:none;
+}
+
+.search{
+display:none;
+}
+
+.new-message{
+margin-left:auto;
+}
+
+.messages{
+padding:18px 13px;
+}
+
+.message-stack{
+max-width:84%;
+}
+
+.composer{
+padding:9px 10px 12px;
+}
+
+.mobile-back{
+display:block!important;
+}
+
+}
+
+.mobile-back{
+display:none;
+height:32px;
+width:32px;
+margin-right:7px;
+border:1px solid var(--border);
+border-radius:7px;
+background:#11161e;
+color:#fff;
+}
+
+@media(max-width:450px){
+
+.top-title{
+font-size:16px;
+}
+
+.new-message{
+font-size:10px;
+padding:0 10px;
+}
+
+.chat-actions .chat-action:nth-child(n+2){
+display:none;
+}
+
+.message-stack{
+max-width:88%;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+<div class="brand">
+<div class="brand-mark">&lt;/&gt;</div>
+<div class="brand-name">Rise<span>Up</span></div>
+</div>
+
+<div class="nav-title">Platform</div>
+
+<nav class="nav">
+
+<a href="home.html">
+<span class="icon">⌂</span>
+Home
+</a>
+
+<a href="discover.html">
+<span class="icon">◈</span>
+Discover
+</a>
+
+<a href="avatar.html">
+<span class="icon">◉</span>
+Avatar
+</a>
+
+<a href="inventory.html">
+<span class="icon">▣</span>
+Inventory
+</a>
+
+<a href="friends.html">
+<span class="icon">♧</span>
+Friends
+</a>
+
+<a href="marketplace.html">
+<span class="icon">◇</span>
+Marketplace
+</a>
+
+<a class="active" href="messages.html">
+<span class="icon">▤</span>
+Messages
+</a>
+
+</nav>
+
+<div class="nav-title">Workspace</div>
+
+<nav class="nav">
+
+<a href="studio.html">
+<span class="icon">▦</span>
+Studio
+</a>
+
+<a href="code.html">
+<span class="icon">&lt;/&gt;</span>
+RiseCode
+</a>
+
+<a href="setting.html">
+<span class="icon">⚙</span>
+Settings
+</a>
+
+</nav>
+
+<div class="sidebar-bottom">
+
+<div class="user-card">
+
+<div class="user-avatar"></div>
+
+<div class="user-info">
+
+<strong id="sidebarUsername">
+Player
+</strong>
+
+<span>● Online</span>
+
+</div>
+
+</div>
+
+</div>
+
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+
+<button
+class="mobile-menu"
+id="mobileMenu"
+>
+☰
+</button>
+
+<div class="top-title">
+Messages
+</div>
+
+<div class="top-actions">
+
+<input
+class="search"
+id="globalSearch"
+type="search"
+placeholder="Search messages..."
+autocomplete="off"
+>
+
+<button
+class="new-message"
+id="newMessageButton"
+>
++ New Message
+</button>
+
+</div>
+
+</header>
+
+<div class="messages-layout">
+
+<section
+class="conversation-panel"
+id="conversationPanel"
+>
+
+<div class="conversation-header">
+
+<strong>
+Messages
+</strong>
+
+<span id="conversationCount">
+0
+</span>
+
+</div>
+
+<div class="conversation-search">
+
+<input
+id="conversationSearch"
+type="search"
+placeholder="Search conversations..."
+autocomplete="off"
+>
+
+</div>
+
+<div
+class="conversations"
+id="conversationList"
+>
+</div>
+
+</section>
+
+<section
+class="chat-panel"
+id="chatPanel"
+>
+
+<header class="chat-header">
+
+<button
+class="mobile-back"
+id="mobileBack"
+>
+‹
+</button>
+
+<div
+class="chat-avatar"
+id="chatAvatar"
+>
+?
+</div>
+
+<div class="chat-user">
+
+<strong id="chatName">
+Select a conversation
+</strong>
+
+<span id="chatStatus">
+</span>
+
+</div>
+
+<div class="chat-actions">
+
+<button
+class="chat-action"
+id="profileButton"
+title="View profile"
+>
+◉
+</button>
+
+<button
+class="chat-action"
+id="callButton"
+title="Call"
+>
+⌕
+</button>
+
+<button
+class="chat-action"
+id="moreButton"
+title="More"
+>
+•••
+</button>
+
+</div>
+
+</header>
+
+<div class="chat-content">
+
+<div
+class="messages"
+id="messages"
+>
+<div class="empty-chat">
+
+<div class="empty-icon">
+▤
+</div>
+
+<strong>
+Your messages
+</strong>
+
+<p>
+Choose a conversation to view messages, talk with friends, and coordinate your next RiseUp project.
+</p>
+
+<button
+class="primary"
+id="emptyNewButton"
+style="
+height:40px;
+padding:0 15px;
+border:0;
+border-radius:8px;
+background:var(--lime);
+color:#101500;
+font-size:10px;
+font-weight:900;
+"
+>
+Start a Conversation
+</button>
+
+</div>
+</div>
+
+<div
+class="typing"
+id="typing"
+>
+
+<div class="typing-dots">
+<span></span>
+<span></span>
+<span></span>
+</div>
+
+<span id="typingName">
+Someone
+</span>
+
+<span>is typing...</span>
+
+</div>
+
+<div class="composer">
+
+<div class="composer-tools">
+
+<button
+class="composer-tool"
+data-tool="emoji"
+title="Add reaction"
+>
+☺
+</button>
+
+<button
+class="composer-tool"
+data-tool="image"
+title="Attach image"
+>
+▧
+</button>
+
+<button
+class="composer-tool"
+data-tool="file"
+title="Attach file"
+>
+□
+</button>
+
+<button
+class="composer-tool"
+data-tool="mention"
+title="Mention"
+>
+@
+</button>
+
+</div>
+
+<div class="composer-main">
+
+<textarea
+class="message-input"
+id="messageInput"
+placeholder="Select a conversation..."
+rows="1"
+disabled
+></textarea>
+
+<button
+class="send-button"
+id="sendButton"
+disabled
+title="Send message"
+>
+➤
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+</div>
+
+<div
+class="toast"
+id="toast"
+>
+Done
+</div>
+
+<div
+class="modal-backdrop"
+id="newMessageModal"
+>
+
+<div class="modal">
+
+<div class="modal-head">
+
+<strong>
+New Message
+</strong>
+
+<button
+class="modal-close"
+id="modalClose"
+>
+×
+</button>
+
+</div>
+
+<div class="modal-body">
+
+<div class="modal-field">
+
+<label for="recipientInput">
+USERNAME
+</label>
+
+<input
+id="recipientInput"
+type="text"
+placeholder="Enter a RiseUp username"
+autocomplete="off"
+>
+
+</div>
+
+<div class="modal-field">
+
+<label for="newMessageInput">
+MESSAGE
+</label>
+
+<textarea
+id="newMessageInput"
+placeholder="Write a message..."
+></textarea>
+
+</div>
+
+<button
+class="modal-send"
+id="modalSend"
+>
+Send Message
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const currentUser =
+localStorage.getItem("riseup_currentUser") ||
+localStorage.getItem("riseup_username") ||
+"Player";
+
+const MESSAGE_KEY =
+"riseup_messages_" +
+currentUser;
+
+const FRIENDS_KEY =
+"riseup_friends_" +
+currentUser;
+
+let conversations =
+loadMessages();
+
+let selectedConversation =
+null;
+
+function loadMessages(){
+
+try{
+
+const stored =
+JSON.parse(
+localStorage.getItem(MESSAGE_KEY)
+);
+
+if(Array.isArray(stored)){
+return stored;
+}
+
+}catch(error){}
+
+return createDefaultConversations();
+
+}
+
+function saveMessages(){
+
+localStorage.setItem(
+MESSAGE_KEY,
+JSON.stringify(conversations)
+);
+
+}
+
+function createDefaultConversations(){
+
+return [
+
+{
+id:"risebot",
+name:"RiseUp",
+initials:"RU",
+color:"lime",
+verified:true,
+online:true,
+unread:0,
+lastTime:"Now",
+messages:[
+{
+from:"them",
+text:"Welcome to RiseUp Messages.",
+time:"Now"
+},
+{
+from:"them",
+text:"You can use this page to talk with friends and other creators.",
+time:"Now"
+}
+]
+},
+
+{
+id:"blackhollow",
+name:"BlackHollowGames",
+initials:"BH",
+color:"blue",
+verified:true,
+online:true,
+unread:2,
+lastTime:"2m",
+messages:[
+{
+from:"them",
+text:"The new Studio update is looking good.",
+time:"8:42 PM"
+},
+{
+from:"them",
+text:"We should test the marketplace system next.",
+time:"8:44 PM"
+}
+]
+},
+
+{
+id:"creator",
+name:"Creator Team",
+initials:"CT",
+color:"purple",
+verified:false,
+online:false,
+unread:0,
+lastTime:"1h",
+messages:[
+{
+from:"them",
+text:"Your project workspace is ready.",
+time:"7:31 PM"
+}
+]
+}
+
+];
+
+}
+
+function escapeHTML(value){
+
+return String(value)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+function getFriends(){
+
+try{
+
+const value =
+JSON.parse(
+localStorage.getItem(FRIENDS_KEY)
+);
+
+if(Array.isArray(value)){
+return value;
+}
+
+}catch(error){}
+
+return [];
+
+}
+
+function normalizeFriend(friend){
+
+if(typeof friend==="string"){
+
+return {
+name:friend
+};
+
+}
+
+if(friend && typeof friend==="object"){
+
+return friend;
+
+}
+
+return null;
+
+}
+
+function mergeFriends(){
+
+const friends =
+getFriends();
+
+friends
+.map(normalizeFriend)
+.filter(Boolean)
+.forEach(friend=>{
+
+const name =
+friend.username ||
+friend.name ||
+friend.displayName;
+
+if(!name){
+return;
+}
+
+const exists =
+conversations.some(
+conversation=>
+conversation.name.toLowerCase()===
+String(name).toLowerCase()
+);
+
+if(exists){
+return;
+}
+
+const initials =
+String(name)
+.split(/\s+/)
+.map(part=>part[0])
+.join("")
+.slice(0,2)
+.toUpperCase();
+
+conversations.push({
+
+id:
+"friend_" +
+String(name)
+.toLowerCase()
+.replace(/[^a-z0-9]+/g,"_"),
+
+name:String(name),
+
+initials:
+
+initials || "FR",
+
+color:"lime",
+
+verified:false,
+
+online:false,
+
+unread:0,
+
+lastTime:"",
+
+messages:[]
+
+});
+
+});
+
+saveMessages();
+
+}
+
+function renderConversations(){
+
+const query =
+document.getElementById(
+"conversationSearch"
+).value
+.trim()
+.toLowerCase();
+
+const visible =
+conversations.filter(
+conversation=>
+!query ||
+conversation.name
+.toLowerCase()
+.includes(query)
+);
+
+document.getElementById(
+"conversationCount"
+).textContent =
+String(conversations.length);
+
+const list =
+document.getElementById(
+"conversationList"
+);
+
+if(!visible.length){
+
+list.innerHTML=`
+<div style="
+padding:30px 12px;
+text-align:center;
+color:#667180;
+font-size:10px;
+line-height:1.5;
+">
+No conversations found.
+</div>
+`;
+
+return;
+
+}
+
+list.innerHTML =
+visible
+.map(
+conversation=>
+renderConversation(conversation)
+)
+.join("");
+
+}
+
+function renderConversation(conversation){
+
+const active =
+selectedConversation &&
+selectedConversation.id===
+conversation.id;
+
+const last =
+conversation.messages[
+conversation.messages.length-1
+];
+
+const preview =
+last
+?last.text
+:"No messages yet";
+
+const unread =
+Number(conversation.unread)||0;
+
+return `
+
+<button
+class="conversation ${
+active?"active":""
+} ${unread?"unread":""}"
+data-conversation="${escapeHTML(conversation.id)}"
+>
+
+<div
+class="conversation-avatar ${escapeHTML(conversation.color||"")}"
+>
+
+${escapeHTML(conversation.initials||"?")}
+
+${conversation.online
+?`<span class="online-dot"></span>`
+:""}
+
+</div>
+
+<div class="conversation-copy">
+
+<div class="conversation-top">
+
+<span class="conversation-name">
+${escapeHTML(conversation.name)}
+</span>
+
+${
+conversation.verified
+?`<span class="verified">●</span>`
+:""
+}
+
+<span class="conversation-time">
+${escapeHTML(conversation.lastTime||"")}
+</span>
+
+${
+unread
+?`<span class="unread-dot"></span>`
+:""
+}
+
+</div>
+
+<div class="conversation-preview">
+${escapeHTML(preview)}
+</div>
+
+</div>
+
+</button>
+
+`;
+
+}
+
+function selectConversation(id){
+
+const conversation =
+conversations.find(
+item=>item.id===id
+);
+
+if(!conversation){
+return;
+}
+
+selectedConversation =
+conversation;
+
+conversation.unread=0;
+
+saveMessages();
+
+renderConversations();
+
+renderChat();
+
+if(window.innerWidth<=760){
+
+document
+.getElementById("conversationPanel")
+.classList.remove(
+"mobile-open"
+);
+
+document
+.getElementById("chatPanel")
+.classList.remove(
+"mobile-hidden"
+);
+
+}
+
+}
+
+function renderChat(){
+
+if(!selectedConversation){
+
+return;
+
+}
+
+const conversation =
+selectedConversation;
+
+document.getElementById(
+"chatName"
+).textContent =
+conversation.name;
+
+document.getElementById(
+"chatStatus"
+).textContent =
+conversation.online
+?"● Online"
+:"● Offline";
+
+document.getElementById(
+"chatAvatar"
+).textContent =
+conversation.initials||"?";
+
+document.getElementById(
+"chatAvatar"
+).className =
+"chat-avatar";
+
+const messageInput =
+document.getElementById(
+"messageInput"
+);
+
+messageInput.disabled=false;
+
+messageInput.placeholder =
+`Message ${conversation.name}...`;
+
+document.getElementById(
+"sendButton"
+).disabled=false;
+
+const container =
+document.getElementById(
+"messages"
+);
+
+if(!conversation.messages.length){
+
+container.innerHTML=`
+<div class="empty-chat">
+
+<div class="empty-icon">
+▤
+</div>
+
+<strong>
+No messages yet
+</strong>
+
+<p>
+Start the conversation with ${escapeHTML(conversation.name)}.
+</p>
+
+</div>
+`;
+
+return;
+
+}
+
+let html=
+`
+<div class="date-divider">
+Today
+</div>
+`;
+
+conversation.messages.forEach(
+(message,index)=>{
+
+const mine =
+message.from==="me";
+
+html+=`
+
+<div class="message-row ${
+mine?"me":""
+}">
+
+${
+mine
+?""
+:`
+<div class="message-avatar">
+${escapeHTML(conversation.initials||"?")}
+</div>
+`
+}
+
+<div class="message-stack">
+
+${
+!mine && (
+index===0 ||
+conversation.messages[index-1].from==="me"
+)
+?`
+<div class="message-author">
+${escapeHTML(conversation.name)}
+</div>
+`
+:""
+}
+
+<div class="message-bubble">
+${formatMessage(message.text)}
+</div>
+
+<div class="message-time">
+${escapeHTML(message.time||"Now")}
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+container.innerHTML=html;
+
+requestAnimationFrame(
+()=>{
+container.scrollTop=
+container.scrollHeight;
+}
+);
+
+}
+
+function formatMessage(text){
+
+return escapeHTML(text)
+.replaceAll("\n","<br>");
+
+}
+
+function currentTime(){
+
+return new Date()
+.toLocaleTimeString(
+[],
+{
+hour:"numeric",
+minute:"2-digit"
+}
+);
+
+}
+
+function sendMessage(){
+
+if(!selectedConversation){
+return;
+}
+
+const input =
+document.getElementById(
+"messageInput"
+);
+
+const text =
+input.value.trim();
+
+if(!text){
+return;
+}
+
+selectedConversation.messages.push({
+
+from:"me",
+
+text:text,
+
+time:currentTime()
+
+});
+
+selectedConversation.lastTime=
+"Now";
+
+saveMessages();
+
+input.value="";
+
+resizeTextarea();
+
+renderChat();
+
+renderConversations();
+
+simulateReply();
+
+}
+
+function simulateReply(){
+
+if(!selectedConversation){
+return;
+}
+
+const conversation =
+selectedConversation;
+
+if(!conversation.online){
+return;
+}
+
+document.getElementById(
+"typingName"
+).textContent =
+conversation.name;
+
+document.getElementById(
+"typing"
+).classList.add(
+"show"
+);
+
+setTimeout(
+()=>{
+
+if(selectedConversation!==conversation){
+
+document.getElementById(
+"typing"
+).classList.remove(
+"show"
+);
+
+return;
+
+}
+
+document.getElementById(
+"typing"
+).classList.remove(
+"show"
+);
+
+conversation.messages.push({
+
+from:"them",
+
+text:getAutoReply(),
+
+time:currentTime()
+
+});
+
+conversation.lastTime="Now";
+
+saveMessages();
+
+renderChat();
+
+renderConversations();
+
+},
+1100
+);
+
+}
+
+function getAutoReply(){
+
+const replies=[
+
+"Sounds good.",
+
+"Got it.",
+
+"Nice.",
+
+"I'll check it out.",
+
+"That works.",
+
+"Cool, let's do it.",
+
+"Okay.",
+
+"Thanks for the message."
+
+];
+
+return replies[
+Math.floor(
+Math.random()*
+replies.length
+)
+];
+
+}
+
+function openNewMessage(){
+
+document
+.getElementById("newMessageModal")
+.classList.add("open");
+
+document
+.getElementById("recipientInput")
+.focus();
+
+}
+
+function closeNewMessage(){
+
+document
+.getElementById("newMessageModal")
+.classList.remove("open");
+
+}
+
+function createConversation(){
+
+const recipient =
+document
+.getElementById("recipientInput")
+.value
+.trim();
+
+const text =
+document
+.getElementById("newMessageInput")
+.value
+.trim();
+
+if(!recipient){
+
+showToast(
+"Enter a username first.",
+"error"
+);
+
+return;
+
+}
+
+let conversation =
+conversations.find(
+item=>
+item.name.toLowerCase()===
+recipient.toLowerCase()
+);
+
+if(!conversation){
+
+const initials =
+recipient
+.split(/\s+/)
+.map(part=>part[0])
+.join("")
+.slice(0,2)
+.toUpperCase();
+
+conversation={
+
+id:
+"user_" +
+Date.now(),
+
+name:recipient,
+
+initials:
+initials||"U",
+
+color:"lime",
+
+verified:false,
+
+online:false,
+
+unread:0,
+
+lastTime:"Now",
+
+messages:[]
+
+};
+
+conversations.unshift(
+conversation
+);
+
+}
+
+if(text){
+
+conversation.messages.push({
+
+from:"me",
+
+text:text,
+
+time:currentTime()
+
+});
+
+conversation.lastTime="Now";
+
+}
+
+saveMessages();
+
+closeNewMessage();
+
+document
+.getElementById("recipientInput")
+.value="";
+
+document
+.getElementById("newMessageInput")
+.value="";
+
+selectConversation(
+conversation.id
+);
+
+showToast(
+`Conversation with ${recipient} opened.`
+);
+
+}
+
+function showToast(message,type="success"){
+
+const toast =
+document.getElementById(
+"toast"
+);
+
+toast.textContent =
+message;
+
+toast.style.borderColor =
+type==="error"
+?"rgba(255,104,119,.35)"
+:"rgba(183,255,0,.3)";
+
+toast.classList.add("show");
+
+clearTimeout(
+window.toastTimer
+);
+
+window.toastTimer =
+setTimeout(
+()=>{
+toast.classList.remove("show");
+},
+2400
+);
+
+}
+
+function resizeTextarea(){
+
+const textarea =
+document.getElementById(
+"messageInput"
+);
+
+textarea.style.height="auto";
+
+textarea.style.height =
+Math.min(
+textarea.scrollHeight,
+130
+)+"px";
+
+}
+
+document
+.getElementById("conversationList")
+.addEventListener(
+"click",
+event=>{
+
+const button =
+event.target.closest(
+"[data-conversation]"
+);
+
+if(!button){
+return;
+}
+
+selectConversation(
+button.dataset.conversation
+);
+
+}
+);
+
+document
+.getElementById("conversationSearch")
+.addEventListener(
+"input",
+renderConversations
+);
+
+document
+.getElementById("globalSearch")
+.addEventListener(
+"input",
+event=>{
+
+document
+.getElementById("conversationSearch")
+.value=
+event.target.value;
+
+renderConversations();
+
+}
+);
+
+document
+.getElementById("sendButton")
+.addEventListener(
+"click",
+sendMessage
+);
+
+document
+.getElementById("messageInput")
+.addEventListener(
+"keydown",
+event=>{
+
+if(
+event.key==="Enter" &&
+!event.shiftKey
+){
+
+event.preventDefault();
+
+sendMessage();
+
+}
+
+});
+
+document
+.getElementById("messageInput")
+.addEventListener(
+"input",
+resizeTextarea
+);
+
+document
+.getElementById("newMessageButton")
+.addEventListener(
+"click",
+openNewMessage
+);
+
+document
+.getElementById("emptyNewButton")
+.addEventListener(
+"click",
+openNewMessage
+);
+
+document
+.getElementById("modalClose")
+.addEventListener(
+"click",
+closeNewMessage
+);
+
+document
+.getElementById("modalSend")
+.addEventListener(
+"click",
+createConversation
+);
+
+document
+.getElementById("newMessageModal")
+.addEventListener(
+"click",
+event=>{
+
+if(
+event.target.id===
+"newMessageModal"
+){
+
+closeNewMessage();
+
+}
+
+});
+
+document
+.getElementById("recipientInput")
+.addEventListener(
+"keydown",
+event=>{
+
+if(event.key==="Enter"){
+
+event.preventDefault();
+
+document
+.getElementById("newMessageInput")
+.focus();
+
+}
+
+});
+
+document
+.getElementById("newMessageInput")
+.addEventListener(
+"keydown",
+event=>{
+
+if(
+event.key==="Enter" &&
+(event.ctrlKey||event.metaKey)
+){
+
+event.preventDefault();
+
+createConversation();
+
+}
+
+});
+
+document
+.getElementById("mobileMenu")
+.addEventListener(
+"click",
+()=>{
+
+const sidebar =
+document.querySelector(
+".sidebar"
+);
+
+if(
+sidebar.style.display===
+"flex"
+){
+
+sidebar.style.display="";
+
+}else{
+
+sidebar.style.display="flex";
+
+}
+
+}
+);
+
+document
+.getElementById("mobileBack")
+.addEventListener(
+"click",
+()=>{
+
+document
+.getElementById("conversationPanel")
+.classList.add(
+"mobile-open"
+);
+
+document
+.getElementById("chatPanel")
+.classList.add(
+"mobile-hidden"
+);
+
+}
+);
+
+document
+.getElementById("profileButton")
+.addEventListener(
+"click",
+()=>{
+
+if(!selectedConversation){
+return;
+}
+
+showToast(
+`Opening ${selectedConversation.name}'s profile.`
+);
+
+}
+);
+
+document
+.getElementById("callButton")
+.addEventListener(
+"click",
+()=>{
+
+if(!selectedConversation){
+return;
+}
+
+showToast(
+"Voice calls are not connected yet."
+);
+
+}
+);
+
+document
+.getElementById("moreButton")
+.addEventListener(
+"click",
+()=>{
+
+if(!selectedConversation){
+return;
+}
+
+showToast(
+"More conversation options are coming soon."
+);
+
+}
+);
+
+document
+.querySelectorAll(".composer-tool")
+.forEach(
+button=>{
+
+button.addEventListener(
+"click",
+()=>{
+
+const tool =
+button.dataset.tool;
+
+if(tool==="mention"){
+
+const input =
+document.getElementById(
+"messageInput"
+);
+
+input.value += "@";
+
+input.focus();
+
+resizeTextarea();
+
+return;
+
+}
+
+if(tool==="emoji"){
+
+const input =
+document.getElementById(
+"messageInput"
+);
+
+input.value += " :)";
+
+input.focus();
+
+resizeTextarea();
+
+return;
+
+}
+
+showToast(
+"Attachment tools are coming soon."
+);
+
+}
+);
+
+}
+);
+
+document
+.getElementById("sidebarUsername")
+.textContent=
+currentUser;
+
+mergeFriends();
+
+renderConversations();
+
+if(conversations.length){
+
+selectConversation(
+conversations[0].id
+);
+
+}
+
+if(window.innerWidth<=760){
+
+document
+.getElementById("conversationPanel")
+.classList.add(
+"mobile-open"
+);
+
+document
+.getElementById("chatPanel")
+.classList.add(
+"mobile-hidden"
+);
+
+}
+
+window.RiseUpMessages={
+
+getConversations(){
+
+return conversations;
+
+},
+
+getConversation(id){
+
+return conversations.find(
+item=>item.id===id
+)||null;
+
+},
+
+send(id,text){
+
+const conversation =
+conversations.find(
+item=>item.id===id
+);
+
+if(!conversation||!text){
+return false;
+}
+
+conversation.messages.push({
+
+from:"me",
+
+text:String(text),
+
+time:currentTime()
+
+});
+
+conversation.lastTime="Now";
+
+saveMessages();
+
+if(
+selectedConversation &&
+selectedConversation.id===id
+){
+
+renderChat();
+
+}
+
+renderConversations();
+
+return true;
+
+},
+
+create(username,text=""){
+
+if(!username){
+return false;
+}
+
+let conversation =
+conversations.find(
+item=>
+item.name.toLowerCase()===
+String(username).toLowerCase()
+);
+
+if(!conversation){
+
+conversation={
+
+id:"user_"+Date.now(),
+
+name:String(username),
+
+initials:
+String(username)
+.slice(0,2)
+.toUpperCase(),
+
+color:"lime",
+
+verified:false,
+
+online:false,
+
+unread:0,
+
+lastTime:"Now",
+
+messages:[]
+
+};
+
+conversations.unshift(
+conversation
+);
+
+}
+
+if(text){
+
+conversation.messages.push({
+
+from:"me",
+
+text:String(text),
+
+time:currentTime()
+
+});
+
+conversation.lastTime="Now";
+
+}
+
+saveMessages();
+
+renderConversations();
+
+return conversation;
+
+}
+
+};
+
+</script>
+
+</body>
+</html>
