@@ -1,22 +1,41 @@
 "use strict";
 
+/*
+    RISEUP HOME CONTROLLER
+    -----------------------
+    Works directly with the current home.html structure.
+
+    Main routes:
+    Home          -> home.html
+    Discover      -> discover.html
+    Marketplace   -> marketplace.html
+    Avatar        -> avatar.html
+    Inventory     -> inventory.html
+    Friends       -> friends.html
+    Messages      -> messages.html
+    Studio        -> studio.html
+    RiseCode      -> code.html
+    Settings      -> setting.html
+*/
+
 const RiseUpHome = (() => {
+
     const STORAGE = {
         currentUser: "riseup_currentUser",
         games: "riseup_games",
         tok: "riseup_tok",
         settings: "riseup_settings",
-        friendsPrefix: "riseup_friends_",
-        messagesPrefix: "riseup_messages_",
-        inventoryPrefix: "riseup_inventory_",
-        avatarPrefix: "riseup_avatar_",
-        search: "riseup_search_query",
+        friends: "riseup_friends_",
+        messages: "riseup_messages_",
+        inventory: "riseup_inventory_",
+        avatar: "riseup_avatar_",
         selectedGame: "riseup_play_game_id",
         lastGame: "riseup_last_game_id",
-        lastPage: "riseup_last_page"
+        lastPage: "riseup_last_page",
+        search: "riseup_search_query"
     };
 
-    const routes = {
+    const ROUTES = {
         home: "home.html",
         discover: "discover.html",
         marketplace: "marketplace.html",
@@ -24,1008 +43,921 @@ const RiseUpHome = (() => {
         inventory: "inventory.html",
         friends: "friends.html",
         messages: "messages.html",
-        create: "studio.html",
         studio: "studio.html",
+        create: "studio.html",
         code: "code.html",
         settings: "setting.html"
     };
 
-    const $ = (selector, parent = document) =>
-        parent.querySelector(selector);
-
-    const $$ = (selector, parent = document) =>
-        [...parent.querySelectorAll(selector)];
-
     let currentUser = null;
-    let settings = {};
-    let games = [];
 
-    function safeJSON(key, fallback = null) {
+    function getUser() {
+        return localStorage.getItem(STORAGE.currentUser) || "";
+    }
+
+    function setUserName() {
+        currentUser = getUser();
+
+        const welcomeTitle = document.getElementById("welcomeTitle");
+        const headerAvatar = document.getElementById("headerAvatar");
+
+        if (!currentUser) {
+            if (welcomeTitle) {
+                welcomeTitle.textContent = "Welcome to RiseUp";
+            }
+
+            if (headerAvatar) {
+                headerAvatar.textContent = "R";
+            }
+
+            return;
+        }
+
+        const cleanName = currentUser.trim();
+
+        if (welcomeTitle) {
+            welcomeTitle.textContent = `Welcome back, ${cleanName}`;
+        }
+
+        if (headerAvatar) {
+            headerAvatar.textContent = cleanName.charAt(0).toUpperCase();
+        }
+    }
+
+    function getJSON(key, fallback) {
         try {
-            const raw = localStorage.getItem(key);
+            const value = localStorage.getItem(key);
 
-            if (!raw) {
+            if (!value) {
                 return fallback;
             }
 
-            return JSON.parse(raw);
-        } catch {
+            const parsed = JSON.parse(value);
+
+            return parsed ?? fallback;
+        } catch (error) {
+            console.warn("RiseUp JSON read error:", key, error);
             return fallback;
         }
     }
 
-    function getCurrentUser() {
+    function saveJSON(key, value) {
         try {
-            const raw = localStorage.getItem(STORAGE.currentUser);
-
-            if (!raw) {
-                return null;
-            }
-
-            try {
-                return JSON.parse(raw);
-            } catch {
-                return {
-                    username: raw,
-                    displayName: raw
-                };
-            }
-        } catch {
-            return null;
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (error) {
+            console.warn("RiseUp JSON save error:", key, error);
+            return false;
         }
-    }
-
-    function getUsername(user = currentUser) {
-        if (!user) {
-            return "Player";
-        }
-
-        if (typeof user === "string") {
-            return user;
-        }
-
-        return (
-            user.displayName ||
-            user.username ||
-            user.name ||
-            "Player"
-        );
-    }
-
-    function getInitial(user = currentUser) {
-        const name = getUsername(user).trim();
-
-        return name
-            ? name.charAt(0).toUpperCase()
-            : "R";
-    }
-
-    function getUserId(user = currentUser) {
-        if (!user) {
-            return "Player";
-        }
-
-        if (typeof user === "string") {
-            return user;
-        }
-
-        return (
-            user.username ||
-            user.id ||
-            user.userId ||
-            user.displayName ||
-            "Player"
-        );
-    }
-
-    function getTok() {
-        const stored = localStorage.getItem(STORAGE.tok);
-
-        if (stored === null) {
-            return 0;
-        }
-
-        const amount = Number(stored);
-
-        return Number.isFinite(amount) && amount >= 0
-            ? Math.floor(amount)
-            : 0;
-    }
-
-    function setTok(amount) {
-        const safeAmount = Math.max(
-            0,
-            Math.floor(Number(amount) || 0)
-        );
-
-        localStorage.setItem(
-            STORAGE.tok,
-            String(safeAmount)
-        );
-
-        updateTokUI(safeAmount);
-    }
-
-    function updateTokUI(amount = getTok()) {
-        const formatted = Number(amount).toLocaleString();
-
-        [
-            "#tokAmount",
-            "#tokBalance",
-            "[data-tok-balance]"
-        ].forEach(selector => {
-            $$(selector).forEach(element => {
-                element.textContent = formatted;
-            });
-        });
-    }
-
-    function loadSettings() {
-        const stored = safeJSON(STORAGE.settings, {});
-
-        settings = {
-            theme: "dark",
-            accent: "blue",
-            animations: true,
-            compactNav: false,
-            performance: false,
-            reducedMotion: false,
-            largeText: false,
-            highContrast: false,
-            rememberPage: true,
-            ...stored
-        };
-    }
-
-    function applySettings() {
-        document.documentElement.dataset.theme =
-            settings.theme || "dark";
-
-        document.documentElement.dataset.accent =
-            settings.accent || "blue";
-
-        document.body.classList.toggle(
-            "large-text",
-            Boolean(settings.largeText)
-        );
-
-        document.body.classList.toggle(
-            "high-contrast",
-            Boolean(settings.highContrast)
-        );
-
-        document.body.classList.toggle(
-            "reduce-motion",
-            Boolean(settings.reducedMotion)
-        );
-
-        document.body.classList.toggle(
-            "compact-navigation",
-            Boolean(settings.compactNav)
-        );
-
-        if (
-            settings.reducedMotion ||
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ) {
-            document.documentElement.style.setProperty(
-                "--riseup-motion",
-                "0s"
-            );
-        } else {
-            document.documentElement.style.removeProperty(
-                "--riseup-motion"
-            );
-        }
-    }
-
-    function updateUserUI() {
-        currentUser = getCurrentUser();
-
-        const name = getUsername();
-        const initial = getInitial();
-
-        const welcome = $("#welcomeTitle");
-
-        if (welcome) {
-            welcome.textContent =
-                `Welcome back, ${name}`;
-        }
-
-        $$("#headerAvatar, #profileAvatar, #userAvatar").forEach(
-            avatar => {
-                avatar.textContent = initial;
-
-                avatar.setAttribute(
-                    "aria-label",
-                    `${name}'s avatar`
-                );
-            }
-        );
-
-        $$("#username, #profileName, #sideUsername").forEach(
-            element => {
-                element.textContent = name;
-            }
-        );
-
-        updateTokUI();
     }
 
     function navigate(page) {
-        const destination = routes[page];
+        const route = ROUTES[page];
 
-        if (!destination) {
-            showToast(
-                "That RiseUp page is not available yet."
-            );
-
+        if (!route) {
+            console.warn(`RiseUp: Unknown route "${page}"`);
             return;
         }
 
-        if (settings.rememberPage) {
-            localStorage.setItem(
-                STORAGE.lastPage,
-                page
-            );
-        }
+        localStorage.setItem(STORAGE.lastPage, page);
 
-        window.location.href = destination;
+        window.location.assign(route);
     }
 
-    function setActivePage(page) {
-        $$(".nav-item, .side-item").forEach(item => {
-            item.classList.toggle(
-                "active",
-                item.dataset.page === page
-            );
+    function go(page, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        navigate(page);
+    }
+
+    function bindClick(id, page) {
+        const element = document.getElementById(id);
+
+        if (!element) {
+            console.warn(`RiseUp: Missing element #${id}`);
+            return;
+        }
+
+        element.addEventListener("click", function(event) {
+            go(page, event);
         });
     }
 
-    function showToast(message, duration = 2600) {
-        const toast = $("#toast");
-        const text = $("#toastMessage");
+    function setupMainNavigation() {
+        const navItems = document.querySelectorAll(".nav-item[data-page]");
 
-        if (!toast || !text) {
-            return;
-        }
+        navItems.forEach(item => {
+            item.addEventListener("click", function(event) {
+                const page = item.getAttribute("data-page");
 
-        text.textContent = message;
-
-        toast.classList.add("show");
-
-        clearTimeout(showToast.timeout);
-
-        showToast.timeout = setTimeout(() => {
-            toast.classList.remove("show");
-        }, duration);
-    }
-
-    function loadGames() {
-        const stored = safeJSON(
-            STORAGE.games,
-            []
-        );
-
-        games = Array.isArray(stored)
-            ? stored
-            : [];
-
-        renderGames();
-    }
-
-    function renderGames() {
-        const grid = $("#featuredGrid");
-
-        if (!grid) {
-            return;
-        }
-
-        if (!games.length) {
-            return;
-        }
-
-        grid.innerHTML = "";
-
-        games
-            .slice(0, 8)
-            .forEach((game, index) => {
-                grid.appendChild(
-                    createGameCard(game, index)
-                );
-            });
-    }
-
-    function getGameTitle(game, index) {
-        return (
-            game.title ||
-            game.name ||
-            game.gameName ||
-            `RiseUp Game ${index + 1}`
-        );
-    }
-
-    function getGameCreator(game) {
-        return (
-            game.creator ||
-            game.owner ||
-            game.author ||
-            "RiseUp Creator"
-        );
-    }
-
-    function getGameId(game, index) {
-        return String(
-            game.id ||
-            game.gameId ||
-            game._id ||
-            `game-${index}`
-        );
-    }
-
-    function createGameCard(game, index) {
-        const card = document.createElement("article");
-
-        card.className = "game-card";
-
-        const title = getGameTitle(game, index);
-        const creator = getGameCreator(game);
-        const id = getGameId(game, index);
-
-        const thumbnail =
-            game.thumbnail ||
-            game.image ||
-            game.cover ||
-            "";
-
-        if (thumbnail) {
-            card.innerHTML = `
-                <div class="game-thumbnail">
-                    <img
-                        src="${escapeAttribute(thumbnail)}"
-                        alt="${escapeAttribute(title)}"
-                        loading="lazy"
-                    >
-                </div>
-
-                <div class="game-info">
-                    <h3>${escapeHTML(title)}</h3>
-                    <p>Created by ${escapeHTML(creator)}</p>
-                </div>
-            `;
-        } else {
-            card.innerHTML = `
-                <div class="game-thumbnail">
-                    <span class="game-thumbnail-letter">
-                        ${escapeHTML(
-                            title.charAt(0).toUpperCase()
-                        )}
-                    </span>
-                </div>
-
-                <div class="game-info">
-                    <h3>${escapeHTML(title)}</h3>
-                    <p>Created by ${escapeHTML(creator)}</p>
-                </div>
-            `;
-        }
-
-        card.setAttribute(
-            "role",
-            "button"
-        );
-
-        card.setAttribute(
-            "tabindex",
-            "0"
-        );
-
-        const openGame = () => {
-            localStorage.setItem(
-                STORAGE.selectedGame,
-                id
-            );
-
-            localStorage.setItem(
-                STORAGE.lastGame,
-                id
-            );
-
-            showToast(
-                `Opening ${title}...`
-            );
-
-            setTimeout(() => {
-                if (game.url) {
-                    window.location.href =
-                        game.url;
-                } else {
-                    navigate("discover");
-                }
-            }, 250);
-        };
-
-        card.addEventListener(
-            "click",
-            openGame
-        );
-
-        card.addEventListener(
-            "keydown",
-            event => {
-                if (
-                    event.key === "Enter" ||
-                    event.key === " "
-                ) {
-                    event.preventDefault();
-                    openGame();
-                }
-            }
-        );
-
-        return card;
-    }
-
-    function setupNavigation() {
-        $$(".nav-item, .side-item[data-page]").forEach(
-            button => {
-                if (
-                    button.dataset.riseupBound === "true"
-                ) {
+                if (!page) {
                     return;
                 }
 
-                button.dataset.riseupBound = "true";
-
-                button.addEventListener(
-                    "click",
-                    event => {
-                        event.preventDefault();
-
-                        const page =
-                            button.dataset.page;
-
-                        if (!page) {
-                            return;
-                        }
-
-                        navigate(page);
-                    }
-                );
-            }
-        );
+                go(page, event);
+            });
+        });
     }
 
-    function bindNavigationButton(
-        selector,
-        page
-    ) {
-        $$(selector).forEach(button => {
-            if (
-                button.dataset.riseupBound === "true"
-            ) {
-                return;
-            }
+    function setupSidebarNavigation() {
+        const sideItems = document.querySelectorAll(".side-item[data-page]");
 
-            button.dataset.riseupBound = "true";
+        sideItems.forEach(item => {
+            item.addEventListener("click", function(event) {
+                const page = item.getAttribute("data-page");
 
-            button.addEventListener(
-                "click",
-                event => {
-                    event.preventDefault();
-                    navigate(page);
+                if (!page) {
+                    return;
                 }
-            );
+
+                go(page, event);
+            });
         });
     }
 
     function setupButtons() {
-        bindNavigationButton(
-            "#brandButton",
-            "home"
-        );
 
-        bindNavigationButton(
-            "#heroCreateButton",
-            "create"
-        );
+        bindClick("brandButton", "home");
 
-        bindNavigationButton(
-            "#discoverButton",
-            "discover"
-        );
+        bindClick("heroCreateButton", "studio");
 
-        bindNavigationButton(
-            "#emptyDiscoverButton",
-            "discover"
-        );
+        bindClick("discoverButton", "discover");
 
-        bindNavigationButton(
-            "#featuredViewAll",
-            "discover"
-        );
+        bindClick("avatarButton", "avatar");
 
-        bindNavigationButton(
-            "#continueViewAll",
-            "discover"
-        );
+        bindClick("emptyDiscoverButton", "discover");
 
-        bindNavigationButton(
-            "#avatarButton",
-            "avatar"
-        );
+        bindClick("featuredViewAll", "discover");
 
-        bindNavigationButton(
-            "#quickAvatar",
-            "avatar"
-        );
+        bindClick("continueViewAll", "discover");
 
-        bindNavigationButton(
-            "#quickFriends",
-            "friends"
-        );
+        bindClick("firstCreatorButton", "studio");
 
-        bindNavigationButton(
-            "#quickStudio",
-            "studio"
-        );
+        bindClick("quickAvatar", "avatar");
 
-        bindNavigationButton(
-            "#quickMarketplace",
-            "marketplace"
-        );
+        bindClick("quickFriends", "friends");
 
-        bindNavigationButton(
-            "#firstCreatorButton",
-            "studio"
-        );
+        bindClick("quickStudio", "studio");
 
-        bindNavigationButton(
-            "#studioButton",
-            "studio"
-        );
+        bindClick("quickMarketplace", "marketplace");
 
-        bindNavigationButton(
-            "#codeButton",
-            "code"
-        );
+        bindClick("studioButton", "studio");
 
-        bindNavigationButton(
-            "#settingsButton",
-            "settings"
-        );
+        bindClick("codeButton", "code");
 
-        bindNavigationButton(
-            "#profileButton",
-            "avatar"
-        );
+        bindClick("settingsButton", "settings");
 
-        bindNavigationButton(
-            "#messagesButton",
-            "messages"
-        );
-
-        $("#tokButton")?.addEventListener(
-            "click",
-            () => {
-                showToast(
-                    `${getTok().toLocaleString()} TOK available`
-                );
-            }
-        );
-
-        $("#notificationsButton")?.addEventListener(
-            "click",
-            () => {
-                showToast(
-                    "You have no new notifications."
-                );
-            }
-        );
-
-        $("#logoutButton")?.addEventListener(
-            "click",
-            logout
-        );
+        bindClick("messagesButton", "messages");
     }
 
-    function setupSearch() {
-        const input = $("#searchInput");
+    function setupProfileButton() {
+        const profileButton = document.getElementById("profileButton");
 
-        if (!input) {
+        if (!profileButton) {
             return;
         }
 
-        const previousQuery =
-            localStorage.getItem(
-                STORAGE.search
-            );
+        profileButton.addEventListener("click", function(event) {
+            event.preventDefault();
 
-        if (previousQuery) {
-            input.value = previousQuery;
-        }
+            const existingMenu = document.getElementById("riseupProfileMenu");
 
-        input.addEventListener(
-            "input",
-            () => {
-                const query =
-                    input.value.trim();
-
-                if (query) {
-                    localStorage.setItem(
-                        STORAGE.search,
-                        query
-                    );
-                } else {
-                    localStorage.removeItem(
-                        STORAGE.search
-                    );
-                }
+            if (existingMenu) {
+                existingMenu.remove();
+                return;
             }
-        );
 
-        input.addEventListener(
-            "keydown",
-            event => {
-                if (event.key !== "Enter") {
-                    return;
-                }
-
-                event.preventDefault();
-
-                const query =
-                    input.value.trim();
-
-                if (!query) {
-                    navigate("discover");
-                    return;
-                }
-
-                localStorage.setItem(
-                    STORAGE.search,
-                    query
-                );
-
-                navigate("discover");
-            }
-        );
-    }
-
-    function setupKeyboardShortcuts() {
-        document.addEventListener(
-            "keydown",
-            event => {
-                const target =
-                    event.target;
-
-                const isTyping =
-                    target &&
-                    (
-                        target.tagName === "INPUT" ||
-                        target.tagName === "TEXTAREA" ||
-                        target.isContentEditable
-                    );
-
-                if (
-                    (event.ctrlKey ||
-                        event.metaKey) &&
-                    event.key.toLowerCase() === "k"
-                ) {
-                    event.preventDefault();
-
-                    $("#searchInput")?.focus();
-
-                    return;
-                }
-
-                if (isTyping) {
-                    return;
-                }
-
-                if (event.key === "/") {
-                    event.preventDefault();
-
-                    $("#searchInput")?.focus();
-
-                    return;
-                }
-
-                if (event.key.toLowerCase() === "g") {
-                    event.preventDefault();
-
-                    navigate("studio");
-                }
-            }
-        );
-    }
-
-    function setupMobileMenu() {
-        const menuButton =
-            $("#mobileMenuButton");
-
-        const sidebar =
-            $(".sidebar");
-
-        if (!menuButton || !sidebar) {
-            return;
-        }
-
-        menuButton.addEventListener(
-            "click",
-            () => {
-                sidebar.classList.toggle(
-                    "open"
-                );
-
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    sidebar.classList.contains(
-                        "open"
-                    )
-                );
-            }
-        );
-
-        $$(".sidebar a").forEach(link => {
-            link.addEventListener(
-                "click",
-                () => {
-                    sidebar.classList.remove(
-                        "open"
-                    );
-                }
-            );
+            createProfileMenu(profileButton);
         });
     }
 
-    function setupQuickActions() {
-        $$("[data-riseup-action]").forEach(
-            element => {
-                if (
-                    element.dataset.riseupBound ===
-                    "true"
-                ) {
-                    return;
-                }
+    function createProfileMenu(anchor) {
 
-                element.dataset.riseupBound =
-                    "true";
+        const menu = document.createElement("div");
 
-                element.addEventListener(
-                    "click",
-                    () => {
-                        const action =
-                            element.dataset.riseupAction;
+        menu.id = "riseupProfileMenu";
 
-                        if (routes[action]) {
-                            navigate(action);
-                        }
-                    }
-                );
-            }
+        menu.style.position = "fixed";
+        menu.style.zIndex = "99999";
+        menu.style.minWidth = "190px";
+        menu.style.padding = "8px";
+        menu.style.background = "#11151d";
+        menu.style.border = "1px solid rgba(255,255,255,.10)";
+        menu.style.borderRadius = "12px";
+        menu.style.boxShadow = "0 18px 50px rgba(0,0,0,.45)";
+
+        const rect = anchor.getBoundingClientRect();
+
+        menu.style.top = `${rect.bottom + 8}px`;
+        menu.style.right = `${Math.max(12, window.innerWidth - rect.right)}px`;
+
+        const profileItem = createMenuButton(
+            "Profile",
+            () => showToast("Profile page coming soon.")
         );
-    }
 
-    function setupTokControls() {
-        $$("[data-add-tok]").forEach(
-            button => {
-                button.addEventListener(
-                    "click",
-                    () => {
-                        const amount =
-                            Number(
-                                button.dataset.addTok
-                            );
-
-                        if (
-                            !Number.isFinite(
-                                amount
-                            ) ||
-                            amount <= 0
-                        ) {
-                            return;
-                        }
-
-                        setTok(
-                            getTok() + amount
-                        );
-
-                        showToast(
-                            `Added ${amount.toLocaleString()} TOK`
-                        );
-                    }
-                );
-            }
+        const settingsItem = createMenuButton(
+            "Settings",
+            () => navigate("settings")
         );
-    }
 
-    function setupGameControls() {
-        $$("[data-game-id]").forEach(
-            element => {
-                element.addEventListener(
-                    "click",
-                    () => {
-                        const id =
-                            element.dataset.gameId;
-
-                        if (!id) {
-                            return;
-                        }
-
-                        localStorage.setItem(
-                            STORAGE.selectedGame,
-                            id
-                        );
-
-                        localStorage.setItem(
-                            STORAGE.lastGame,
-                            id
-                        );
-
-                        showToast(
-                            "Game selected."
-                        );
-                    }
-                );
-            }
+        const logoutItem = createMenuButton(
+            "Log out",
+            () => logout()
         );
-    }
 
-    function setupOutsideClicks() {
-        document.addEventListener(
-            "click",
-            event => {
-                const sidebar =
-                    $(".sidebar");
+        menu.appendChild(profileItem);
+        menu.appendChild(settingsItem);
+        menu.appendChild(logoutItem);
 
-                const menu =
-                    $("#mobileMenuButton");
+        document.body.appendChild(menu);
+
+        setTimeout(() => {
+
+            function closeMenu(event) {
 
                 if (
-                    !sidebar ||
-                    !menu ||
-                    !sidebar.classList.contains(
-                        "open"
-                    )
+                    !menu.contains(event.target) &&
+                    event.target !== anchor
                 ) {
-                    return;
-                }
-
-                if (
-                    !sidebar.contains(
-                        event.target
-                    ) &&
-                    !menu.contains(
-                        event.target
-                    )
-                ) {
-                    sidebar.classList.remove(
-                        "open"
+                    menu.remove();
+                    document.removeEventListener(
+                        "click",
+                        closeMenu
                     );
                 }
             }
+
+            document.addEventListener("click", closeMenu);
+
+        }, 0);
+    }
+
+    function createMenuButton(text, action) {
+
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = text;
+
+        button.style.display = "block";
+        button.style.width = "100%";
+        button.style.border = "0";
+        button.style.background = "transparent";
+        button.style.color = "#fff";
+        button.style.textAlign = "left";
+        button.style.padding = "10px 12px";
+        button.style.borderRadius = "8px";
+        button.style.cursor = "pointer";
+        button.style.fontSize = "14px";
+
+        button.addEventListener("mouseenter", () => {
+            button.style.background = "rgba(255,255,255,.07)";
+        });
+
+        button.addEventListener("mouseleave", () => {
+            button.style.background = "transparent";
+        });
+
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            action();
+
+            const menu = document.getElementById("riseupProfileMenu");
+
+            if (menu) {
+                menu.remove();
+            }
+        });
+
+        return button;
+    }
+
+    function setupTOK() {
+
+        const tokButton = document.getElementById("tokButton");
+        const tokAmount = document.getElementById("tokAmount");
+
+        if (!tokAmount) {
+            return;
+        }
+
+        const key = currentUser
+            ? `${STORAGE.tok}_${currentUser}`
+            : STORAGE.tok;
+
+        let amount = Number(localStorage.getItem(key));
+
+        if (!Number.isFinite(amount)) {
+            amount = 0;
+        }
+
+        tokAmount.textContent = formatNumber(amount);
+
+        if (tokButton) {
+            tokButton.addEventListener("click", function(event) {
+                event.preventDefault();
+
+                showToast(`You have ${formatNumber(amount)} TOK.`);
+            });
+        }
+    }
+
+    function formatNumber(number) {
+        return new Intl.NumberFormat("en-US").format(number);
+    }
+
+    function setupNotifications() {
+
+        const button = document.getElementById("notificationsButton");
+
+        if (!button) {
+            return;
+        }
+
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+
+            showToast("No new notifications.");
+        });
+    }
+
+    function setupSearch() {
+
+        const searchInput = document.getElementById("searchInput");
+
+        if (!searchInput) {
+            return;
+        }
+
+        const savedSearch = localStorage.getItem(STORAGE.search);
+
+        if (savedSearch) {
+            searchInput.value = savedSearch;
+        }
+
+        searchInput.addEventListener("keydown", function(event) {
+
+            if (event.key !== "Enter") {
+                return;
+            }
+
+            event.preventDefault();
+
+            const query = searchInput.value.trim();
+
+            if (!query) {
+                showToast("Enter something to search for.");
+                searchInput.focus();
+                return;
+            }
+
+            localStorage.setItem(STORAGE.search, query);
+
+            navigate("discover");
+        });
+    }
+
+    function setupKeyboardShortcuts() {
+
+        document.addEventListener("keydown", function(event) {
+
+            const tag = document.activeElement?.tagName;
+
+            const typing =
+                tag === "INPUT" ||
+                tag === "TEXTAREA" ||
+                tag === "SELECT";
+
+            if (
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === "k"
+            ) {
+                event.preventDefault();
+
+                const search = document.getElementById("searchInput");
+
+                if (search) {
+                    search.focus();
+                    search.select();
+                }
+
+                return;
+            }
+
+            if (
+                event.key === "/" &&
+                !typing
+            ) {
+                event.preventDefault();
+
+                const search = document.getElementById("searchInput");
+
+                if (search) {
+                    search.focus();
+                }
+            }
+        });
+    }
+
+    function setupGameCards() {
+
+        document.addEventListener("click", function(event) {
+
+            const target = event.target.closest(
+                "[data-game-id], [data-game], .game-card"
+            );
+
+            if (!target) {
+                return;
+            }
+
+            const gameId =
+                target.dataset.gameId ||
+                target.dataset.game;
+
+            if (!gameId) {
+                return;
+            }
+
+            event.preventDefault();
+
+            localStorage.setItem(
+                STORAGE.selectedGame,
+                gameId
+            );
+
+            localStorage.setItem(
+                STORAGE.lastGame,
+                gameId
+            );
+
+            showToast("Opening game...");
+
+            setTimeout(() => {
+                navigate("discover");
+            }, 150);
+        });
+    }
+
+    function loadGames() {
+
+        const games = getJSON(STORAGE.games, []);
+
+        if (!Array.isArray(games)) {
+            return [];
+        }
+
+        return games;
+    }
+
+    function createGameCard(game) {
+
+        const card = document.createElement("article");
+
+        card.className = "game-card";
+
+        if (game.id !== undefined) {
+            card.dataset.gameId = game.id;
+        }
+
+        const title =
+            game.title ||
+            game.name ||
+            "Untitled Game";
+
+        const description =
+            game.description ||
+            "A RiseUp experience.";
+
+        const creator =
+            game.creator ||
+            game.username ||
+            "Creator";
+
+        card.innerHTML = `
+            <div class="game-card-image">
+                <div class="game-card-placeholder">R</div>
+            </div>
+
+            <div class="game-card-body">
+                <h3>${escapeHTML(title)}</h3>
+                <p>${escapeHTML(description)}</p>
+                <span>${escapeHTML(creator)}</span>
+            </div>
+        `;
+
+        return card;
+    }
+
+    function renderGames() {
+
+        const games = loadGames();
+
+        const continueGrid =
+            document.getElementById("continueGrid");
+
+        const featuredGrid =
+            document.getElementById("featuredGrid");
+
+        if (!continueGrid || !featuredGrid) {
+            return;
+        }
+
+        const recentGameId =
+            localStorage.getItem(STORAGE.lastGame) ||
+            localStorage.getItem(STORAGE.selectedGame);
+
+        const recentGames = recentGameId
+            ? games.filter(game =>
+                String(game.id) === String(recentGameId)
+            )
+            : [];
+
+        if (recentGames.length > 0) {
+
+            continueGrid.innerHTML = "";
+
+            recentGames.forEach(game => {
+                continueGrid.appendChild(
+                    createGameCard(game)
+                );
+            });
+
+        } else {
+
+            continueGrid.innerHTML = `
+                <div class="empty-card">
+                    <div class="empty-icon">◇</div>
+                    <h3>No recent games</h3>
+                    <p>Games you play will appear here.</p>
+                    <button
+                        class="small-button"
+                        id="emptyDiscoverButton"
+                        type="button"
+                    >
+                        Discover games
+                    </button>
+                </div>
+            `;
+
+            bindClick(
+                "emptyDiscoverButton",
+                "discover"
+            );
+        }
+
+        if (games.length > 0) {
+
+            featuredGrid.innerHTML = "";
+
+            games
+                .slice(0, 8)
+                .forEach(game => {
+                    featuredGrid.appendChild(
+                        createGameCard(game)
+                    );
+                });
+
+        } else {
+
+            featuredGrid.innerHTML = `
+                <div class="empty-card featured-empty">
+                    <div class="empty-icon">✦</div>
+                    <h3>No games yet</h3>
+                    <p>Be the first creator to make a game.</p>
+                    <button
+                        class="small-button"
+                        id="firstCreatorButton"
+                        type="button"
+                    >
+                        Open Studio
+                    </button>
+                </div>
+            `;
+
+            bindClick(
+                "firstCreatorButton",
+                "studio"
+            );
+        }
+    }
+
+    function setupMobileBehavior() {
+
+        const sidebar = document.querySelector(".sidebar");
+
+        if (!sidebar) {
+            return;
+        }
+
+        let menuButton =
+            document.getElementById("mobileMenuButton");
+
+        if (!menuButton) {
+
+            menuButton = document.createElement("button");
+
+            menuButton.id = "mobileMenuButton";
+            menuButton.type = "button";
+            menuButton.setAttribute(
+                "aria-label",
+                "Open navigation"
+            );
+
+            menuButton.textContent = "Menu";
+
+            menuButton.style.display = "none";
+            menuButton.style.position = "fixed";
+            menuButton.style.top = "12px";
+            menuButton.style.left = "12px";
+            menuButton.style.zIndex = "10001";
+            menuButton.style.padding = "9px 12px";
+            menuButton.style.borderRadius = "9px";
+            menuButton.style.border =
+                "1px solid rgba(255,255,255,.12)";
+            menuButton.style.background = "#11151d";
+            menuButton.style.color = "#fff";
+            menuButton.style.cursor = "pointer";
+
+            document.body.appendChild(menuButton);
+        }
+
+        function updateMobileButton() {
+
+            if (window.innerWidth <= 960) {
+                menuButton.style.display = "block";
+            } else {
+                menuButton.style.display = "none";
+                sidebar.classList.remove("mobile-open");
+            }
+        }
+
+        menuButton.addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            sidebar.classList.toggle("mobile-open");
+        });
+
+        window.addEventListener(
+            "resize",
+            updateMobileButton
         );
+
+        updateMobileButton();
+    }
+
+    function setupCloseProfileOnNavigation() {
+
+        document.addEventListener("click", function(event) {
+
+            if (
+                event.target.closest(
+                    ".nav-item, .side-item, .quick-card, .primary-button, .secondary-button, .create-button, .text-button, .small-button"
+                )
+            ) {
+                const menu =
+                    document.getElementById(
+                        "riseupProfileMenu"
+                    );
+
+                if (menu) {
+                    menu.remove();
+                }
+            }
+        });
+    }
+
+    function setupToast() {
+
+        const toast = document.getElementById("toast");
+
+        if (!toast) {
+            return;
+        }
+
+        toast.style.pointerEvents = "none";
+    }
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById("toast");
+
+        const toastMessage =
+            document.getElementById("toastMessage");
+
+        if (!toast || !toastMessage) {
+            return;
+        }
+
+        toastMessage.textContent = message;
+
+        toast.classList.add("show");
+
+        clearTimeout(
+            showToast.timeout
+        );
+
+        showToast.timeout = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2200);
     }
 
     function logout() {
+
         localStorage.removeItem(
             STORAGE.currentUser
         );
 
-        showToast(
-            "Signed out of RiseUp."
-        );
+        showToast("Logged out.");
 
         setTimeout(() => {
-            window.location.href =
-                "index.html";
-        }, 400);
+
+            if (
+                document.referrer &&
+                document.referrer.includes("index.html")
+            ) {
+                window.location.assign("index.html");
+            } else {
+                window.location.assign("index.html");
+            }
+
+        }, 500);
     }
 
-    function exposeGlobalAPI() {
-        window.RiseUpHome = {
-            initialize,
-            navigate,
-            showToast,
+    function escapeHTML(value) {
 
-            getUser() {
-                return currentUser;
-            },
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
 
-            getUsername() {
-                return getUsername();
-            },
+    function restoreActiveNavigation() {
 
-            getTok() {
-                return getTok();
-            },
+        const currentFile =
+            window.location.pathname
+                .split("/")
+                .pop()
+                .toLowerCase();
 
-            setTok,
+        document
+            .querySelectorAll(
+                ".nav-item[data-page], .side-item[data-page]"
+            )
+            .forEach(item => {
 
-            addTok(amount) {
-                const value =
-                    Number(amount);
+                const page =
+                    item.getAttribute("data-page");
 
-                if (
-                    !Number.isFinite(value) ||
-                    value <= 0
-                ) {
-                    return getTok();
+                const route =
+                    ROUTES[page];
+
+                if (!route) {
+                    return;
                 }
 
-                const next =
-                    getTok() +
-                    Math.floor(value);
+                const isActive =
+                    route.toLowerCase() === currentFile;
 
-                setTok(next);
+                item.classList.toggle(
+                    "active",
+                    isActive
+                );
+            });
+    }
 
-                return next;
-            },
+    function preventBrokenButtonSubmits() {
 
-            getGames() {
-                return [...games];
-            },
+        document
+            .querySelectorAll("button")
+            .forEach(button => {
 
-            refreshGames() {
-                loadGames();
-            },
+                if (!button.getAttribute("type")) {
+                    button.setAttribute(
+                        "type",
+                        "button"
+                    );
+                }
+            });
+    }
 
-            getSettings() {
-                return {
-                    ...settings
-                };
+    function setupUniversalNavigation() {
+
+        /*
+            This is an extra safety layer.
+
+            If another part of home.html gets a
+            data-page attribute later, it will work
+            automatically without editing home.js.
+        */
+
+        document.addEventListener("click", function(event) {
+
+            const element =
+                event.target.closest(
+                    "[data-page]"
+                );
+
+            if (!element) {
+                return;
             }
-        };
+
+            if (
+                element.classList.contains("nav-item") ||
+                element.classList.contains("side-item")
+            ) {
+                return;
+            }
+
+            const page =
+                element.getAttribute("data-page");
+
+            if (!page || !ROUTES[page]) {
+                return;
+            }
+
+            go(page, event);
+        });
     }
 
     function initialize() {
-        currentUser =
-            getCurrentUser();
 
-        loadSettings();
-        applySettings();
-        updateUserUI();
-        loadGames();
+        currentUser = getUser();
 
-        setupNavigation();
+        setUserName();
+
+        preventBrokenButtonSubmits();
+
+        setupMainNavigation();
+
+        setupSidebarNavigation();
+
         setupButtons();
+
+        setupProfileButton();
+
+        setupTOK();
+
+        setupNotifications();
+
         setupSearch();
+
         setupKeyboardShortcuts();
-        setupMobileMenu();
-        setupQuickActions();
-        setupTokControls();
-        setupGameControls();
-        setupOutsideClicks();
 
-        const params =
-            new URLSearchParams(
-                window.location.search
-            );
+        setupGameCards();
 
-        const page =
-            params.get("page");
+        setupMobileBehavior();
 
-        if (page) {
-            setActivePage(page);
-        } else {
-            setActivePage("home");
-        }
+        setupCloseProfileOnNavigation();
 
-        exposeGlobalAPI();
+        setupUniversalNavigation();
+
+        setupToast();
+
+        restoreActiveNavigation();
+
+        renderGames();
+
+        console.log(
+            "%cRiseUp Home",
+            "color:#55a7ff;font-weight:700;font-size:18px"
+        );
+
+        console.log(
+            "Navigation system initialized."
+        );
     }
 
     return {
         initialize,
         navigate,
         showToast,
-        getTok,
-        setTok
+        logout,
+        getUser
     };
+
 })();
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        RiseUpHome.initialize();
-    }
-);
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        RiseUpHome.initialize
+    );
+
+} else {
+
+    RiseUpHome.initialize();
+
+}
