@@ -2,240 +2,215 @@ import * as THREE from "three";
 
 /**
  * ==========================================================================
- * RISEUP GAME ENGINE FRAMEWORK - CORE HOME CONTROLLER INTERFACE
+ * RISEUP CLIENT GLOBAL CORE INITIALIZATION ARCHITECTURE
  * ==========================================================================
- * Build Context: Procedural client asset delivery systems architecture.
- * Operational Model: Replicating premium cloud gaming client dashboard grids.
- * Footprint Configuration: Highly structured pipeline layer layout profiles.
  */
-
-// Global System Configuration State Mutator Pointers
-const ENGINE_SESSION_METRICS = {
-    clientVersion: "R3D-CORE-V2.18.4",
-    renderPipelineActive: false,
-    analyticsBufferSynced: true,
-    localCacheVersion: 1042,
-    sessionTimestamp: 1790412852,
-    debugMode: false
-};
-
-// 3D Engine execution hooks for the animated blue logo planet
-let artScene = null;
-let artCamera = null;
-let artRenderer = null;
-let planetSphereNode = null;
-let planetRingNode = null;
-let spaceParticlesNode = null;
-
-// Target Document DOM Hook Selectors Cache Matrix
-const DOM_CACHE = {
-    canvasFrameSlot: document.getElementById("hero3dCanvasContainer"),
-    topTabLinks: document.querySelectorAll(".topTabLink"),
-    sidebarLinks: document.querySelectorAll(".navLink"),
-    searchFieldInput: document.querySelector(".navSearchWrapper input"),
-    alertBtnTextButton: document.querySelector(".navbarTextButton"),
-    dropdownProfileAvatarPill: document.querySelector(".userProfileAvatarPill"),
-    creditsCounterContainer: document.querySelector(".coinBalanceCounter"),
-    exploreGamesHeroBtn: document.querySelector(".heroCallToActions .heroBtn.primary"),
-    customizeAvatarHeroBtn: document.querySelector(".heroCallToActions .heroBtn.secondary"),
-    absoluteProjectCreateBtn: document.querySelector(".absoluteCreateButton"),
-    shortcutRowLinks: document.querySelectorAll(".viewAllRowLink"),
-    discoverGamesShortcutBtn: document.querySelector(".discoverGamesShortcutBtn"),
-    experienceCatalogCards: document.querySelectorAll(".experienceCatalogCard"),
-    quickAccessLinkCards: document.querySelectorAll(".quickAccessLinkCard")
-};
-
-// Simulated Local Persistence Session Variable Store Mockups
-class LocalStorageSessionAdapter {
+class RiseUpAppEngine {
     constructor() {
-        this.storeName = "RISEUP_USER_METRICS";
-        this.defaultDataMatrix = {
-            walletCredits: 0,
-            avatarMoldId: "bone_clay",
-            levelRank: 24,
-            currentXp: 12450,
-            ownedSkins: ["clay", "bone_clay"],
-            sessionToken: "AUTH_STIVE_PIERRE_X7812"
+        // Core State Node Repository
+        this.sessionState = {
+            user: { username: "stive pierre", credits: 1250, initial: "S", rank: "Developer" },
+            interface: { sidebarExpanded: true, activeTab: "home", activeFilters: null },
+            cachedSessions: []
         };
-        this.initializeStorageInstance();
+
+        // DOM Tracking Target Nodes Map
+        this.domElements = {
+            canvasContainer: document.getElementById("hero3dCanvasContainer"),
+            creditDisplay: document.querySelector(".coinBalanceCounter .coinVal"),
+            creditsBox: document.querySelector(".coinBalanceCounter"),
+            searchField: document.querySelector(".navSearchWrapper input"),
+            cards: document.querySelectorAll(".experienceCatalogCard"),
+            quickLinks: document.querySelectorAll(".quickAccessLinkCard"),
+            topTabs: document.querySelectorAll(".topTabLink"),
+            sidebarLinks: document.querySelectorAll(".navLink")
+        };
+
+        // Subsystem Handle Bindings
+        this.graphicsEngine = null;
     }
 
-    initializeStorageInstance() {
-        try {
-            const existingCache = localStorage.getItem(this.storeName);
-            if (!existingCache) {
-                localStorage.setItem(this.storeName, JSON.stringify(this.defaultDataMatrix));
-            }
-        } catch (storageError) {
-            console.warn("[Storage Adapter Exception] Sandbox environment locked local write streams:", storageError);
-        }
-    }
-
-    retrieveProperty(keyField) {
-        try {
-            const dataString = localStorage.getItem(this.storeName);
-            if (!dataString) return this.defaultDataMatrix[keyField];
-            const parsedObject = JSON.parse(dataString);
-            return parsedObject[keyField] !== undefined ? parsedObject[keyField] : this.defaultDataMatrix[keyField];
-        } catch (e) {
-            return this.defaultDataMatrix[keyField];
-        }
-    }
-
-    updateProperty(keyField, assignmentValue) {
-        try {
-            const dataString = localStorage.getItem(this.storeName);
-            const currentObject = dataString ? JSON.parse(dataString) : this.defaultDataMatrix;
-            currentObject[keyField] = assignmentValue;
-            localStorage.setItem(this.storeName, JSON.stringify(currentObject));
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-}
-
-const GlobalSessionStore = new LocalStorageSessionAdapter();
-
-// Initialize Core Runtime Initializer
-document.addEventListener("DOMContentLoaded", () => {
-    console.log(`%c[RiseUp Bootstrapper] Initializing Client Engine: ${ENGINE_SESSION_METRICS.clientVersion}`, "color: #0070f3; font-weight: bold;");
-    initHeroStudioArt();
-    initializeUIActionEngine();
-    synchronizeLocalUserInterfaceData();
-});
-
-/**
- * ==========================================================================
- * THREE.JS WORKSPACE GRAPHICS ARCHITECTURE
- * ==========================================================================
- * Renders the high-fidelity blue planetary logo sphere element procedurally.
- * Handles automatic aspect adjustment bounds and canvas layer alpha hooks.
- */
-function initHeroStudioArt() {
-    if (!DOM_CACHE.canvasFrameSlot) {
-        console.warn("[Render Warning] Hero illustration viewport mount target context was missing from current DOM layout view tree.");
-        return;
-    }
-
-    const boxWidth = DOM_CACHE.canvasFrameSlot.clientWidth;
-    const boxHeight = DOM_CACHE.canvasFrameSlot.clientHeight;
-
-    // Build Scene Pipeline Layers
-    artScene = new THREE.Scene();
-    
-    artCamera = new THREE.PerspectiveCamera(42, boxWidth / boxHeight, 0.1, 100);
-    artCamera.position.set(0, 0, 5.2);
-
-    artRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    artRenderer.setSize(boxWidth, boxHeight);
-    artRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    artRenderer.outputColorSpace = THREE.SRGBColorSpace;
-    DOM_CACHE.canvasFrameSlot.appendChild(artRenderer.domElement);
-
-    // Balanced Lighting Environment Array
-    const ambientLightRig = new THREE.AmbientLight(0xffffff, 1.4);
-    artScene.add(ambientLightRig);
-
-    const cyanKeyGlowLight = new THREE.DirectionalLight(0x5ca2ff, 2.5);
-    cyanKeyGlowLight.position.set(4, 3, 5);
-    artScene.add(cyanKeyGlowLight);
-
-    const backAccentRimLight = new THREE.DirectionalLight(0x7000ff, 1.2);
-    backAccentRimLight.position.set(-4, -2, -3);
-    artScene.add(backAccentRimLight);
-
-    // Build the Primary Blue Logo Planet Compound Node
-    planetSphereNode = new THREE.Group();
-    
-    const coreSphereGeometry = new THREE.SphereGeometry(1.25, 64, 64);
-    const coreSphereMaterial = new THREE.MeshStandardMaterial({
-        color: 0x0064e0,
-        roughness: 0.18,
-        metalness: 0.15,
-        flatShading: false
-    });
-    
-    const planetBaseMesh = new THREE.Mesh(coreSphereGeometry, coreSphereMaterial);
-    planetSphereNode.add(planetBaseMesh);
-
-    // Compound Mathematical Geometric Assembly modeling a Flat 'R' Monogram Mark profile
-    const markMaterialProfile = new THREE.MeshStandardMaterial({ 
-        color: 0xffffff, 
-        roughness: 0.25,
-        metalness: 0.05
-    });
-    
-    const letterStemElement = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.76, 0.1), markMaterialProfile);
-    letterStemElement.position.set(-0.24, 0, 1.22);
-    planetSphereNode.add(letterStemElement);
-
-    const letterLoopElement = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.08, 16, 32, Math.PI * 1.5), markMaterialProfile);
-    letterLoopElement.position.set(-0.05, 0.17, 1.22);
-    letterLoopElement.rotation.z = -Math.PI / 2;
-    planetSphereNode.add(letterLoopElement);
-
-    const letterLegElement = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.38, 0.1), markMaterialProfile);
-    letterLegElement.position.set(0.01, -0.19, 1.22);
-    letterLegElement.rotation.z = -Math.PI / 4;
-    planetSphereNode.add(letterLegElement);
-
-    artScene.add(planetSphereNode);
-
-    // Ambient Space Dust Star Field Buffer Formulation
-    const particleGeometryBuffer = new THREE.BufferGeometry();
-    const particleCount = 45;
-    const positionCoordinatesArray = new Float32Array(particleCount * 3);
-
-    for (let indexOffset = 0; indexOffset < particleCount * 3; indexOffset += 3) {
-        positionCoordinatesArray[indexOffset] = (Math.random() - 0.5) * 6;
-        positionCoordinatesArray[indexOffset + 1] = (Math.random() - 0.5) * 4;
-        positionCoordinatesArray[indexOffset + 2] = (Math.random() - 0.5) * 3;
-    }
-
-    particleGeometryBuffer.setAttribute("position", new THREE.BufferAttribute(positionCoordinatesArray, 3));
-    const pointMaterialAsset = new THREE.PointsMaterial({
-        color: 0x8ab9ff,
-        size: 0.025,
-        transparent: true,
-        opacity: 0.4
-    });
-    spaceParticlesNode = new THREE.Points(particleGeometryBuffer, pointMaterialAsset);
-    artScene.add(spaceParticlesNode);
-
-    // Ambient Planetary Atmospheric Outer Ring Wire Frame
-    const atmosphericRingGeometry = new THREE.TorusGeometry(1.85, 0.016, 8, 64);
-    const atmosphericRingMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xffffff, 
-        transparent: true, 
-        opacity: 0.08 
-    });
-    planetRingNode = new THREE.Mesh(atmosphericRingGeometry, atmosphericRingMaterial);
-    planetRingNode.rotation.x = Math.PI / 2.2;
-    planetRingNode.rotation.y = Math.PI / 5.5;
-    artScene.add(planetRingNode);
-
-    // Bind viewport adjustment listeners
-    window.addEventListener("resize", handleCanvasResize, { passive: true });
-
-    // Launch Animation Engine Frame Loops
-    const executionClockInstance = new THREE.Clock();
-    ENGINE_SESSION_METRICS.renderPipelineActive = true;
-
-    function renderExecutionPipelineFrame() {
-        if (!ENGINE_SESSION_METRICS.renderPipelineActive) return;
-        requestAnimationFrame(renderExecutionPipelineFrame);
+    /**
+     * Spawns core subsystem routines
+     */
+    launchEnginePipeline() {
+        console.log("%c[RiseUp Core Engine] Initializing ultra-detailed subsystem managers...", "color: #0074ff; font-weight: bold;");
         
-        const totalElapsedTime = executionClockInstance.getElapsedTime();
+        this.initializeStateTrackingHUD();
+        this.bootGraphicsPipeline3D();
+        this.registerParallaxCardsEngine();
+        this.bindUserActionTriggers();
+    }
 
-        // Slow smooth planetary spin calculation loop matrices
-        if (planetSphereNode) {
-            planetSphereNode.rotation.y = Math.sin(totalElapsedTime * 0.08) * 0.35;
-            planetSphereNode.rotation.x = Math.cos(totalElapsedTime * 0.04) * 0.08;
+    /**
+     * Synchs initial state models cleanly with HTML rendering channels
+     */
+    initializeStateTrackingHUD() {
+        if (this.domElements.creditDisplay) {
+            this.domElements.creditDisplay.textContent = this.sessionState.user.credits.toLocaleString();
         }
+    }
 
-        if (planetRingNode) {
-            planetRingNode.rotation.z = totalElapsedTime * 0.015;
-        }
+    /**
+     * ==========================================================================
+     * ADVANCED THREE.JS GRAPHICS MANAGEMENT MANAGER
+     * Renders a custom hyper-reflective, glassmorphic atmospheric planet sphere
+     * ==========================================================================
+     */
+    bootGraphicsPipeline3D() {
+        const container = this.domElements.canvasContainer;
+        if (!container) return;
 
-        if (spaceParticlesNode) {spaceParticlesNode.rotation.y = totalElapsedTime * -0.01;}artRenderer.render(artScene, artCamera);}renderExecutionPipelineFrame();}function handleCanvasResize() {if (!DOM_CACHE.canvasFrameSlot || !artRenderer || !artCamera) return;const containerWidth = DOM_CACHE.canvasFrameSlot.clientWidth;const containerHeight = DOM_CACHE.canvasFrameSlot.clientHeight;artCamera.aspect = containerWidth / containerHeight;artCamera.updateProjectionMatrix();artRenderer.setSize(containerWidth, containerHeight);}
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+
+        // 1. Scene & Multi-Pass Perspective Configurations
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+        camera.position.set(0, 0, 4.2);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.4;
+        container.appendChild(renderer.domElement);
+
+        // 2. High-Fidelity Dual-Point Cinematic Lighting Rig
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambLight);
+
+        const keyRimLight = new THREE.DirectionalLight(0x00a2ff, 3.5); // Radiant azure edge rim backlight
+        keyRimLight.position.set(5, 4, 3);
+        scene.add(keyRimLight);
+
+        const softFillLight = new THREE.DirectionalLight(0xb38fff, 1.8); // Subtle cinematic magenta front fill light
+        softFillLight.position.set(-5, -2, 2);
+        scene.add(softFillLight);
+
+        // 3. Build Procedural Compound Node Objects Group
+        const planetClusterGroup = new THREE.Group();
+
+        // Shiny Glassmorphic Base Sphere Geometry Formulation
+        const corePlanetMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1.15, 64, 64),
+            new THREE.MeshStandardMaterial({
+                color: 0x0055ff,
+                roughness: 0.08,
+                metalness: 0.15,
+                bumpScale: 0.05,
+                flatShading: false
+            })
+        );
+        planetClusterGroup.add(corePlanetMesh);
+
+        // Extrude and position sharp compound white letter "R" sign panels onto front axis bounds
+        const signFaceMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.1 });
+        
+        const rStem = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.8, 0.1), signFaceMat);
+        rStem.position.set(-0.24, 0, 1.12);
+        planetClusterGroup.add(rStem);
+
+        const rLoop = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.08, 16, 32, Math.PI * 1.5), signFaceMat);
+        rLoop.position.set(-0.06, 0.2, 1.12);
+        rLoop.rotation.z = -Math.PI / 2;
+        planetClusterGroup.add(rLoop);
+
+        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.44, 0.1), signFaceMat);
+        rLeg.position.set(0.02, -0.18, 1.12);
+        rLeg.rotation.z = -Math.PI / 4;
+        planetClusterGroup.add(rLeg);
+
+        scene.add(planetClusterGroup);
+
+        // 4. Create Outer Atmospheric Orbit Space Dust Ring Node
+        const outerOrbitRing = new THREE.Mesh(
+            new THREE.TorusGeometry(1.75, 0.015, 8, 128),
+            new THREE.MeshBasicMaterial({ color: 0x00a2ff, transparent: true, opacity: 0.15 })
+        );
+        outerOrbitRing.rotation.x = Math.PI / 2.2;
+        outerOrbitRing.rotation.y = Math.PI / 5;
+        scene.add(outerOrbitRing);
+
+        // 5. Track Real-time Mouse Movements to Generate Intermittent Hover Matrix Slopes
+        let physicsPointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        window.addEventListener("mousemove", (e) => {
+            physicsPointer.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+            physicsPointer.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // 6. Execution Runtime Anim Loop Setup
+        const systemClock = new THREE.Clock();
+        const renderMatrixLoop = () => {
+            requestAnimationFrame(renderMatrixLoop);
+            const elapsedTime = systemClock.getElapsedTime();
+
+            // Interpolate tracking parameters smoothly using standard mathematical LERP formulas
+            physicsPointer.x += (physicsPointer.targetX - physicsPointer.x) * 0.05;
+            physicsPointer.y += (physicsPointer.targetY - physicsPointer.y) * 0.05;
+
+            // Apply procedural continuous timeline spins layered over active pointer coordinate deltas
+            if (planetClusterGroup) {
+                planetClusterGroup.rotation.y = (Math.sin(elapsedTime * 0.12) * 0.3) + (physicsPointer.x * 0.4);
+                planetClusterGroup.rotation.x = (Math.cos(elapsedTime * 0.06) * 0.1) + (-physicsPointer.y * 0.2);
+            }
+
+            if (outerOrbitRing) {
+                outerOrbitRing.rotation.z = elapsedTime * 0.015;
+            }
+
+            renderer.render(scene, camera);
+        };
+        renderMatrixLoop();
+
+        // 7. Responsive Rescale Anchor Handler Link
+        window.addEventListener("resize", () => {
+            const currentWidth = container.clientWidth;
+            const currentHeight = container.clientHeight;
+            camera.aspect = currentWidth / currentHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(currentWidth, currentHeight);
+        });
+    }
+
+    /**
+     * ==========================================================================
+     * HIGH-FIDELITY PARALLAX CARDS DISPLACEMENT MANAGEMENT
+     * Adds advanced fluid mouse tilt physics to game thumbnail grid blocks
+     * ==========================================================================
+     */
+    registerParallaxCardsEngine() {
+        const structuralTiles = document.querySelectorAll(".experienceCatalogCard, .quickAccessLinkCard, .welcomeHeroSection");
+        
+        structuralTiles.forEach(tile => {
+            tile.style.transformStyle = "preserve-3d";
+            tile.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.2s, box-shadow 0.2s";
+
+            tile.addEventListener("mousemove", (event) => {
+                const boundaryRect = tile.getBoundingClientRect();
+                
+                // Track pointer pixel displacements relative to card midpoint anchors
+                const relativePointerX = event.clientX - boundaryRect.left;
+                const relativePointerY = event.clientY - boundaryRect.top;
+                
+                // Formulate coordinate percentage ranges spanning values from -0.5 to 0.5
+                const normalizedDisplacementX = (relativePointerX / boundaryRect.width) - 0.5;
+                const normalizedDisplacementY = (relativePointerY / boundaryRect.height) - 0.5;
+
+                // Restrict extreme tilting configurations using maximum angular caps
+                const finalCalculatedTiltY = (normalizedDisplacementX * 8).toFixed(2);  // Degrees span restriction
+                const finalCalculatedTiltX = (-normalizedDisplacementY * 8).toFixed(2); // Degrees span restriction
+
+                tile.style.transform = `perspective(800px) rotateX(${finalCalculatedTiltX}deg) rotateY(${finalCalculatedTiltY}deg) scale3d(1.015, 1.015, 1.015)`;
+                
+                // Enhance visual depth by dynamic shifting highlight layer gradients inside children parameters
+                const interiorThumbNode = tile.querySelector(".cardThumbnailFallback, .quickAccessIconCircle");
+                if (interiorThumbNode) {
+                    interiorThumbNode.style.transform = "translateZ(12px)";
+                    interiorThumbNode.style.transition = "transform 0.1s ease";
+                }
+            });
+
+            tile.addEventListener("mouseleave", () => {
+                // Revert component transform positioning vectors smoothly back to baseline grids values
+                // tile.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";const interiorThumbNode = tile.querySelector(".cardThumbnailFallback, .quickAccessIconCircle");if (interiorThumbNode) {interiorThumbNode.style.transform = "translateZ(0px)";}});});}/*** ==========================================================================* SYSTEM ROUTING INTERACTION AND EVENT REGISTRATION LISTENERS* ==========================================================================*/bindUserActionTriggers() {const engineContext = this;// 1. RESTRUCTURE NAVIGATION CLICK TRANSITIONS (Sidebar + Header links pooling)const bindRoutingNode = (elementNode) => {if (!elementNode) return;elementNode.addEventListener("click", (e) => {e.preventDefault();const primaryTargetUrl = elementNode.getAttribute("href");console.log([Router Action] Preparing secure data slots context handshake for path: ${primaryTargetUrl});// Trigger quick outward body fade transition effects across active containersdocument.body.style.opacity = "0.45";document.body.style.transition = "opacity 0.12s ease-out";setTimeout(() => { window.location.href = primaryTargetUrl; }, 120);});};engineContext.domElements.sidebarLinks.forEach(link => bindRoutingNode(link));engineContext.domElements.topTabs.forEach(tab => bindRoutingNode(tab));engineContext.domElements.quickLinks.forEach(card => bindRoutingNode(card));// 2. DISCOVER CORE SEARCH SUBMISSIONS PARSERif (engineContext.domElements.searchField) {engineContext.domElements.searchField.addEventListener("keydown", (e) => {if (e.key === "Enter" && engineContext.domElements.searchField.value.trim() !== "") {const cleanStringQuery = engineContext.domElements.searchField.value.trim();console.log([Database Filtering] Passing query variables upstream: "${cleanStringQuery}");window.location.href = discover.html?search=${encodeURIComponent(cleanStringQuery)};}});}// 3. MOCK REAL-TIME TRANSACTION MANAGER (Click balance pillar to add funds)if (engineContext.domElements.creditsBox) {engineContext.domElements.creditsBox.style.cursor = "pointer";engineContext.domElements.creditsBox.addEventListener("click", () => {engineContext.sessionState.user.credits += 500;// Animate micro flash changes indicators directly inside value boxesif (engineContext.domElements.creditDisplay) {engineContext.domElements.creditDisplay.style.color = "#00ff77";engineContext.domElements.creditDisplay.style.transition = "color 0.05s ease";engineContext.domElements.creditDisplay.textContent = engineContext.sessionState.user.credits.toLocaleString();setTimeout(() => {engineContext.domElements.creditDisplay.style.color = "#ffffff";}, 200);}console.log([Ledger Synch] Transaction authorized. Balance: ${engineContext.sessionState.user.credits} Credits.);});}// 4. ACTION HOOK SHORTCUT REDIRECT STRINGSconst shortcutCallButtons = document.querySelectorAll(".heroCallToActions .heroBtn, .absoluteCreateButton, .discoverGamesShortcutBtn, .viewAllRowLink");shortcutCallButtons.forEach(btn => bindRoutingNode(btn));// 5. GRID EXPERIENCE TILES LAUNCH PARSERSengineContext.domElements.cards.forEach(card => {card.addEventListener("click", () => {const targetGameTitle = card.querySelector(".cardGameTitle")?.textContent || "Experience Bundle";console.log([Client Sandbox] Allocating thread sockets memory. Spin lock up for experience instance: "${targetGameTitle}");// Direct route to our running runtime canvas engine frame pagewindow.location.href = "player3d.html";});});}}/**Instantiate framework engine runner inside the globally active client session layer*/document.addEventListener("DOMContentLoaded", () => {const riseupAppInstance = new RiseUpAppEngine();riseupAppInstance.launchEnginePipeline();});

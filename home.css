@@ -7,96 +7,211 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #08060b;
+  background: #0c0d12; /* Real deep flat slate tone from screenshot */
   color: #fff;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
 }
 
-#riseupApp {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-}
-
 /* ==========================================================================
-   LEFT SIDEBAR: SYSTEM CORE COMPONENT NAVIGATION
+   TOP SCREEN NAVBAR (Spans 100% full top width)
    ========================================================================== */
-#mainSidebar {
-  width: 240px;
-  background: #0d0a14;
-  border-right: 1px solid rgba(255, 255, 255, 0.02);
-  display: flex;
-  flex-direction: column;
-  padding: 24px 16px;
-  gap: 28px;
-  flex-shrink: 0;
-}
-
-.sidebarBrand {
+#topGlobalNavbar {
+  height: 48px; /* Roblox flat thin design bar format */
+  background: #191b24; /* Solid header gray panel */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-left: 8px;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.navLeftSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sidebarToggleBurger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.burgerBar {
+  width: 18px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 1px;
+}
+
+.navbarBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .brandMark {
-  width: 28px;
-  height: 28px;
-  background: #0070f3;
+  width: 24px;
+  height: 24px;
+  background: #0074ff;
   color: white;
   font-weight: 900;
-  font-size: 16px;
-  border-radius: 6px;
+  font-size: 13px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
 }
 
 .brandName {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 800;
-  letter-spacing: 0.2px;
+  letter-spacing: -0.2px;
+}
+
+.centerTabs {
+  display: flex;
+  gap: 16px;
+  margin-left: 16px;
+}
+
+.topTabLink {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  transition: color 0.15s;
+}
+.topTabLink:hover { color: #ffffff; }
+.topTabLink.active { color: #ffffff; background: rgba(255, 255, 255, 0.06); border-radius: 4px; }
+
+.rightControlTray {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navSearchWrapper {
+  background: #0c0d12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 220px;
+}
+
+.navSearchWrapper input {
+  background: none;
+  border: none;
+  color: white;
+  width: 100%;
+  font-size: 12px;
+}
+.navSearchWrapper input:focus { outline: none; }
+.searchIconSymbol { font-size: 11px; opacity: 0.4; cursor: pointer; }
+
+.navbarIconBtn { font-size: 14px; cursor: pointer; opacity: 0.6; }
+.navbarIconBtn:hover { opacity: 1; }
+
+.coinBalanceCounter {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.userProfileAvatarPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.userInitialCircle {
+  width: 24px;
+  height: 24px;
+  background: #0074ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dropdownArrowText { font-size: 8px; opacity: 0.4; }
+
+/* ==========================================================================
+   MAIN STRUCTURAL APPLICATION WRAPPER (Sits under the navbar)
+   ========================================================================== */
+#riseupAppContainer {
+  display: flex;
+  width: 100vw;
+  height: calc(100vh - 48px);
+  margin-top: 48px;
+}
+
+/* NAVIGATION SIDEBAR COLUMN */
+#mainSidebar {
+  width: 200px;
+  background: #191b24;
+  border-right: 1px solid rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 8px;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
 .menuGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .groupTitle {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.25);
-  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 1px;
   padding-left: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .groupLinks {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 10px;
   color: rgba(255, 255, 255, 0.45);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.15s, color 0.15s;
+  border-radius: 4px;
+  transition: background 0.1s, color 0.1s;
 }
 
 .navLink:hover {
   background: rgba(255, 255, 255, 0.02);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .navLink.active {
@@ -104,30 +219,19 @@ html, body {
   color: #ffffff;
 }
 
-/* UI Structural block box replacing raw graphic icons */
 .navIndicatorBlock {
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
 }
-.navLink.active .navIndicatorBlock {
-  background: #0070f3;
-}
+.navLink.active .navIndicatorBlock { background: #0074ff; }
 
-.systemGroup {
-  margin-top: auto;
-}
-
-.sidebarFooterHint {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.15);
-  padding-left: 10px;
-}
+.systemGroup { margin-top: auto; }
+.sidebarFooterHint { font-size: 10px; color: rgba(255, 255, 255, 0.12); padding-left: 10px; }
 
 /* ==========================================================================
-   RIGHT CONTENT REGION: APPLICATION FRAMEWORK LAYOUTS
+   WORKSPACE CONTENT DISPLAY SUBDIVISIONS
    ========================================================================== */
 #homeMainWorkspace {
   flex: 1;
@@ -136,136 +240,23 @@ html, body {
   overflow: hidden;
 }
 
-#topGlobalNavbar {
-  height: 64px;
-  background: #0d0a14;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  z-index: 40;
-  flex-shrink: 0;
-}
-
-.centerTabs {
-  display: flex;
-  gap: 24px;
-}
-
-.topTabLink {
-  color: rgba(255, 255, 255, 0.45);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  transition: color 0.15s;
-}
-.topTabLink:hover { color: rgba(255, 255, 255, 0.85); }
-.topTabLink.active { color: #ffffff; }
-
-.rightControlTray {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.navSearchWrapper {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  padding: 8px 16px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 240px;
-}
-
-.navSearchWrapper input {
-  background: none;
-  border: none;
-  color: white;
-  width: 100%;
-  font-size: 13px;
-}
-.navSearchWrapper input:focus { outline: none; }
-
-.searchLabelText {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.25);
-  letter-spacing: 0.5px;
-}
-
-.navbarTextButton {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.45);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-.navbarTextButton:hover { color: white; }
-
-.coinBalanceCounter {
-  background: rgba(255, 255, 255, 0.04);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  gap: 6px;
-}
-
-.coinCurrencyLabel {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.userProfileAvatarPill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.userInitialCircle {
-  width: 26px;
-  height: 26px;
-  background: #0070f3;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.dropdownArrowText {
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-/* CONTENT GRID SCROLLER WRAPPER */
 .scrollableContentWrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 32px 40px;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
-/* ==========================================================================
-   HERO MARKETING SYSTEM HERO SECTION DISPLAY
-   ========================================================================== */
+/* HERO SECTION BANNER HOOKS */
 .welcomeHeroSection {
-  background: #0d0a14;
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  border-radius: 20px;
-  padding: 40px;
+  background: #191b24; /* Dark Roblox panel block color */
+  border-radius: 8px;
+  padding: 32px;
   display: grid;
-  grid-template-columns: 1fr 440px;
-  gap: 40px;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
   position: relative;
   overflow: hidden;
 }
@@ -274,110 +265,89 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  z-index: 5;
 }
 
 .heroWelcomeBadge {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  color: #0070f3;
-  letter-spacing: 1.5px;
-  margin-bottom: 8px;
+  color: #0074ff;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
 
 .heroMainHeading {
-  margin: 0 0 10px 0;
-  font-size: 32px;
+  margin: 0 0 8px 0;
+  font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.5px;
 }
 
 .heroSubtextDesc {
-  margin: 0 0 32px 0;
-  font-size: 15px;
+  margin: 0 0 24px 0;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.45);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-.heroCallToActions {
-  display: flex;
-  gap: 12px;
-}
+.heroCallToActions { display: flex; gap: 10px; }
 
 .heroBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.15s, transform 0.15s;
 }
+.heroBtn.primary { background: #ffffff; color: #191b24; }
+.heroBtn.secondary { background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.05); }
 
-.heroBtn.primary { background: #ffffff; color: #0d0a14; }
-.heroBtn.primary:hover { background: #eaeaea; }
-.heroBtn.secondary { background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.04); }
-.heroBtn.secondary:hover { background: rgba(255, 255, 255, 0.08); }
-
-/* HERO RIGHT VIEWPORT CARD AND 3D CONTAINER GRAPHICS */
+/* HERO BRAND ENGINE OVERLAYS */
 .heroRightArtPanel {
-  background: #110d1c;
-  border-radius: 16px;
-  height: 260px;
+  background: #11131a;
+  border-radius: 8px;
+  height: 200px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 32px;
 }
 
-.experienceBrandingFrame {
-  max-width: 220px;
-  z-index: 5;
-}
-
-.expBrandTag { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
-.expMainSlogan { margin: 8px 0; font-size: 26px; font-weight: 900; line-height: 1.1; letter-spacing: -0.5px; }
-.expSloganSub { margin: 0; font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+.experienceBrandingFrame { max-width: 180px; z-index: 5; }
+.expBrandTag { font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.25); }
+.expMainSlogan { margin: 6px 0; font-size: 22px; font-weight: 900; line-height: 1.1; }
+.expSloganSub { margin: 0; font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.4; }
 
 #hero3dCanvasContainer {
   position: absolute;
   top: 0;
-  right: -20px;
-  width: 260px;
+  right: -10px;
+  width: 200px;
   height: 100%;
   pointer-events: none;
-  z-index: 2;
 }
 
 .absoluteCreateButton {
   position: absolute;
-  top: 40px;
-  right: 40px;
-  background: #0070f3;
+  top: 32px;
+  right: 32px;
+  background: #0074ff;
   color: white;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 8px 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 112, 243, 0.2);
-  transition: background 0.15s;
+  padding: 6px 12px;
+  border-radius: 4px;
   z-index: 10;
 }
-.absoluteCreateButton:hover { background: #0060df; }
 
 /* ==========================================================================
-   UNIVERSAL ROW SECTION PANEL BOUNDS
+   CONTENT ROWS AND TILES MATRIX SYSTEM
    ========================================================================== */
-.dashboardRowSection {
-  display: flex;
-  flex-direction: column;
-}
+.dashboardRowSection { display: flex; flex-direction: column; }
 
 .rowHeaderBar {
   display: flex;
@@ -386,31 +356,15 @@ html, body {
   margin-bottom: 6px;
 }
 
-.rowHeaderBar h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.viewAllRowLink {
-  color: #0070f3;
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 700;
-}
+.rowHeaderBar h3 { margin: 0; font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.95); }
+.viewAllRowLink { color: #0074ff; text-decoration: none; font-size: 12px; font-weight: 700; }
 .viewAllRowLink:hover { text-decoration: underline; }
+.rowLabelSubtext { margin: 0 0 14px 0; font-size: 12px; color: rgba(255, 255, 255, 0.35); }
 
-.rowLabelSubtext {
-  margin: 0 0 18px 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-/* CONTINUE PLAYING PRESET RECENT EMPTY VIEWS */
+/* RECENT GAMES EMPTY VIEW HOLDER */
 .recentGamesEmptyCard {
-  background: #0d0a14;
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  border-radius: 16px;
+  background: #191b24;
+  border-radius: 8px;
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -420,56 +374,54 @@ html, body {
 }
 
 .emptyCardIconSlot {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
-/* Flat box replacing the original emoji star symbol */
-.emptyRhombusIcon {
-  width: 12px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 2px;
-  transform: rotate(45deg);
-}
+.emptyRhombusIcon { font-size: 12px; color: rgba(255, 255, 255, 0.2); }
+.recentGamesEmptyCard h4 { margin: 0 0 4px 0; font-size: 13px; font-weight: 700; }
+.recentGamesEmptyCard p { margin: 0 0 14px 0; font-size: 11px; color: rgba(255, 255, 255, 0.35); }
+.discoverGamesShortcutBtn { background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 4px; }
 
-.recentGamesEmptyCard h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 700; }
-.recentGamesEmptyCard p { margin: 0 0 16px 0; font-size: 12px; color: rgba(255, 255, 255, 0.35); }
-
-.discoverGamesShortcutBtn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  color: white;
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 8px 18px;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-.discoverGamesShortcutBtn:hover { background: rgba(255, 255, 255, 0.08); }
-
-/* ==========================================================================
-   FEATURED GRID ARRAYS CATALOG
-   ========================================================================== */
+/* FEATURED EXPERIENCES TILES GRIDS */
 .featuredCatalogGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 .experienceCatalogCard {
-  background: #0d0a14;
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  border-radius: 16px;
+  background: #191b24;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
-flex-direction: column;transition: transform 0.15s, border-color 0.15s;}.experienceCatalogCard:hover {transform: translateY(-2px);border-color: rgba(255, 255, 255, 0.06);}.cardThumbnailFallback {height: 120px;width: 100%;display: flex;align-items: center;justify-content: center;border-bottom: 1px solid rgba(255, 255, 255, 0.02);}.cardThumbMark {font-size: 24px;font-weight: 900;opacity: 0.15;}.cardMetaBody {padding: 16px;display: flex;flex-direction: column;gap: 4px;}.cardGameTitle { margin: 0; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }.cardGameDescription { margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.45); }.cardCreatorCredits { margin-top: 4px; font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.25); }/* ==========================================================================QUICK ACCESS HUB BUTTONS LINKS========================================================================== */.quickAccessLinksGrid {display: grid;grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));gap: 16px;}.quickAccessLinkCard {background: #0d0a14;border: 1px solid rgba(255, 255, 255, 0.02);border-radius: 14px;padding: 16px 20px;display: flex;align-items: center;gap: 16px;text-decoration: none;color: white;transition: background 0.15s, border-color 0.15s;}.quickAccessLinkCard:hover {background: rgba(255, 255, 255, 0.01);border-color: rgba(255, 255, 255, 0.05);}.quickAccessIconCircle {width: 36px;height: 36px;border-radius: 8px;display: flex;align-items: center;justify-content: center;font-size: 11px;font-weight: 800;background: rgba(0, 112, 243, 0.1);color: #0070f3;flex-shrink: 0;letter-spacing: 0.5px;}.quickAccessLabelDetails {display: flex;flex-direction: column;flex: 1;}.quickAccessLabelDetails h5 { margin: 0; font-size: 13px; font-weight: 700; }.quickAccessLabelDetails p { margin: 2px 0 0 0; font-size: 11px; color: rgba(255, 255, 255, 0.35); }.quickAccessArrowSymbol {font-size: 10px;font-weight: 800;text-transform: uppercase;color: rgba(255, 255, 255, 0.25);letter-spacing: 0.5px;}.quickAccessPaddingBottom { padding-bottom: 20px; }/* ==========================================================================FOOTER ROW DESIGN ELEMENT METRICS========================================================================== */#homeWorkspaceFooter {border-top: 1px solid rgba(255, 255, 255, 0.02);padding-top: 24px;margin-top: auto;}.footerContainer {display: flex;align-items: center;gap: 20px;}.footerLeftBrandRow {display: flex;align-items: center;gap: 8px;}.footerBrandIcon {width: 18px;height: 18px;background: rgba(255, 255, 255, 0.1);border-radius: 4px;font-size: 10px;font-weight: 900;display: flex;align-items: center;justify-content: center;}.footerBrandText { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4); }.footerLinksRow {display: flex;gap: 12px;font-size: 11px;font-weight: 600;color: rgba(255, 255, 255, 0.2);}/* Global scroll container tracking rules overrides */.scrollableContentWrapper::-webkit-scrollbar { width: 6px; }.scrollableContentWrapper::-webkit-scrollbar-track { background: transparent; }.scrollableContentWrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.04); border-radius: 10px; }
+  flex-direction: column;
+  transition: transform 0.1s;
+}
+.experienceCatalogCard:hover { transform: translateY(-2px); }
+
+.cardThumbnailFallback {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cardThumbnailFallback.bg-purple { background: linear-gradient(135deg, #251647 0%, #11131a 100%); }
+.cardThumbnailFallback.bg-blue { background: linear-gradient(135deg, #122842 0%, #11131a 100%); }
+.cardThumbnailFallback.bg-red { background: linear-gradient(135deg, #42121d 0%, #11131a 100%); }
+.cardThumbnailFallback.bg-green { background: linear-gradient(135deg, #124225 0%, #11131a 100%); }
+
+.cardThumbMark { font-size: 20px; font-weight: 900; opacity: 0.1; }
+
+.cardMetaBody { padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.cardGameTitle { margin: 0; font-size: 13px; font-weight: 700; }
+.cardGameDescription { margin: 0; font-size: 11px; color: rgba(255, 255, 255, 0.4); }.cardCreatorCredits { margin-top: 4px; font-size: 10px; color: rgba(255, 255, 255, 0.2); font-weight: 600; }/* QUICK ACCESS APP BUTTONS HUB */.quickAccessLinksGrid {display: grid;grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));gap: 12px;}.quickAccessLinkCard {background: #191b24;border-radius: 6px;padding: 12px 16px;display: flex;align-items: center;gap: 12px;text-decoration: none;color: white;}.quickAccessIconCircle {width: 28px;height: 28px;background: rgba(0, 116, 255, 0.1);color: #0074ff;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 13px;flex-shrink: 0;}.quickAccessLabelDetails { display: flex; flex-direction: column; flex: 1; }.quickAccessLabelDetails h5 { margin: 0; font-size: 12px; font-weight: 700; }.quickAccessLabelDetails p { margin: 1px 0 0 0; font-size: 10px; color: rgba(255, 255, 255, 0.35); }.quickAccessArrowSymbol { font-size: 14px; color: rgba(255,255,255,0.15); }.quickAccessPaddingBottom { padding-bottom: 20px; }/* FOOTER LOG SECTION */#homeWorkspaceFooter { border-top: 1px solid rgba(255, 255, 255, 0.02); padding-top: 20px; margin-top: auto; }.footerContainer { display: flex; align-items: center; gap: 16px; }.footerLeftBrandRow { display: flex; align-items: center; gap: 6px; }.footerBrandIcon { width: 16px; height: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; }.footerBrandText { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3); }.footerLinksRow { display: flex; gap: 8px; font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.15); }.scrollableContentWrapper::-webkit-scrollbar { width: 5px; }.scrollableContentWrapper::-webkit-scrollbar-track { background: transparent; }.scrollableContentWrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }

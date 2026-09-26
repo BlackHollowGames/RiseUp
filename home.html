@@ -7,180 +7,154 @@
     <link rel="stylesheet" href="home.css">
 </head>
 <body>
-    <div id="riseupApp">
-        <!-- LEFT NAVIGATION SIDEBAR -->
-        <aside id="mainSidebar">
-            <div class="sidebarBrand">
+    <!-- TOP GLOBAL NAVBAR (Spans 100% full screen width) -->
+    <header id="topGlobalNavbar">
+        <div class="navLeftSection">
+            <div class="sidebarToggleBurger">
+                <span class="burgerBar"></span>
+                <span class="burgerBar"></span>
+                <span class="burgerBar"></span>
+            </div>
+            <div class="navbarBrand">
                 <div class="brandMark">R</div>
                 <span class="brandName">RiseUp</span>
             </div>
+            <nav class="centerTabs">
+                <a href="home.html" class="topTabLink active">Home</a>
+                <a href="discover.html" class="topTabLink">Discover</a>
+                <a href="marketplace.html" class="topTabLink">Marketplace</a>
+                <a href="studio.html" class="topTabLink">Create</a>
+            </nav>
+        </div>
+        
+        <div class="rightControlTray">
+            <div class="navSearchWrapper">
+                <input type="text" placeholder="Search RiseUp">
+                <!-- Search Loupe Vector Icon -->
+                <svg class="navSvgIcon inlineSearchIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/>
+                </svg>
+            </div>
+            <!-- Alert Bell Vector Icon -->
+            <div class="navbarIconBtn">
+                <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1-1.5-1s-1.5.17-1.5 1v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="coinBalanceCounter">
+                <!-- Robux/Credit Shape Polygon representation -->
+                <svg class="navSvgIcon inlineCoinIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="coinVal">0</span>
+            </div>
+            <div class="userProfileAvatarPill">
+                <span class="userInitialCircle">S</span>
+                <span class="dropdownArrowText">▼</span>
+            </div>
+        </div>
+    </header>
 
-            <!-- PRIMARY LINKS SECTION -->
+    <!-- MAIN BODY CONTAINER LAYOUT (Below the navbar) -->
+    <div id="riseupAppContainer">
+        
+        <!-- LEFT FIXED NAVIGATION SIDEBAR WITH OFFICIAL VECTOR ICONS -->
+        <aside id="mainSidebar">
             <div class="menuGroup">
                 <div class="groupTitle">NAVIGATION</div>
                 <nav class="groupLinks">
-                    <a href="home.html" class="navLink active"><span class="navIndicatorBlock"></span> Home</a>
-                    <a href="discover.html" class="navLink"><span class="navIndicatorBlock"></span> Discover</a>
-                    <a href="avatar.html" class="navLink"><span class="navIndicatorBlock"></span> Avatar</a>
-                    <a href="inventory.html" class="navLink"><span class="navIndicatorBlock"></span> Inventory</a>
-                    <a href="friends.html" class="navLink"><span class="navIndicatorBlock"></span> Friends</a>
-                    <a href="marketplace.html" class="navLink"><span class="navIndicatorBlock"></span> Marketplace</a>
-                    <a href="messages.html" class="navLink"><span class="navIndicatorBlock"></span> Messages</a>
+                    <!-- Home Link -->
+                    <a href="home.html" class="navLink active">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
+                        </svg>
+                        Home
+                    </a>
+                    <!-- Discover Link -->
+                    <a href="discover.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/>
+                        </svg>
+                        Discover
+                    </a>
+                    <!-- Avatar Link -->
+                    <a href="avatar.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm2 2h-4c-1.1 0-2 .9-2 2v5h2v7h4v-7h2v-5c0-1.1-.9-2-2-2z" fill="currentColor"/>
+                        </svg>
+                        Avatar
+                    </a>
+                    <!-- Inventory Link -->
+                    <a href="inventory.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-8-2h4v2h-4V4zm8 15H4V8h16v11z" fill="currentColor"/>
+                        </svg>
+                        Inventory
+                    </a>
+                    <!-- Friends Link -->
+                    <a href="friends.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/>
+                        </svg>
+                        Friends
+                    </a>
+                    <!-- Marketplace Link -->
+                    <a href="marketplace.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2c0 .55.45 1 1 1h1v6h10v-6h4v6h2v-6h1c.55 0 1-.45 1-1zm-14 4H5v-4h2v4zm8 0H9v-4h6v4z" fill="currentColor"/>
+                        </svg>
+                        Marketplace
+                    </a>
+                    <!-- Messages Link -->
+                    <a href="messages.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" fill="currentColor"/>
+                        </svg>
+                        Messages
+                    </a>
                 </nav>
             </div>
 
-            <!-- CREATOR STUDIO SECTION -->
             <div class="menuGroup">
                 <div class="groupTitle">CREATOR</div>
                 <nav class="groupLinks">
-                    <a href="studio.html" class="navLink"><span class="navIndicatorBlock"></span> Studio</a>
-                    <a href="risecode.html" class="navLink"><span class="navIndicatorBlock"></span> RiseCode</a>
+                    <!-- Studio Link -->
+                    <a href="studio.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.4-2.4c.4-.4.4-1 0-1.4z" fill="currentColor"/>
+                        </svg>
+                        Studio
+                    </a>
+                    <!-- RiseCode Link -->
+                    <a href="risecode.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" fill="currentColor"/>
+                        </svg>
+                        RiseCode
+                    </a>
                 </nav>
             </div>
 
-            <!-- SYSTEM LINKS SECTION -->
             <div class="menuGroup systemGroup">
                 <nav class="groupLinks">
-                    <a href="settings.html" class="navLink"><span class="navIndicatorBlock"></span> Settings</a>
+                    <!-- Settings Link -->
+                    <a href="settings.html" class="navLink">
+                        <svg class="navSvgIcon" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/>
+                        </svg>
+                        Settings
+                    </a>
                 </nav>
             </div>
-            
             <div class="sidebarFooterHint">RiseUp Preview</div>
         </aside>
 
-        <!-- MAIN MAIN HUB INTERFACE MODULE -->
+        <!-- RIGHT MAIN SCROLLABLE CONTENT AREA -->
         <main id="homeMainWorkspace">
-            <!-- TOP CORE HORIZONTAL NAVBAR PANEL -->
-            <header id="topGlobalNavbar">
-                <nav class="centerTabs">
-                    <a href="home.html" class="topTabLink active">Home</a>
-                    <a href="discover.html" class="topTabLink">Discover</a>
-                    <a href="marketplace.html" class="topTabLink">Marketplace</a>
-                    <a href="studio.html" class="topTabLink">Create</a>
-                </nav>
-                <div class="rightControlTray">
-                    <div class="navSearchWrapper">
-                        <span class="searchLabelText">SEARCH</span>
-                        <input type="text" placeholder="Search RiseUp">
-                    </div>
-                    <div class="navbarTextButton">Alerts</div>
-                    <div class="coinBalanceCounter"><span class="coinCurrencyLabel">Credits</span> <span class="coinVal">0</span></div>
-                    <div class="userProfileAvatarPill">
-                        <span class="userInitialCircle">S</span>
-                        <span class="dropdownArrowText">Menu</span>
-                    </div>
-                </div>
-            </header>
-
-            <!-- MAIN VIEWPORT CONTAINER SCROLL TRACKS -->
             <div class="scrollableContentWrapper">
+                
                 <!-- HERO MARKETING BANNER BOARD -->
                 <section class="welcomeHeroSection">
                     <div class="heroLeftContent">
                         <span class="heroWelcomeBadge">WELCOME BACK</span>
-                        <h1 class="heroMainHeading">Welcome back, Stive ™</h1>
-                        <p class="heroSubtextDesc">Discover games, customize your avatar, and create something new.</p>
-                        
-                        <div class="heroCallToActions">
-                            <a href="discover.html" class="heroBtn primary">Explore games</a>
-                            <a href="avatar.html" class="heroBtn secondary">Customize avatar</a>
-                        </div>
-                    </div>
-                    
-                    <div class="heroRightArtPanel">
-                        <div class="experienceBrandingFrame">
-                            <span class="expBrandTag">THE RISEUP EXPERIENCE</span>
-                            <h2 class="expMainSlogan">Your world.<br>Your games.</h2>
-                            <p class="expSloganSub">Play what you love, meet other creators, and build experiences of your own.</p>
-                        </div>
-                        <!-- Canvas Target Node for the 3D Blue Logo Planet Sphere -->
-                        <div id="hero3dCanvasContainer"></div>
-                    </div>
-                    
-                    <a href="studio.html" class="absoluteCreateButton">Create Project</a>
-                </section>
-
-                <!-- ROW 1: CONTINUE PLAYING CONTEXT BOARD -->
-                <section class="dashboardRowSection">
-                    <div class="rowHeaderBar">
-                        <h3>Continue Playing</h3>
-                        <a href="discover.html" class="viewAllRowLink">View all</a>
-                    </div>
-                    <div class="recentGamesEmptyCard">
-                        <div class="emptyCardIconSlot">
-                            <div class="emptyRhombusIcon"></div>
-                        </div>
-                        <h4>No recent games</h4>
-                        <p>Games you play will appear here.</p>
-                        <a href="discover.html" class="discoverGamesShortcutBtn">Discover games</a>
-                    </div>
-                </section>
-
-                <!-- ROW 2: FEATURED CATALOG CARD GRIDS MATRIX -->
-                <section class="dashboardRowSection">
-                    <div class="rowHeaderBar">
-                        <h3>Featured</h3>
-                        <a href="discover.html" class="viewAllRowLink">See more</a>
-                    </div>
-                    <p class="rowLabelSubtext">Experiences from the RiseUp community.</p>
-                    
-                    <div class="featuredCatalogGrid">
-                        <!-- Card 1 -->
-                        <article class="experienceCatalogCard">
-                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #1d1936 0%, #0d0a14 100%);">
-                                <span class="cardThumbMark">R</span>
-                            </div>
-                            <div class="cardMetaBody">
-                                <h4 class="cardGameTitle">Obby Paradise</h4>
-                                <p class="cardGameDescription">A RiseUp experience.</p>
-                                <span class="cardCreatorCredits">BlackHollowGames</span>
-                            </div>
-                        </article>
-
-                        <!-- Card 2 -->
-                        <article class="experienceCatalogCard">
-                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #16263b 0%, #0d0a14 100%);">
-                                <span class="cardThumbMark">R</span>
-                            </div>
-                            <div class="cardMetaBody">
-                                <h4 class="cardGameTitle">3D Adventure</h4>
-                                <p class="cardGameDescription">A RiseUp experience.</p>
-                                <span class="cardCreatorCredits">RiseUp</span>
-                            </div>
-                        </article>
-
-                        <!-- Card 3 -->
-                        <article class="experienceCatalogCard">
-                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #3d1c24 0%, #0d0a14 100%);">
-                                <span class="cardThumbMark">R</span>
-                            </div>
-                            <div class="cardMetaBody">
-                                <h4 class="cardGameTitle">Horror Night</h4>
-                                <p class="cardGameDescription">A RiseUp experience.</p>
-                                <span class="cardCreatorCredits">BlackHollowGames</span>
-                            </div>
-                        </article>
-
-                        <!-- Card 4 -->
-                        <article class="experienceCatalogCard">
-                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #1b382b 0%, #0d0a14 100%);">
-                                <span class="cardThumbMark">R</span>
-                            </div>
-                            <div class="cardMetaBody">
-                                <h4 class="cardGameTitle">Open World</h4>
-                                <p class="cardGameDescription">A RiseUp experience.</p>
-                                <span class="cardCreatorCredits">SpeedTeam</span>
-                            </div>
-                        </article>
-                    </div>
-                </section>
-
-                <!-- ROW 3: QUICK ACCESS APP PANEL HUB -->
-                <section class="dashboardRowSection quickAccessPaddingBottom">
-                    <div class="rowHeaderBar">
-                        <h3>Quick Access</h3>
-                    </div>
-                    <p class="rowLabelSubtext">Your most-used RiseUp tools.</p>
-                    
-                    <div class="quickAccessLinksGrid">
-                        <a href="avatar.html" class="quickAccessLinkCard">
+                        <h1 class="heroMainHeading">Welcome back, {@username}</h1>
