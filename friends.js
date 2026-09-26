@@ -1,384 +1,122 @@
-const USER_KEY = "riseup_currentUser";
-const FRIENDS_KEY_PREFIX = "riseup_friends_";
-const AVATAR_KEY = "riseup_avatar";
-const TOK_KEY = "riseup_tok";
+// 1. MOCK SOCIAL PLAYER AND ACTIVE CHAT DICTIONARIES
+const FRIENDS_ROSTER_DATABASE = [
+    { id: "f1", username: "AlexVoxel", status: "ingame", activity: "Playing Sandbox", icon: "🦊", dialogueThread: [
+        { type: "in", text: "Yo stive! Did you see the new clay models render update?" },
+        { type: "out", text: "Yeah! Dropped the file loaders entirely, it rendering natively now." }
+    ]},
+    { id: "f2", username: "BuilderPro_99", status: "online", activity: "In Menus", icon: "🧱", dialogueThread: [
+        { type: "in", text: "Hey! Let me know when you open up creator studio server access." }
+    ]},
+    { id: "f3", username: "PixelDev", status: "offline", activity: "Offline", icon: "🕹️", dialogueThread: [] }
+];
 
-function getCurrentUser() {
-const raw = localStorage.getItem(USER_KEY);
+let selectedActiveFriendPointer = null;
 
-```
-if (!raw) {
-    return {
-        username: "Player",
-        displayName: "Player"
-    };
-}
+const rosterSlotContainer = document.getElementById("friendsRosterTarget");
+const countLabel = document.getElementById("totalFriendsCount");
 
-try {
-    const parsed = JSON.parse(raw);
+// Interactive panel view selectors
+const windowBlankEmpty = document.getElementById("emptyChatWindow");
+const windowActiveChat = document.getElementById("activeChatWindow");
+const headerTitleStr = document.getElementById("chatHeaderName");
+const headerStatusStr = document.getElementById("chatHeaderStatus");
+const messagesBoxContainer = document.getElementById("chatMessagesBoxSlot");
 
-    if (typeof parsed === "string") {
-        return {
-            username: parsed,
-            displayName: parsed
-        };
-    }
+const msgFormEngine = document.getElementById("chatFormEngine");
+const textInputBoxField = document.getElementById("chatMessageField");
 
-    return {
-        username: parsed.username || parsed.name || "Player",
-        displayName: parsed.displayName || parsed.username || parsed.name || "Player"
-    };
-} catch {
-    return {
-        username: raw,
-        displayName: raw
-    };
-}
-```
+// Start processing sequence loop
+refreshFriendsRosterHUD();
 
-}
+function refreshFriendsRosterHUD() {
+    if (!rosterSlotContainer) return;
+    rosterSlotContainer.innerHTML = "";
 
-function loadAvatar() {
-try {
-return JSON.parse(localStorage.getItem(AVATAR_KEY)) || {
-name: "Your Avatar",
-body: "default",
-material: "clay",
-pose: "standing",
-rotation: 0
-};
-} catch {
-return {
-name: "Your Avatar",
-body: "default",
-material: "clay",
-pose: "standing",
-rotation: 0
-};
-}
-}
+    if (countLabel) countLabel.textContent = FRIENDS_ROSTER_DATABASE.length;
 
-function getFriendsKey(username) {
-return `${FRIENDS_KEY_PREFIX}${username}`;
-}
+    FRIENDS_ROSTER_DATABASE.forEach(friend => {
+        const itemRowCard = document.createElement("div");
+        itemRowCard.className = `friendItemRowCard ${selectedActiveFriendPointer?.id === friend.id ? "selectedTarget" : ""}`;
 
-function loadFriends() {
-const user = getCurrentUser();
+        // Process color channels depending on user state configurations
+        let presenceStyleClass = "offline";
+        if (friend.status === "online") presenceStyleClass = "online";
+        if (friend.status === "ingame") presenceStyleClass = "ingame";
 
-```
-try {
-    const friends = JSON.parse(
-        localStorage.getItem(getFriendsKey(user.username)) || "[]"
-    );
-
-    return Array.isArray(friends) ? friends : [];
-} catch {
-    return [];
-}
-```
-
-}
-
-function saveFriends(friends) {
-const user = getCurrentUser();
-
-```
-localStorage.setItem(
-    getFriendsKey(user.username),
-    JSON.stringify(friends)
-);
-```
-
-}
-
-function getTok() {
-const value = Number(localStorage.getItem(TOK_KEY));
-return Number.isFinite(value) ? value : 0;
-}
-
-function getFriendAvatar(friend) {
-return {
-name: friend.avatarName || "Avatar",
-body: friend.body || "default",
-material: friend.material || "clay",
-pose: friend.pose || "standing"
-};
-}
-
-function avatarMarkup(avatar) {
-const body = avatar.body || "default";
-const material = avatar.material || "clay";
-const pose = avatar.pose || "standing";
-
-```
-return `
-    <div class="friend-avatar"
-         data-body="${body}"
-         data-material="${material}"
-         data-pose="${pose}">
-        <div class="friend-head"></div>
-        <div class="friend-neck"></div>
-        <div class="friend-torso"></div>
-        <div class="friend-arm friend-arm-left"></div>
-        <div class="friend-arm friend-arm-right"></div>
-        <div class="friend-leg friend-leg-left"></div>
-        <div class="friend-leg friend-leg-right"></div>
-    </div>
-`;
-```
-
-}
-
-function createFriendCard(friend, index) {
-const card = document.createElement("article");
-
-```
-card.className = "friend-card";
-
-const displayName =
-    friend.displayName ||
-    friend.username ||
-    `Player ${index + 1}`;
-
-const username =
-    friend.username ||
-    displayName.toLowerCase().replace(/\s+/g, "");
-
-const avatar = getFriendAvatar(friend);
-
-card.innerHTML = `
-    <div class="friend-preview">
-        ${avatarMarkup(avatar)}
-    </div>
-
-    <div class="friend-info">
-        <div class="friend-name-row">
-            <div>
-                <h3></h3>
-                <p></p>
+        itemRowCard.innerHTML = `
+            <div class="avatarPfpCircle">
+                <span>${friend.icon}</span>
+                <div class="onlinePulseDot ${presenceStyleClass}"></div>
             </div>
+            <div class="friendRowMeta">
+                <div class="friendRowName">${friend.username}</div>
+                <div class="friendRowPresence ${friend.status === "ingame" ? "ingame" : ""}">${friend.activity}</div>
+            </div>
+        `;
 
-            <span class="online-dot"></span>
-        </div>
+        // Execution pipeline: Target selection node click row trigger
+        itemRowCard.addEventListener("click", () => {
+            selectedActiveFriendPointer = friend;
+            refreshFriendsRosterHUD();
+            loadActiveChatSessionWindow(friend);
+        });
 
-        <div class="friend-actions">
-            <button class="friend-button primary" data-action="profile">
-                Profile
-            </button>
-
-            <button class="friend-button secondary" data-action="remove">
-                Remove
-            </button>
-        </div>
-    </div>
-`;
-
-card.querySelector("h3").textContent = displayName;
-card.querySelector("p").textContent = `@${username}`;
-
-card.querySelector('[data-action="profile"]').addEventListener(
-    "click",
-    () => {
-        localStorage.setItem(
-            "riseup_viewing_profile",
-            JSON.stringify(friend)
-        );
-
-        window.location.href = "player.html";
-    }
-);
-
-card.querySelector('[data-action="remove"]').addEventListener(
-    "click",
-    () => {
-        const friends = loadFriends();
-
-        friends.splice(index, 1);
-        saveFriends(friends);
-
-        renderFriends();
-    }
-);
-
-return card;
-```
-
-}
-
-function renderFriends(search = "") {
-const grid = document.getElementById("friendsGrid");
-const empty = document.getElementById("friendsEmpty");
-const count = document.getElementById("friendsCount");
-
-```
-if (!grid) {
-    return;
-}
-
-const friends = loadFriends();
-
-const filtered = friends.filter(friend => {
-    const text = [
-        friend.displayName,
-        friend.username
-    ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-    return text.includes(search.toLowerCase());
-});
-
-grid.innerHTML = "";
-
-if (count) {
-    count.textContent = friends.length.toLocaleString();
-}
-
-if (!filtered.length) {
-    if (empty) {
-        empty.style.display = "block";
-    }
-
-    return;
-}
-
-if (empty) {
-    empty.style.display = "none";
-}
-
-filtered.forEach((friend, index) => {
-    grid.appendChild(createFriendCard(friend, index));
-});
-```
-
-}
-
-function addFriend(friend) {
-const friends = loadFriends();
-
-```
-const username = String(friend.username || "").toLowerCase();
-
-if (!username) {
-    return false;
-}
-
-if (
-    friends.some(
-        existing =>
-            String(existing.username || "").toLowerCase() === username
-    )
-) {
-    return false;
-}
-
-friends.push({
-    username: friend.username,
-    displayName: friend.displayName || friend.username,
-    avatarName: friend.avatarName || "Avatar",
-    body: friend.body || "default",
-    material: friend.material || "clay",
-    pose: friend.pose || "standing"
-});
-
-saveFriends(friends);
-renderFriends();
-
-return true;
-```
-
-}
-
-function goHome() {
-window.location.href = "home.html";
-}
-
-function goAvatar() {
-window.location.href = "player3d.html";
-}
-
-function goMarketplace() {
-window.location.href = "home.html?page=marketplace";
-}
-
-function initializeFriendsPage() {
-const currentUser = getCurrentUser();
-const avatar = loadAvatar();
-
-```
-const usernameElement = document.getElementById("username");
-const displayNameElement = document.getElementById("displayName");
-const topAvatar = document.getElementById("topAvatar");
-const tokAmount = document.getElementById("tokAmount");
-
-if (usernameElement) {
-    usernameElement.textContent = `@${currentUser.username}`;
-}
-
-if (displayNameElement) {
-    displayNameElement.textContent = currentUser.displayName;
-}
-
-if (topAvatar) {
-    topAvatar.textContent =
-        currentUser.displayName.charAt(0).toUpperCase();
-}
-
-if (tokAmount) {
-    tokAmount.textContent = getTok().toLocaleString();
-}
-
-const search = document.getElementById("friendSearch");
-
-if (search) {
-    search.addEventListener("input", () => {
-        renderFriends(search.value);
+        rosterSlotContainer.appendChild(itemRowCard);
     });
 }
 
-document.getElementById("homeButton")?.addEventListener(
-    "click",
-    goHome
-);
+function loadActiveChatSessionWindow(friend) {
+    if (!windowBlankEmpty || !windowActiveChat) return;
 
-document.getElementById("avatarButton")?.addEventListener(
-    "click",
-    goAvatar
-);
+    windowBlankEmpty.classList.add("hidden");
+    windowActiveChat.classList.remove("hidden");
 
-document.getElementById("marketplaceButton")?.addEventListener(
-    "click",
-    goMarketplace
-);
-
-renderFriends();
-
-window.RiseUpFriends = {
-    getAll: loadFriends,
-    add: addFriend,
-    remove(username) {
-        const friends = loadFriends().filter(
-            friend =>
-                String(friend.username).toLowerCase() !==
-                String(username).toLowerCase()
-        );
-
-        saveFriends(friends);
-        renderFriends();
+    if (headerTitleStr) headerTitleStr.textContent = friend.username;
+    if (headerStatusStr) {
+        headerStatusStr.textContent = friend.activity;
+        headerStatusStr.style.color = friend.status === "ingame" ? "#ba8fff" : "rgba(255,255,255,0.4)";
     }
-};
 
-void avatar;
-```
-
+    rebuildMessageThreadBubbles();
 }
 
-if (document.readyState === "loading") {
-document.addEventListener(
-"DOMContentLoaded",
-initializeFriendsPage
-);
-} else {
-initializeFriendsPage();
+function rebuildMessageThreadBubbles() {
+    if (!messagesBoxContainer || !selectedActiveFriendPointer) return;
+    messagesBoxContainer.innerHTML = "";
+
+    selectedActiveFriendPointer.dialogueThread.forEach(chatLine => {
+        const msgRowBlock = document.createElement("div");
+        msgRowBlock.className = `msgRowBlock ${chatLine.type === "in" ? "incoming" : "outgoing"}`;
+
+        msgRowBlock.innerHTML = `
+            <div class="speechBubble">${chatLine.text}</div>
+        `;
+        messagesBoxContainer.appendChild(msgRowBlock);
+    });
+
+    // Automatically slide canvas content downwards to reveal newest entries
+    messagesBoxContainer.scrollTop = messagesBoxContainer.scrollHeight;
+}
+
+// Intercept form engine validation to push custom messages
+if (msgFormEngine) {
+    msgFormEngine.addEventListener("submit", (event) => {
+        event.preventDefault(); // Stop page refreshes
+        if (!textInputBoxField || !selectedActiveFriendPointer) return;
+
+        const dynamicMessageString = textInputBoxField.value.trim();
+        if (dynamicMessageString === "") return; // Escape empty entries
+
+        // Append line object into active memory references array
+        selectedActiveFriendPointer.dialogueThread.push({
+            type: "out",
+            text: dynamicMessageString
+        });
+
+        // Clear entry slot fields
+        textInputBoxField.value = "";
+
+        // Rerender layout blocks updates
+        rebuildMessageThreadBubbles();
+    });
 }

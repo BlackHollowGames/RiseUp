@@ -1,0 +1,293 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0f0c1b;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+#marketplaceApp {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* TOP APP DESIGN HEADER HUD */
+#marketHeader {
+  height: 64px;
+  background: rgba(25, 20, 38, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.brandMark {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: #ba8fff;
+  box-shadow: 0 0 12px rgba(186, 143, 255, 0.5);
+}
+
+.userProfileHeader {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatarLabelText {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.userBalance {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* SPLIT DASHBOARD LAYOUT GRIDS */
+.marketContainer {
+  display: flex;
+  flex: 1;
+  padding: 24px;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.previewColumn {
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.avatarCardFrame {
+  flex: 1;
+  background: #151124;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+#avatarContainer3d {
+  width: 100%;
+  height: 100%;
+}
+
+.previewFooterHint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 8, 18, 0.75);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* CATALOG SELECTION DESIGN TRACK */
+.catalogColumn {
+  flex: 1;
+  background: #13101f;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.catalogTabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 8px;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.tabButton.active {
+  color: #ba8fff;
+}
+
+.tabButton.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ba8fff;
+  box-shadow: 0 0 8px #ba8fff;
+}
+
+/* FILTER AND BAR UTILITIES */
+.searchAndFilters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.searchBox {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 320px;
+}
+
+.searchBox input {
+  background: none;
+  border: none;
+  color: white;
+  width: 100%;
+  font-size: 13px;
+}
+
+.searchBox input:focus {
+  outline: none;
+}
+
+.filterGroup {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.filterFilter {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.filterFilter.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+/* CATALOG ITEMS CARDS GRID GRID MATRIX */
+.catalogGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Item box container card aesthetics */
+.productCard {
+  background: #1a162b;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.productCard:hover {
+  background: #211c38;
+  transform: translateY(-2px);
+}
+
+.productCard.selected {
+  border-color: #ba8fff;
+  background: #1f1938;
+}
+
+/* Simulated 2D render node element preview circle */
+.thumbnailCircle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.productCardName {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 4px;
+}
+
+/* Locking system tag visuals */
+.lockStatusBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #ff9d9d;
+}
+
+/* Custom modern scrollbar design metrics */
+.catalogGrid::-webkit-scrollbar {
+  width: 6px;
+}
+.catalogGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.catalogGrid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}

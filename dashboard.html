@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiseUp - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div id="riseupApp">
+        <!-- LEFT SIDEBAR: COMPLETE GAME NAVIGATION ECOSYSTEM -->
+        <aside id="mainSidebar">
+            <div class="sidebarBrand">
+                <div class="brandMark"></div>
+                <span class="brandName">RiseUp</span>
+            </div>
+
+            <!-- PRIMARY NAVIGATION SECTION -->
+            <div class="menuGroup">
+                <div class="groupTitle">NAVIGATION</div>
+                <nav class="groupLinks">
+                    <a href="home.html" class="navLink active"><span class="navIcon">🏠</span> Home</a>
+                    <a href="discover.html" class="navLink"><span class="navIcon">🌐</span> Discover</a>
+                    <a href="avatar.html" class="navLink"><span class="navIcon">🧍</span> Avatar</a>
+                    <a href="inventory.html" class="navLink"><span class="navIcon">🎒</span> Inventory</a>
+                    <a href="friends.html" class="navLink"><span class="navIcon">👥</span> Friends</a>
+                    <a href="marketplace.html" class="navLink"><span class="navIcon">🛍️</span> Marketplace</a>
+                    <a href="messages.html" class="navLink"><span class="navIcon">💬</span> Messages</a>
+                </nav>
+            </div>
+
+            <!-- CREATOR STUDIO TOOLS SECTION -->
+            <div class="menuGroup">
+                <div class="groupTitle">CREATOR</div>
+                <nav class="groupLinks">
+                    <a href="studio.html" class="navLink"><span class="navIcon">🛠️</span> Studio</a>
+                    <a href="risecode.html" class="navLink"><span class="navIcon">💻</span> RiseCode</a>
+                    <a href="settings.html" class="navLink"><span class="navIcon">⚙️</span> Settings</a>
+                    <a href="player3d.html" class="navLink previewHighlight"><span class="navIcon">✨</span> RiseUp Preview</a>
+                </nav>
+            </div>
+
+            <!-- USER SESSION FOOTER PROFILE -->
+            <footer class="sidebarUserAccount">
+                <div class="userSessionBadge">
+                    <div class="userSessionOnlineDot"></div>
+                    <div class="userSessionDetails">
+                        <div class="usernameText">stive pierre</div>
+                        <div class="userRoleText">Developer Mode</div>
+                    </div>
+                </div>
+            </footer>
+        </aside>
+
+        <!-- RIGHT WORKSPACE: PRIMARY DASHBOARD DISPLAY CORE -->
+        <main id="dashboardMainArea">
+            <header class="workspaceHeader">
+                <h1>Welcome Back, <span class="highlightText">stive</span></h1>
+                <div class="quickStats">
+                    <div class="statPill">🪙 <span class="statVal">1,250</span></div>
+                    <div class="statPill">⭐ <span class="statVal">Level 24</span></div>
+                </div>
+            </header>
+
+            <div class="dashboardGrid">
+                <!-- PANEL A: LIVE 3D CLAY CHARACTER CONTAINER CARD -->
+                <section class="dashboardCard avatarPreviewSection">
+                    <div class="cardHeaderRow">
+                        <h3>Identity Profile</h3>
+                        <span class="cardSubtitle">stive pierre</span>
+                    </div>
+                    <div class="avatarViewportFrame">
+                        <div id="dashboardAvatarCanvas"></div>
+                        <div class="viewportDragOverlay">Drag to rotate character mold</div>
+                    </div>
+                </section>
+
+                <!-- PANEL B: CREATIVE DEV SUMMARY LOG -->
+                <section class="dashboardCard projectOverviewSection">
+                    <div class="cardHeaderRow">
+                        <h3>Project Status</h3>
+                        <span class="statusTag active">Online</span>
+                    </div>
+                    <div class="projectDetailsBody">
+                        <p class="projectSummaryText">Your core runtime environment is optimized. The procedural asset renderer has dropped heavy loading queues, making asset compiling instant.</p>
+                        
+                        <div class="quickActionRows">
+                            <a href="studio.html" class="actionRowBtn">
+                                <span class="actionBtnTitle">Launch Creative Studio</span>
+                                <span class="actionBtnArrow">→</span>
+                            </a>
+                            <a href="player3d.html" class="actionRowBtn corePreviewLink">
+                                <span class="actionBtnTitle">Run Environment Sandbox</span>
+                                <span class="actionBtnArrow">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Initialize procedural ThreeJS module viewport handler -->
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

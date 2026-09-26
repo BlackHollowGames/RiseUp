@@ -1,0 +1,292 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0d0a14;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+#riseupApp {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Include universal core layout sidebar specifications structural hooks */
+#mainSidebar {
+  width: 260px;
+  background: #120e1e;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+.sidebarBrand { display: flex; align-items: center; gap: 12px; padding-left: 8px; }
+.brandMark { width: 14px; height: 14px; border-radius: 4px; background: #ba8fff; box-shadow: 0 0 12px rgba(186, 143, 255, 0.6); }
+.brandName { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(135deg, #ffffff 0%, #d8c3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.menuGroup { display: flex; flex-direction: column; gap: 6px; }
+.groupTitle { font-size: 10px; font-weight: 800; color: rgba(255, 255, 255, 0.3); letter-spacing: 1.5px; padding-left: 10px; margin-bottom: 4px; }
+.groupLinks { display: flex; flex-direction: column; gap: 2px; }
+.navLink { display: flex; align-items: center; gap: 12px; padding: 10px 12px; color: rgba(255, 255, 255, 0.55); font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px; transition: background 0.2s, color 0.2s; }
+.navLink:hover { background: rgba(255, 255, 255, 0.03); color: rgba(255, 255, 255, 0.9); }
+.navLink.active { background: rgba(186, 143, 255, 0.08); color: #cbb0ff; border: 1px solid rgba(186, 143, 255, 0.06); }
+.navLink.previewHighlight { color: #e5bfff; background: linear-gradient(90deg, rgba(186, 143, 255, 0.1) 0%, transparent 100%); font-weight: 700; }
+.navIcon { font-size: 16px; display: inline-block; width: 20px; text-align: center; }
+.sidebarUserAccount { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 16px; }
+.userSessionBadge { display: flex; align-items: center; gap: 12px; padding: 6px 8px; }
+.userSessionOnlineDot { width: 8px; height: 8px; border-radius: 50%; background: #a3ffb4; box-shadow: 0 0 10px #a3ffb4; flex-shrink: 0; }
+.userSessionDetails { display: flex; flex-direction: column; }
+.usernameText { font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.9); }
+.userRoleText { font-size: 11px; color: rgba(255, 255, 255, 0.35); margin-top: 1px; }
+
+/* ==========================================================================
+   SOCIAL SPLIT MAIN CONTAINER GRIDS
+   ========================================================================== */
+#socialMainArea {
+  flex: 1;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.socialLayoutSplit {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  height: 100%;
+  width: 100%;
+}
+
+.friendsRosterPanel {
+  background: #141021;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rosterHeader {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.rosterHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.rosterSubtext {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.friendsListContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* INDIVIDUAL ROSTER PROFILE SELECTION CARD CLIPS */
+.friendItemRowCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.friendItemRowCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.friendItemRowCard.selectedTarget {
+  background: rgba(186, 143, 255, 0.08);
+  border-color: rgba(186, 143, 255, 0.05);
+}
+
+.avatarPfpCircle {
+  width: 38px;
+  height: 38px;
+  background: #1c182e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.onlinePulseDot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #141021;
+}
+.onlinePulseDot.online { background: #55d66b; box-shadow: 0 0 6px #55d66b; }
+.onlinePulseDot.ingame { background: #ba8fff; box-shadow: 0 0 6px #ba8fff; }
+.onlinePulseDot.offline { background: #524f5e; }
+
+.friendRowMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.friendRowName {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.friendRowPresence {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 1px;
+}
+.friendRowPresence.ingame { color: #d2bdff; font-weight: 600; }
+
+/* ==========================================================================
+   RIGHT COMPONENT: TEXT CHAT MODULE VIEWPORTS
+   ========================================================================== */
+.chatPortalPanel {
+  background: #141021;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.emptyChatState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+  padding: 0 40px;
+  gap: 12px;
+}
+.chatEmptyLogoIcon { font-size: 36px; opacity: 0.3; }
+
+.activeChatWorkspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chatWindowHeader {
+  padding: 18px 24px;
+  background: rgba(25, 20, 38, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.chatHeaderName { margin: 0; font-size: 15px; font-weight: 700; }
+.chatTargetStatusLabel { font-size: 11px; color: rgba(255, 255, 255, 0.4); display: inline-block; margin-top: 2px; }
+
+/* CHAT CONVERSATION CONTAINER THREAD SCROLLER */
+.chatMessagesScrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* SPEECH BUBBLE BLOCKS */
+.msgRowBlock {
+  display: flex;
+  width: 100%;
+}
+.msgRowBlock.incoming { justify-content: flex-start; }
+.msgRowBlock.outgoing { justify-content: flex-end; }
+
+.speechBubble {
+  max-width: 60%;
+  padding: 10px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: 14px;
+}
+.msgRowBlock.incoming .speechBubble {
+  background: #1c182e;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom-left-radius: 4px;
+}
+.msgRowBlock.outgoing .speechBubble {
+  background: #ba8fff;
+  color: #120e1e;
+  font-weight: 600;
+  border-bottom-right-radius: 4px;
+}
+
+/* TYPING TRAY FOOTER INPUT PANEL */
+.chatInputContainer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  background: #141021;
+}
+
+.chatFormStyle {
+  display: flex;
+  gap: 12px;
+}
+
+#chatMessageField {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: white;
+  font-size: 13px;
+}
+#chatMessageField:focus { outline: none; border-color: rgba(186, 143, 255, 0.3); }
+
+.chatSendButton {
+  background: #ba8fff;
+  border: none;
+  color: #120e1e;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.chatSendButton:hover { background: #ca9fff; }
+
+.hidden { display: none !important; }
+
+/* Custom internal scroll trackers */
+.friendsListContainer::-webkit-scrollbar,
+.chatMessagesScrollArea::-webkit-scrollbar { width: 5px; }
+.friendsListContainer::-webkit-scrollbar-track,
+.chatMessagesScrollArea::-webkit-scrollbar-track { background: transparent; }
+.friendsListContainer::-webkit-scrollbar-thumb,
+.chatMessagesScrollArea::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }

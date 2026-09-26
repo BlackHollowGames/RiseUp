@@ -1,0 +1,243 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0d0a14;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+#riseupApp {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Include universal core layout sidebar specifications structural hooks */
+#mainSidebar {
+  width: 260px;
+  background: #120e1e;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+.sidebarBrand { display: flex; align-items: center; gap: 12px; padding-left: 8px; }
+.brandMark { width: 14px; height: 14px; border-radius: 4px; background: #ba8fff; box-shadow: 0 0 12px rgba(186, 143, 255, 0.6); }
+.brandName { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(135deg, #ffffff 0%, #d8c3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.menuGroup { display: flex; flex-direction: column; gap: 6px; }
+.groupTitle { font-size: 10px; font-weight: 800; color: rgba(255, 255, 255, 0.3); letter-spacing: 1.5px; padding-left: 10px; margin-bottom: 4px; }
+.groupLinks { display: flex; flex-direction: column; gap: 2px; }
+.navLink { display: flex; align-items: center; gap: 12px; padding: 10px 12px; color: rgba(255, 255, 255, 0.55); font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px; transition: background 0.2s, color 0.2s; }
+.navLink:hover { background: rgba(255, 255, 255, 0.03); color: rgba(255, 255, 255, 0.9); }
+.navLink.active { background: rgba(186, 143, 255, 0.08); color: #cbb0ff; border: 1px solid rgba(186, 143, 255, 0.06); }
+.navLink.previewHighlight { color: #e5bfff; background: linear-gradient(90deg, rgba(186, 143, 255, 0.1) 0%, transparent 100%); font-weight: 700; }
+.navIcon { font-size: 16px; display: inline-block; width: 20px; text-align: center; }
+.sidebarUserAccount { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 16px; }
+.userSessionBadge { display: flex; align-items: center; gap: 12px; padding: 6px 8px; }
+.userSessionOnlineDot { width: 8px; height: 8px; border-radius: 50%; background: #a3ffb4; box-shadow: 0 0 10px #a3ffb4; flex-shrink: 0; }
+.userSessionDetails { display: flex; flex-direction: column; }
+.usernameText { font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.9); }
+.userRoleText { font-size: 11px; color: rgba(255, 255, 255, 0.35); margin-top: 1px; }
+
+/* ==========================================================================
+   AVATAR EDITOR REGION WORKSPACE LAYOUT PANELS
+   ========================================================================== */
+#avatarMainArea {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+}
+
+.avatarWorkspaceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 24px;
+}
+
+.avatarWorkspaceHeader h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.highlightText { color: #ba8fff; }
+
+.sectionDescription {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.saveConfigBtn {
+  background: #ba8fff;
+  border: none;
+  color: #120e1e;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(186, 143, 255, 0.3);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.saveConfigBtn:hover {
+  background: #ca9fff;
+  transform: translateY(-1px);
+}
+
+/* CONTAINER SPLIT WORKSPACE WINDOW GRIDS */
+.editorWorkspaceGrid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.avatarStudioPreviewPanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.viewportOuterCard {
+  height: 420px;
+  background: #141021;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+#avatarStudioCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.viewportOverlayHint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 8, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   RIGHT COMPONENT: EQUIPMENT SELECTION CONTROLS GRID
+   ========================================================================== */
+.avatarCatalogPanel {
+  background: #141021;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 420px;
+}
+
+.customizerCategoryTabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 8px;
+}
+
+.customTabBtn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.customTabBtn.active {
+  color: #ba8fff;
+}
+
+.customTabBtn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ba8fff;
+  box-shadow: 0 0 8px #ba8fff;
+}
+
+.customizerGridMatrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* COSMETIC SLOT PRESET STYLING METRICS */
+.cosmeticSlotCard {
+  background: #1b162c;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.cosmeticSlotCard:hover {
+  background: #231c3b;
+  transform: translateY(-2px);
+}
+
+.cosmeticSlotCard.equipped {
+  border-color: #ba8fff;
+  background: #201a38;
+}
+
+.cosmeticIconThumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.cosmeticTitleLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Custom internal scroll container trackers */
+.customizerGridMatrix::-webkit-scrollbar { width: 5px; }
+.customizerGridMatrix::-webkit-scrollbar-track { background: transparent; }
+.customizerGridMatrix::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.06); border-radius: 10px; }

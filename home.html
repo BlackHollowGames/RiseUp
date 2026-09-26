@@ -3,882 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0b0d12">
-    <meta name="description" content="RiseUp — Discover, play, create, and customize.">
-    <title>RiseUp — Home</title>
+    <title>RiseUp - Home</title>
     <link rel="stylesheet" href="home.css">
 </head>
-
 <body>
-
-<div class="app-shell">
-
-    <!-- TOP BAR -->
-    <header class="topbar">
-
-        <div class="brand-area">
-            <button
-                class="brand"
-                id="brandButton"
-                type="button"
-                onclick="window.location.href='home.html'"
-            >
-                <span class="brand-mark">R</span>
-                <span>RiseUp</span>
-            </button>
-        </div>
-
-        <nav class="main-nav" aria-label="Main navigation">
-
-            <button
-                class="nav-item active"
-                data-page="home"
-                type="button"
-                onclick="window.location.href='home.html'"
-            >
-                Home
-            </button>
-
-            <button
-                class="nav-item"
-                data-page="discover"
-                type="button"
-                onclick="window.location.href='discover.html'"
-            >
-                Discover
-            </button>
-
-            <button
-                class="nav-item"
-                data-page="marketplace"
-                type="button"
-                onclick="window.location.href='marketplace.html'"
-            >
-                Marketplace
-            </button>
-
-            <button
-                class="nav-item"
-                data-page="create"
-                type="button"
-                onclick="window.location.href='studio.html'"
-            >
-                Create
-            </button>
-
-        </nav>
-
-        <div class="top-actions">
-
-            <label class="search-box">
-                <span class="search-icon">⌕</span>
-
-                <input
-                    id="searchInput"
-                    type="search"
-                    placeholder="Search RiseUp"
-                    autocomplete="off"
-                    aria-label="Search RiseUp"
-                >
-            </label>
-
-            <button
-                class="top-icon"
-                id="messagesButton"
-                type="button"
-                aria-label="Messages"
-                onclick="window.location.href='messages.html'"
-            >
-                <span class="icon-shape">▱</span>
-            </button>
-
-            <button
-                class="top-icon"
-                id="notificationsButton"
-                type="button"
-                aria-label="Notifications"
-            >
-                <span class="icon-shape">◌</span>
-                <span class="notification-dot"></span>
-            </button>
-
-            <button
-                class="tok-balance"
-                id="tokButton"
-                type="button"
-            >
-                <span class="tok-symbol">T</span>
-                <span id="tokAmount">0</span>
-            </button>
-
-            <button
-                class="profile-button"
-                id="profileButton"
-                type="button"
-                aria-label="Open avatar"
-                onclick="window.location.href='avatar.html'"
-            >
-                <span
-                    class="avatar-mini"
-                    id="headerAvatar"
-                >
-                    R
-                </span>
-
-                <span class="profile-chevron">⌄</span>
-            </button>
-
-        </div>
-
-    </header>
-
-
-    <!-- BODY -->
-    <div class="body-layout">
-
-
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-
-            <div class="sidebar-section">
-
-                <p class="sidebar-label">
-                    Navigation
-                </p>
-
-
-                <button
-                    class="side-item active"
-                    data-page="home"
-                    type="button"
-                    onclick="window.location.href='home.html'"
-                >
-                    <span class="side-icon">⌂</span>
-                    <span>Home</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="discover"
-                    type="button"
-                    onclick="window.location.href='discover.html'"
-                >
-                    <span class="side-icon">◈</span>
-                    <span>Discover</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="avatar"
-                    type="button"
-                    onclick="window.location.href='avatar.html'"
-                >
-                    <span class="side-icon">◉</span>
-                    <span>Avatar</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="inventory"
-                    type="button"
-                    onclick="window.location.href='inventory.html'"
-                >
-                    <span class="side-icon">□</span>
-                    <span>Inventory</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="friends"
-                    type="button"
-                    onclick="window.location.href='friends.html'"
-                >
-                    <span class="side-icon">♧</span>
-                    <span>Friends</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="marketplace"
-                    type="button"
-                    onclick="window.location.href='marketplace.html'"
-                >
-                    <span class="side-icon">◇</span>
-                    <span>Marketplace</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    data-page="messages"
-                    type="button"
-                    onclick="window.location.href='messages.html'"
-                >
-                    <span class="side-icon">▱</span>
-                    <span>Messages</span>
-                </button>
-
+    <div id="riseupApp">
+        <!-- LEFT NAVIGATION SIDEBAR -->
+        <aside id="mainSidebar">
+            <div class="sidebarBrand">
+                <div class="brandMark">R</div>
+                <span class="brandName">RiseUp</span>
             </div>
 
-
-            <!-- CREATOR -->
-            <div class="sidebar-section creator-section">
-
-                <p class="sidebar-label">
-                    Creator
-                </p>
-
-
-                <button
-                    class="side-item creator-item"
-                    id="studioButton"
-                    type="button"
-                    onclick="window.location.href='studio.html'"
-                >
-                    <span class="side-icon">✦</span>
-                    <span>Studio</span>
-                </button>
-
-
-                <button
-                    class="side-item"
-                    id="codeButton"
-                    type="button"
-                    onclick="window.location.href='code.html'"
-                >
-                    <span class="side-icon code-symbol">&lt;/&gt;</span>
-                    <span>RiseCode</span>
-                </button>
-
+            <!-- PRIMARY LINKS SECTION -->
+            <div class="menuGroup">
+                <div class="groupTitle">NAVIGATION</div>
+                <nav class="groupLinks">
+                    <a href="home.html" class="navLink active"><span class="navIndicatorBlock"></span> Home</a>
+                    <a href="discover.html" class="navLink"><span class="navIndicatorBlock"></span> Discover</a>
+                    <a href="avatar.html" class="navLink"><span class="navIndicatorBlock"></span> Avatar</a>
+                    <a href="inventory.html" class="navLink"><span class="navIndicatorBlock"></span> Inventory</a>
+                    <a href="friends.html" class="navLink"><span class="navIndicatorBlock"></span> Friends</a>
+                    <a href="marketplace.html" class="navLink"><span class="navIndicatorBlock"></span> Marketplace</a>
+                    <a href="messages.html" class="navLink"><span class="navIndicatorBlock"></span> Messages</a>
+                </nav>
             </div>
 
-
-            <!-- SIDEBAR BOTTOM -->
-            <div class="sidebar-bottom">
-
-                <button
-                    class="side-item"
-                    id="settingsButton"
-                    type="button"
-                    onclick="window.location.href='setting.html'"
-                >
-                    <span class="side-icon">⚙</span>
-                    <span>Settings</span>
-                </button>
-
-                <div class="sidebar-version">
-                    RiseUp Preview
-                </div>
-
+            <!-- CREATOR STUDIO SECTION -->
+            <div class="menuGroup">
+                <div class="groupTitle">CREATOR</div>
+                <nav class="groupLinks">
+                    <a href="studio.html" class="navLink"><span class="navIndicatorBlock"></span> Studio</a>
+                    <a href="risecode.html" class="navLink"><span class="navIndicatorBlock"></span> RiseCode</a>
+                </nav>
             </div>
 
+            <!-- SYSTEM LINKS SECTION -->
+            <div class="menuGroup systemGroup">
+                <nav class="groupLinks">
+                    <a href="settings.html" class="navLink"><span class="navIndicatorBlock"></span> Settings</a>
+                </nav>
+            </div>
+            
+            <div class="sidebarFooterHint">RiseUp Preview</div>
         </aside>
 
-
-        <!-- MAIN -->
-        <main class="main-content">
-
-
-            <!-- WELCOME -->
-            <section class="welcome-row">
-
-                <div>
-
-                    <p class="eyebrow">
-                        WELCOME BACK
-                    </p>
-
-                    <h1 id="welcomeTitle">
-                        Welcome to RiseUp
-                    </h1>
-
-                    <p class="welcome-subtitle">
-                        Discover games, customize your avatar,
-                        and create something new.
-                    </p>
-
-                </div>
-
-
-                <button
-                    class="create-button"
-                    id="heroCreateButton"
-                    type="button"
-                    onclick="window.location.href='studio.html'"
-                >
-                    <span>+</span>
-                    Create
-                </button>
-
-            </section>
-
-
-            <!-- HERO -->
-            <section class="hero-panel">
-
-                <div class="hero-copy">
-
-                    <span class="hero-tag">
-                        THE RISEUP EXPERIENCE
-                    </span>
-
-                    <h2>
-                        Your world.<br>
-                        <strong>Your games.</strong>
-                    </h2>
-
-                    <p>
-                        Play what you love, meet other creators,
-                        and build experiences of your own.
-                    </p>
-
-
-                    <div class="hero-actions">
-
-                        <button
-                            class="primary-button"
-                            id="discoverButton"
-                            type="button"
-                            onclick="window.location.href='discover.html'"
-                        >
-                            Explore games
-                        </button>
-
-
-                        <button
-                            class="secondary-button"
-                            id="avatarButton"
-                            type="button"
-                            onclick="window.location.href='avatar.html'"
-                        >
-                            Customize avatar
-                        </button>
-
+        <!-- MAIN MAIN HUB INTERFACE MODULE -->
+        <main id="homeMainWorkspace">
+            <!-- TOP CORE HORIZONTAL NAVBAR PANEL -->
+            <header id="topGlobalNavbar">
+                <nav class="centerTabs">
+                    <a href="home.html" class="topTabLink active">Home</a>
+                    <a href="discover.html" class="topTabLink">Discover</a>
+                    <a href="marketplace.html" class="topTabLink">Marketplace</a>
+                    <a href="studio.html" class="topTabLink">Create</a>
+                </nav>
+                <div class="rightControlTray">
+                    <div class="navSearchWrapper">
+                        <span class="searchLabelText">SEARCH</span>
+                        <input type="text" placeholder="Search RiseUp">
                     </div>
-
-                </div>
-
-
-                <div
-                    class="hero-visual"
-                    aria-hidden="true"
-                >
-
-                    <div class="hero-grid"></div>
-
-                    <div class="hero-orb orb-one"></div>
-
-                    <div class="hero-orb orb-two"></div>
-
-                    <div class="hero-ring ring-one"></div>
-
-                    <div class="hero-ring ring-two"></div>
-
-                    <div class="hero-logo-3d">
-                        R
+                    <div class="navbarTextButton">Alerts</div>
+                    <div class="coinBalanceCounter"><span class="coinCurrencyLabel">Credits</span> <span class="coinVal">0</span></div>
+                    <div class="userProfileAvatarPill">
+                        <span class="userInitialCircle">S</span>
+                        <span class="dropdownArrowText">Menu</span>
                     </div>
-
                 </div>
+            </header>
 
-            </section>
-
-
-            <!-- CONTINUE PLAYING -->
-            <section
-                class="content-section"
-                id="continueSection"
-            >
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <h2>
-                            Continue Playing
-                        </h2>
-
-                        <p>
-                            Jump back into your recent experiences.
-                        </p>
-
-                    </div>
-
-
-                    <button
-                        class="text-button"
-                        id="continueViewAll"
-                        type="button"
-                        onclick="window.location.href='discover.html'"
-                    >
-                        View all
-                    </button>
-
-                </div>
-
-
-                <div
-                    class="game-grid"
-                    id="continueGrid"
-                >
-
-                    <div class="empty-card">
-
-                        <div class="empty-icon">
-                            ◇
+            <!-- MAIN VIEWPORT CONTAINER SCROLL TRACKS -->
+            <div class="scrollableContentWrapper">
+                <!-- HERO MARKETING BANNER BOARD -->
+                <section class="welcomeHeroSection">
+                    <div class="heroLeftContent">
+                        <span class="heroWelcomeBadge">WELCOME BACK</span>
+                        <h1 class="heroMainHeading">Welcome back, Stive ™</h1>
+                        <p class="heroSubtextDesc">Discover games, customize your avatar, and create something new.</p>
+                        
+                        <div class="heroCallToActions">
+                            <a href="discover.html" class="heroBtn primary">Explore games</a>
+                            <a href="avatar.html" class="heroBtn secondary">Customize avatar</a>
                         </div>
-
-                        <h3>
-                            No recent games
-                        </h3>
-
-                        <p>
-                            Games you play will appear here.
-                        </p>
-
-                        <button
-                            class="small-button"
-                            id="emptyDiscoverButton"
-                            type="button"
-                            onclick="window.location.href='discover.html'"
-                        >
-                            Discover games
-                        </button>
-
                     </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- FEATURED -->
-            <section class="content-section">
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <h2>
-                            Featured
-                        </h2>
-
-                        <p>
-                            Experiences from the RiseUp community.
-                        </p>
-
-                    </div>
-
-
-                    <button
-                        class="text-button"
-                        id="featuredViewAll"
-                        type="button"
-                        onclick="window.location.href='discover.html'"
-                    >
-                        See more
-                    </button>
-
-                </div>
-
-
-                <div
-                    class="game-grid featured-grid"
-                    id="featuredGrid"
-                >
-
-                    <div class="empty-card featured-empty">
-
-                        <div class="empty-icon">
-                            ✦
+                    
+                    <div class="heroRightArtPanel">
+                        <div class="experienceBrandingFrame">
+                            <span class="expBrandTag">THE RISEUP EXPERIENCE</span>
+                            <h2 class="expMainSlogan">Your world.<br>Your games.</h2>
+                            <p class="expSloganSub">Play what you love, meet other creators, and build experiences of your own.</p>
                         </div>
-
-                        <h3>
-                            No games yet
-                        </h3>
-
-                        <p>
-                            Be the first creator to make a game.
-                        </p>
-
-                        <button
-                            class="small-button"
-                            id="firstCreatorButton"
-                            type="button"
-                            onclick="window.location.href='studio.html'"
-                        >
-                            Open Studio
-                        </button>
-
+                        <!-- Canvas Target Node for the 3D Blue Logo Planet Sphere -->
+                        <div id="hero3dCanvasContainer"></div>
                     </div>
+                    
+                    <a href="studio.html" class="absoluteCreateButton">Create Project</a>
+                </section>
 
-                </div>
-
-            </section>
-
-
-            <!-- QUICK ACCESS -->
-            <section class="quick-section">
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <h2>
-                            Quick Access
-                        </h2>
-
-                        <p>
-                            Your most-used RiseUp tools.
-                        </p>
-
+                <!-- ROW 1: CONTINUE PLAYING CONTEXT BOARD -->
+                <section class="dashboardRowSection">
+                    <div class="rowHeaderBar">
+                        <h3>Continue Playing</h3>
+                        <a href="discover.html" class="viewAllRowLink">View all</a>
                     </div>
-
-                </div>
-
-
-                <div class="quick-grid">
-
-
-                    <button
-                        class="quick-card"
-                        id="quickAvatar"
-                        type="button"
-                        onclick="window.location.href='avatar.html'"
-                    >
-
-                        <span class="quick-card-icon avatar-card-icon">
-                            ◉
-                        </span>
-
-                        <span>
-
-                            <strong>
-                                Avatar
-                            </strong>
-
-                            <small>
-                                Customize your 3D character
-                            </small>
-
-                        </span>
-
-                        <span class="quick-arrow">
-                            ›
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        class="quick-card"
-                        id="quickFriends"
-                        type="button"
-                        onclick="window.location.href='friends.html'"
-                    >
-
-                        <span class="quick-card-icon">
-                            ♧
-                        </span>
-
-                        <span>
-
-                            <strong>
-                                Friends
-                            </strong>
-
-                            <small>
-                                See who's playing
-                            </small>
-
-                        </span>
-
-                        <span class="quick-arrow">
-                            ›
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        class="quick-card"
-                        id="quickStudio"
-                        type="button"
-                        onclick="window.location.href='studio.html'"
-                    >
-
-                        <span class="quick-card-icon">
-                            ✦
-                        </span>
-
-                        <span>
-
-                            <strong>
-                                Studio
-                            </strong>
-
-                            <small>
-                                Build your next game
-                            </small>
-
-                        </span>
-
-                        <span class="quick-arrow">
-                            ›
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        class="quick-card"
-                        id="quickMarketplace"
-                        type="button"
-                        onclick="window.location.href='marketplace.html'"
-                    >
-
-                        <span class="quick-card-icon">
-                            ◇
-                        </span>
-
-                        <span>
-
-                            <strong>
-                                Marketplace
-                            </strong>
-
-                            <small>
-                                Explore avatar items
-                            </small>
-
-                        </span>
-
-                        <span class="quick-arrow">
-                            ›
-                        </span>
-
-                    </button>
-
-
-                </div>
-
-            </section>
-
-
-            <!-- FOOTER -->
-            <footer class="footer">
-
-                <div class="footer-brand">
-
-                    <span class="footer-mark">
-                        R
-                    </span>
-
-                    <span>
-                        RiseUp
-                    </span>
-
-                </div>
-
-                <span>
-                    Build. Play. Rise.
-                </span>
-
-            </footer>
-
-
-        </main>
-
-    </div>
-
-
-    <!-- TOAST -->
-    <div
-        class="toast"
-        id="toast"
-        role="status"
-        aria-live="polite"
-    >
-        <span id="toastMessage"></span>
-    </div>
-
-</div>
-
-
-<!-- SEARCH HANDLER -->
-<script>
-
-(function () {
-
-    const searchInput =
-        document.getElementById("searchInput");
-
-    if (!searchInput) {
-        return;
-    }
-
-    searchInput.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key !== "Enter") {
-                return;
-            }
-
-            event.preventDefault();
-
-            const query =
-                searchInput.value.trim();
-
-            if (query) {
-
-                localStorage.setItem(
-                    "riseup_search_query",
-                    query
-                );
-
-            }
-
-            window.location.href =
-                "discover.html";
-
-        }
-    );
-
-})();
-
-</script>
-
-
-<!-- HOME DATA -->
-<script>
-
-(function () {
-
-    const username =
-        localStorage.getItem(
-            "riseup_currentUser"
-        );
-
-    const welcomeTitle =
-        document.getElementById(
-            "welcomeTitle"
-        );
-
-    const headerAvatar =
-        document.getElementById(
-            "headerAvatar"
-        );
-
-    if (username) {
-
-        if (welcomeTitle) {
-
-            welcomeTitle.textContent =
-                "Welcome back, " + username;
-
-        }
-
-        if (headerAvatar) {
-
-            headerAvatar.textContent =
-                username
-                    .charAt(0)
-                    .toUpperCase();
-
-        }
-
-    }
-
-
-    const tokAmount =
-        document.getElementById(
-            "tokAmount"
-        );
-
-    if (tokAmount) {
-
-        let tok = 0;
-
-        if (username) {
-
-            tok = Number(
-                localStorage.getItem(
-                    "riseup_tok_" + username
-                )
-            );
-
-        }
-
-        if (!Number.isFinite(tok)) {
-            tok = 0;
-        }
-
-        tokAmount.textContent =
-            tok.toLocaleString();
-
-    }
-
-
-    const tokButton =
-        document.getElementById(
-            "tokButton"
-        );
-
-    if (tokButton) {
-
-        tokButton.addEventListener(
-            "click",
-            function () {
-
-                const amount =
-                    tokAmount
-                        ? tokAmount.textContent
-                        : "0";
-
-                alert(
-                    "RiseUp Balance: " +
-                    amount +
-                    " TOK"
-                );
-
-            }
-        );
-
-    }
-
-
-    const notificationsButton =
-        document.getElementById(
-            "notificationsButton"
-        );
-
-    if (notificationsButton) {
-
-        notificationsButton.addEventListener(
-            "click",
-            function () {
-
-                alert(
-                    "You have no new notifications."
-                );
-
-            }
-        );
-
-    }
-
-})();
-
-</script>
-
-
-<!-- KEEP THE MAIN HOME JAVASCRIPT LOADED -->
-<script src="home.js"></script>
-
-</body>
-</html>
+                    <div class="recentGamesEmptyCard">
+                        <div class="emptyCardIconSlot">
+                            <div class="emptyRhombusIcon"></div>
+                        </div>
+                        <h4>No recent games</h4>
+                        <p>Games you play will appear here.</p>
+                        <a href="discover.html" class="discoverGamesShortcutBtn">Discover games</a>
+                    </div>
+                </section>
+
+                <!-- ROW 2: FEATURED CATALOG CARD GRIDS MATRIX -->
+                <section class="dashboardRowSection">
+                    <div class="rowHeaderBar">
+                        <h3>Featured</h3>
+                        <a href="discover.html" class="viewAllRowLink">See more</a>
+                    </div>
+                    <p class="rowLabelSubtext">Experiences from the RiseUp community.</p>
+                    
+                    <div class="featuredCatalogGrid">
+                        <!-- Card 1 -->
+                        <article class="experienceCatalogCard">
+                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #1d1936 0%, #0d0a14 100%);">
+                                <span class="cardThumbMark">R</span>
+                            </div>
+                            <div class="cardMetaBody">
+                                <h4 class="cardGameTitle">Obby Paradise</h4>
+                                <p class="cardGameDescription">A RiseUp experience.</p>
+                                <span class="cardCreatorCredits">BlackHollowGames</span>
+                            </div>
+                        </article>
+
+                        <!-- Card 2 -->
+                        <article class="experienceCatalogCard">
+                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #16263b 0%, #0d0a14 100%);">
+                                <span class="cardThumbMark">R</span>
+                            </div>
+                            <div class="cardMetaBody">
+                                <h4 class="cardGameTitle">3D Adventure</h4>
+                                <p class="cardGameDescription">A RiseUp experience.</p>
+                                <span class="cardCreatorCredits">RiseUp</span>
+                            </div>
+                        </article>
+
+                        <!-- Card 3 -->
+                        <article class="experienceCatalogCard">
+                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #3d1c24 0%, #0d0a14 100%);">
+                                <span class="cardThumbMark">R</span>
+                            </div>
+                            <div class="cardMetaBody">
+                                <h4 class="cardGameTitle">Horror Night</h4>
+                                <p class="cardGameDescription">A RiseUp experience.</p>
+                                <span class="cardCreatorCredits">BlackHollowGames</span>
+                            </div>
+                        </article>
+
+                        <!-- Card 4 -->
+                        <article class="experienceCatalogCard">
+                            <div class="cardThumbnailFallback" style="background: linear-gradient(135deg, #1b382b 0%, #0d0a14 100%);">
+                                <span class="cardThumbMark">R</span>
+                            </div>
+                            <div class="cardMetaBody">
+                                <h4 class="cardGameTitle">Open World</h4>
+                                <p class="cardGameDescription">A RiseUp experience.</p>
+                                <span class="cardCreatorCredits">SpeedTeam</span>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- ROW 3: QUICK ACCESS APP PANEL HUB -->
+                <section class="dashboardRowSection quickAccessPaddingBottom">
+                    <div class="rowHeaderBar">
+                        <h3>Quick Access</h3>
+                    </div>
+                    <p class="rowLabelSubtext">Your most-used RiseUp tools.</p>
+                    
+                    <div class="quickAccessLinksGrid">
+                        <a href="avatar.html" class="quickAccessLinkCard">

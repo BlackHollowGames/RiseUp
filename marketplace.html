@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiseUp - Marketplace</title>
+    <link rel="stylesheet" href="marketplace.css">
+</head>
+<body>
+    <div id="marketplaceApp">
+        <!-- Header Navigation Area -->
+        <header id="marketHeader">
+            <div class="brand">
+                <div class="brandMark"></div>
+                <span>RiseUp Marketplace</span>
+            </div>
+            <div class="userProfileHeader">
+                <span class="avatarLabelText">stive pierre</span>
+                <div class="userBalance"><span class="coinIcon">🪙</span> 1,250</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace split -->
+        <main class="marketContainer">
+            <!-- LEFT PANEL: Real-time 3D Clay Mold Showcase Frame -->
+            <section class="previewColumn">
+                <div class="avatarCardFrame">
+                    <div id="avatarContainer3d"></div>
+                    <div class="previewFooterHint">Drag to rotate mold viewer</div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Catalog Options Tabs and Grid Matrix -->
+            <section class="catalogColumn">
+                <nav class="catalogTabs">
+                    <button class="tabButton active">Textures</button>
+                    <button class="tabButton">Closet</button>
+                    <button class="tabButton">Emotes</button>
+                </nav>
+
+                <div class="searchAndFilters">
+                    <div class="searchBox">
+                        <span class="searchIcon">🔍</span>
+                        <input type="text" placeholder="Search textures..." id="catalogSearch">
+                    </div>
+                    <div class="filterGroup">
+                        <button class="filterFilter active">All</button>
+                        <button class="filterFilter">Owned</button>
+                        <button class="filterFilter">Locked</button>
+                    </div>
+                </div>
+
+                <!-- Texture items injection target slot -->
+                <div class="catalogGrid" id="textureGrid">
+                    <!-- Cards are dynamically spawned and handled by marketplace.js -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Load ThreeJS code bundle as an active ECMAScript engine module -->
+    <script type="module" src="marketplace.js"></script>
+</body>
+</html>
